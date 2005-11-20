@@ -1582,6 +1582,15 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
     wbuf[pos++] = e;
     for (x = 0; x < buf->len; x++)
     {
+       // we must at least still have 3 bytes left in the worst case scenario:
+       // 1 for a possible escape, 1 for the value and 1 to end the PPP stream.
+        if (pos >= (sizeof(wbuf) - 4)) {
+	    if (DEBUG)
+                log(LOG_CRIT, "%s: rx packet is too big after PPP encoding (size %u, max is %u)\n", \
+                __FUNCTION__, buf->len, MAX_RECV_SIZE);
+            return -EINVAL;
+        }
+
         e = *((char *) buf->start + x);
         if ((e < 0x20) || (e == PPP_ESCAPE) || (e == PPP_FLAG))
         {
