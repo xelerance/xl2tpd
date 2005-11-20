@@ -10,7 +10,7 @@
 ;
 ; [global]								; Global parameters:
 ; port = 1701						 	; * Bind to port 1701
-; auth file = /etc/l2tp/l2tp-secrets 	; * Where our challenge secrets are
+; auth file = /etc/l2tpd/l2tp-secrets 	; * Where our challenge secrets are
 ; access control = yes					; * Refuse connections without IP match
 ; rand source = dev                     ; Source for entropy for random
 ;                                       ; numbers, options are:
