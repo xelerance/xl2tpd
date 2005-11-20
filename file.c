@@ -41,6 +41,7 @@ int init_config ()
     int returnedValue;
 
     gconfig.port = UDP_LISTEN_PORT;
+    gconfig.listenaddr = htonl(INADDR_ANY); /* Default is to bind (listen) to all interfaces */
     lnslist = NULL;
     laclist = NULL;
     deflac = (struct lac *) malloc (sizeof (struct lac));
@@ -821,6 +822,26 @@ int set_ip (char *word, char *value, unsigned int *addr)
     return 0;
 }
 
+int set_listenaddr (char *word, char *value, int context, void *item)
+{
+    switch (context & ~CONTEXT_DEFAULT)
+    {
+    case CONTEXT_GLOBAL:
+#ifdef DEBUG_FILE
+        log (LOG_DEBUG, "set_listenaddr: Setting listen address to %s\n",
+             value);
+#endif
+        if (set_ip (word, value, &(((struct global *) item)->listenaddr)))
+		return -1;
+	break;
+    default:
+        snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
+                  word);
+        return -1;
+    }
+    return 0;
+}
+
 int set_localaddr (char *word, char *value, int context, void *item)
 {
     struct lac *l;
@@ -1196,6 +1217,7 @@ int parse_config (FILE * f)
 }
 
 struct keyword words[] = {
+    {"listen-addr", &set_listenaddr},
     {"port", &set_port},
     {"rand source", &set_rand_source},
     {"auth file", &set_authfile},

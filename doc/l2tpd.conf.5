@@ -18,8 +18,13 @@ Specify where to find the authentication file used to authenticate
 l2tp tunnels. The default is /etc/l2tpd/l2tp\-secrets.
 
 .TP 
-.B Port
-Specify which udp port l2tpd should use. The default is 1701.
+.B listen-addr
+Specify the IP address of the interface that l2tpd should use.  By default,
+it listens on INADDR_ANY (0.0.0.0), meaning it listens on all interfaces.
+
+.TP 
+.B port
+Specify which UDP port l2tpd should use. The default is 1701.
 
 .TP 
 .B access control

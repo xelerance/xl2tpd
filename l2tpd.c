@@ -993,9 +993,7 @@ void daemonize() {
     else if (pid)
         exit(0);
 
-    /* close(0); */   /* This is a hack to "fix" problems with the
-                         daemonization code...more work will be forthcoming 
-                         to do a proper fix for this */
+    close(0);
     close(1);
     close(2);
 
@@ -1048,6 +1046,8 @@ void daemonize() {
 void init (int argc,char *argv[])
 {
     struct lac *lac;
+    struct in_addr listenaddr;
+
     init_args (argc,argv);
     rand_source = 0;
     init_addr ();
@@ -1087,8 +1087,9 @@ void init (int argc,char *argv[])
          "Written by Mark Spencer, Copyright (C) 1998, Adtran, Inc.\n");
     log (LOG_LOG, "Forked by Scott Balmos and David Stipp, (C) 2001\n");
     log (LOG_LOG, "Inhereted by Jeff McAdams, (C) 2002\n");
-    log (LOG_LOG, "%s version %s on a %s, port %d\n", uts.sysname,
-         uts.release, uts.machine, gconfig.port);
+    listenaddr.s_addr = gconfig.listenaddr;
+    log (LOG_LOG, "%s version %s on a %s, listening on IP address %s, port %d\n", uts.sysname,
+       uts.release, uts.machine, inet_ntoa(listenaddr), gconfig.port);
     lac = laclist;
     while (lac)
     {

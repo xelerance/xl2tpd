@@ -25,7 +25,6 @@
 #include "l2tp.h"
 
 char hostname[256];
-unsigned int listen_addy = INADDR_ANY;  /* Address to listen on */
 struct sockaddr_in server, from;        /* Server and transmitter structs */
 int server_socket;              /* Server socket */
 #ifdef USE_KERNEL
@@ -47,7 +46,7 @@ int init_network (void)
     int length = sizeof (server);
     gethostname (hostname, sizeof (hostname));
     server.sin_family = AF_INET;
-    server.sin_addr.s_addr = htonl (listen_addy);
+    server.sin_addr.s_addr = gconfig.listenaddr; 
     server.sin_port = htons (gconfig.port);
     if ((server_socket = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
     {

@@ -130,6 +130,7 @@ struct lac
 
 struct global
 {
+    unsigned int listenaddr;    /* IP address to bind to */ 
     int port;                   /* Port number to listen to */
     char authfile[STRLEN];      /* File containing authentication info */
     char altauthfile[STRLEN];   /* File containing authentication info */
