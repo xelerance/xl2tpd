@@ -1,3 +1,11 @@
+This is based upon the 0.69 L2TP by Jeff McAdams <jeffm@iglou.com>
+It was hacked a lot by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.
+This version l2tpd 1.00, and is maintained by Xelerance Corporation. It appears
+that squatters have taken over www.l2tpd.org, and so it will live for the moment
+at:
+	git archive	http://git.openswan.org/public/scm/l2tpd.git/
+	wiki		http://wiki.openswan.org/index.php/l2tp/
+
 l2tpd version 0.69
 ==================
 Now maintained at:
