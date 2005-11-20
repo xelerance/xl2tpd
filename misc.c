@@ -30,7 +30,7 @@
 #include "l2tp.h"
 
 
-void log (int level, const char *fmt, ...)
+void l2tp_log (int level, const char *fmt, ...)
 {
     char buf[256];
     va_list args;
@@ -99,7 +99,7 @@ void bufferDump (char *buf, int buflen)
             c++;                /* again two characters to display ONE byte */
         }
         *c = '\0';
-        log (LOG_WARN, "%s: buflen=%d, buffer[%d]: *%s*\n", __FUNCTION__,
+        l2tp_log (LOG_WARN, "%s: buflen=%d, buffer[%d]: *%s*\n", __FUNCTION__,
              buflen, i, line);
     }
 
@@ -115,7 +115,7 @@ void bufferDump (char *buf, int buflen)
     if (c != line)
     {
         *c = '\0';
-        log (LOG_WARN, "%s:             buffer[%d]: *%s*\n", __FUNCTION__, i,
+        l2tp_log (LOG_WARN, "%s:             buffer[%d]: *%s*\n", __FUNCTION__, i,
              line);
     }
 }
@@ -199,7 +199,7 @@ struct ppp_opts *add_opt (struct ppp_opts *option, char *fmt, ...)
     new = (struct ppp_opts *) malloc (sizeof (struct ppp_opts));
     if (!new)
     {
-        log (LOG_WARN,
+        l2tp_log (LOG_WARN,
              "%s : Unable to allocate ppp option memory.  Expect a crash\n",
              __FUNCTION__);
         return NULL;
@@ -265,7 +265,7 @@ int get_dev_entropy(char *buf, int count)
     if (devrandom == -1)
     {
 #ifdef DEBUG_ENTROPY
-        log(LOG_WARN, "%s: couldn't open /dev/urandom,"
+        l2tp_log(LOG_WARN, "%s: couldn't open /dev/urandom,"
                       "falling back to rand()\n",
                       __FUNCTION__);
 #endif
@@ -288,13 +288,13 @@ int get_entropy (char *buf, int count)
     }
     else if (rand_source == RAND_EGD)
     {
-        log(LOG_WARN, "%s: EGD Randomness source not yet implemented\n",
+        l2tp_log(LOG_WARN, "%s: EGD Randomness source not yet implemented\n",
                 __FUNCTION__);
         return -1;
     }
     else
     {
-        log(LOG_WARN, "%s: Invalid Randomness source specified (%d)\n",
+        l2tp_log(LOG_WARN, "%s: Invalid Randomness source specified (%d)\n",
                 __FUNCTION__, rand_source);
         return -1;
     }
