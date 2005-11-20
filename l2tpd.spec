@@ -3,66 +3,26 @@
 
 Summary:        Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name:		l2tpd
-Version:	0.69
-Vendor:		Jeff McAdams <jeffm@iglou.com>
+Version:	1.00
+Vendor:		Michael Richardson <mcr@xelerance.com>
+# previously Jeff McAdams <jeffm@iglou.com>
 # Original packagers: Lenny Cartier <lenny@mandrakesoft.com>
 # and Per Øyvind Karlsen <peroyvind@delonic.no>
-Packager:	Jacco de Leeuw <jacco2@dds.nl>
-Release:	10jdl
+# and Jacco de Leeuw <jacco2@dds.nl>
+Packager:	Paul Wouters <paul@xelerance.com>
+Release:	10xxx
 License:	GPL
-Url:		http://www.%{name}.org
+Url:		http://wiki.openswan.org/index.php/l2tpd
 Group:		System/Servers
 
-%define		freeswanconfigpath freeswan
 %define		openswanconfigpath openswan
-%define		strongswanconfigpath strongswan
 %define		ipsecconfigpath ipsec.d
 
 # Are you building on SuSE?
 # Set here (1=yes 0=no):
 %define		suse 0
 
-# I do not convert the upstream tarball from .gz to .bz2 because l2tpd
-# is a remote access daemon and security conscious people might want to
-# verify its signature against tampering.
-Source0:	http://www.%{name}.org/downloads/%{name}-%{version}.tar.gz
-Source1:	http://www.%{name}.org/downloads/%{name}-%{version}.tar.gz.sig
-Source2:	%{name}.init
-Source3:	%{name}-RPM.README
-# Minimal sample configuration file for use with FreeS/WAN
-Source4:	%{name}.conf
-Source5:	%{name}-options.l2tpd
-Source11:	%{name}-chapsecrets.sample
-# Four sample FreeS/WAN configuration files
-Source6:	%{name}-L2TP-PSK.conf
-Source7:	%{name}-L2TP-CERT.conf
-Source8:	%{name}-L2TP-PSK-orgWIN2KXP.conf
-Source9:	%{name}-L2TP-CERT-orgWIN2KXP.conf
-# /etc/rc.d init script for SuSE by Bernhard Thoni
-Source10:	%{name}-suse.init
-# SysV style pty allocation patch from Debian (modified)
-# (http://www.l2tpd.org/patches/pty.patch)
-Patch0:		%{name}-pty.patch.bz2
-# Close stdin for daemon mode (http://www.l2tpd.org/patches/close.patch)
-Patch1:		%{name}-close.patch.bz2
-# Patch which changes the paths from /etc/l2tp/ to /etc/l2tpd/
-Patch2:		%{name}-cfgpath.patch.bz2
-# Alternative pty patch by Chris Wilson
-Patch4:		%{name}-pty.patch2.bz2
-# pty patch by Damion de Soto which prevents "Error 737" loopback errors
-Patch5:		%{name}-pty-noecho.patch.bz2
-# Patch to get rid of /usr/include warnings on Red Hat, some log() warnings,
-# fix a syntax error and an uninitialised variable. Sorry about the remaining
-# log() warnings but there are too many of them to fix right now.
-Patch6:		%{name}-warnings.patch.bz2
-# Patch which adds the "listen-addr" parameter
-Patch7:		%{name}-listenaddr.patch.bz2
-# Workaround for the 'Specify your hostname' problem with the MSL2TP client
-Patch8:		%{name}-MSL2TP-hostname.patch.bz2
-# Seems to fix a disconnect problem with the MSL2TP client
-Patch9:		%{name}-MSL2TP-StopCCN.patch.bz2
-# Fixes a buffer overflow in control.c:write_packet()
-Patch10:	%{name}-bufoverflow.patch.bz2
+Source0:	INSERT ME PAUL
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 Requires:	ppp
