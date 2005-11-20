@@ -321,6 +321,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         tcgetattr (c->fd, &ptyconf);
         *(c->oldptyconf) = ptyconf;
         ptyconf.c_cflag &= ~(ICANON | ECHO);
+        ptyconf.c_lflag &= ~ECHO;
         tcsetattr (c->fd, TCSANOW, &ptyconf);
 
         snprintf (tty, sizeof (tty), "/dev/tty%c%c", a, b);
