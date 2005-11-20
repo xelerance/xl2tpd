@@ -1,0 +1,92 @@
+.TH L2TPD 8 "7 Jul 1998" "l2tpd 0.60"
+.SH NAME
+l2tpd \- provide L2TP (layer two tunneling protocol) encapsulated PPP connections
+.SH SYNOPSIS
+.B l2tpd
+[
+.B \-f
+.I configuration file
+]
+.SH DESCRIPTION
+
+.B l2tpd
+is an implementation of Layer Two Tunneling Protocol for UNIX systems.
+
+Most aspects of the server's operation are controled by its configuration
+file (see
+.BR l2tpd.conf (5)).
+This man page discusses only the operation of the server itself, which only
+takes one option.
+
+The server can be controled (somewhat minimally) at runtime with the file
+.I /var/run/l2tp-control
+
+.SH OPTIONS
+
+.B \-f
+.I configuration file
+
+.RS 3
+Selects a different configuration file from the default, set at compile
+time (typically /etc/l2tp/l2tpd.conf).
+See
+.BR l2tpd.conf (5)
+for more information.
+.RE
+.SH FILES
+
+.B /etc/l2tp/l2tpd.conf
+.RS 3
+Configuration file for l2tpd, specifies virtually all information for its
+operation.
+.RE
+
+.B /etc/l2tp/l2tp-secrets
+.RS 3
+Secrets used for challenge authentication and information hiding.
+.RE
+
+.B /var/run/l2tp-control
+.RS 3
+Can be used for runtime controlling of the l2tp server.
+.RE
+
+.SH NOTES AND LIMITATIONS
+
+.B l2tpd
+is an experimental program and does not entirely implement the draft L2TP
+specification.  
+
+.B pppd
+version 2.3.3 or higher is required.
+
+.B l2tpd 
+must be restarted when the configuration is modified before it will read
+its new configuration.  This limitation is planned to be removed.
+
+.SH SIGNALS
+
+Sending a 
+.B SIGUSR2
+signal to l2tpd (killall -SIGUSR2 l2tpd) will cause the server to dump
+a table of its running configuration as well as the status of any open 
+tunnels and calls.
+
+.SH BUGS
+Does not implement the entire l2tp specification.
+.SH CREDITS
+.B l2tpd
+is written by Mark Spencer <markster@marko.net> and is Copyright 1998
+Adtran, Inc.  It is distributed under the terms of the GNU General Public
+License.  The configuration file and man pages are modeled after those of
+Samba.
+
+.SH SEE ALSO
+.IR pppd (8)
+.IR l2tpd.conf (5)
+
+.SH AUTHORS
+.nf
+Mark Spencer <markster@marko.net>
+.fi
+

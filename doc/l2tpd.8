@@ -1,0 +1,59 @@
+.TH "l2tpd" "8" "" "Jeff McAdams" ""
+.SH "NAME"
+l2tpd \- Layer 2 Tunnelling Protocol Daemon
+.SH "DESCRIPTION"
+A Layer 2 Tunneling Protocol VPN client/daemon for Linux and other POSIX-based OSs. Based off of L2TPd 0.61 from http://www.marko.net/l2tp
+
+l2tpd implements the Layer 2 Tunnelling Protocol, defined by RFC 2661.
+
+.SH "OPTIONS"
+.TP 
+.B -D
+This option prevents l2tpd from detaching from the terminal and
+daemonizing.  This is recommended for the moment as the code that
+detaches from the terminal and daemonizes is not yet perfected.
+
+.TP 
+.B -c <config file>
+Tells l2tpd to use an alternate config file.  Default is
+/etc/l2tpd/l2tpd.conf
+
+.TP 
+.B -s <secret file>
+Tells l2tpd to use an alternate "secrets" file.  Default is
+/etc/l2tpd/l2tp-secrets
+
+.TP 
+.B -p <pid file>
+Tells l2tpd to use an alternate pid file.  Default is /var/run/l2tpd.pid
+
+
+.SH "FILES"
+
+\fB\fR/etc/l2tp/l2tpd.conf \fB\fR/etc/l2tp/l2tp\-secrets 
+\fB\fR/var/run/l2tp\-control
+.SH "BUGS"
+
+Please address bugs and comment to l2tpd\-dev@l2tpd.org
+.SH "SEE ALSO"
+
+\fB\fRl2tpd.conf(5)
+.SH "AUTHORS"
+Jeff McAdams <jeffm@iglou.com>
+
+
+Previous development was hosted at sourceforge
+(http://www.sourceforge.net/projects/l2tpd) by:
+.P
+Scott Balmos <sbalmos@iglou.com>
+.br
+David Stipp <dstipp@one.net>
+.br
+Jeff McAdams <jeffm@iglou.com>
+
+
+Based off of l2tpd version 0.60
+.br
+Copyright (C)1998 Adtran, Inc.
+.br
+Mark Spencer <markster@marko.net>

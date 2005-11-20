@@ -1,0 +1,143 @@
+l2tpd version 0.69
+==================
+Now maintained at:
+http://www.l2tpd.org
+by:
+Jeff McAdams <jeffm@iglou.com>
+
+Maintained for a time at:
+http://sourceforge.net/projects/l2tpd
+by:
+Scott Balmos <sbalmos@iglou.com>
+Jeff McAdams <jeffm@iglou.com>
+David Stipp <dstipp@one.net>
+
+Based off of l2tpd version 0.60
+Copyright (C)1998 Adtran, Inc.
+Mark Spencer <markster@marko.net>
+
+Introduction:
+-------------
+
+l2tpd is an implementation of the layer two tunneling protocol. It works
+in userspace completely (although kernel work is planned after the
+userspace version is stablized).  l2tpd works by opening a pseudo-tty
+for communicating with pppd.  Although l2tpd was written for Linux, the
+current version should be highly portable to other UNIX's supported by
+pppd.
+
+Legal Information: 
+------------------
+l2tpd is free software, distributed under the GNU General Public License
+(GPL) and you should read the LICENSE File if you are not already
+familiar with the GPL before using the product.
+
+Bugs, Patches, and Code Contribution:
+-------------------------------------
+Please send bug reports and patches to either the l2tp mailng list
+(l2tpd-devel@l2tpd.org).
+
+In order to contribute code, either with patches, or by direct access to
+the CVS tree for l2tpd, send e-mail to (l2tpd-devel@l2tpd.org).
+
+The word "FIXME" is a place holder for code that needs to be in place,
+or checks that need to be done, but haven't been coded yet.  Feel free
+to fix the fixme's and submit patches!
+
+Release Notes
+-------------
+Version 0.69 should be considered ALPHA.  It does NOT completely
+implement the l2tp specification (RFC 2661), but its pretty close!
+
+The primary use of this ALPHA level code is to test the ability of l2tpd
+to talk with other LAC and LNS implementations.  I hope that everyone
+who tests the software will send me results on how it worked or failed
+to work for them.  
+
+(theoretically) implemented features
+------------------------------------
+* Proper payload and control packet handling
+* Reliable control packet delivery
+* Ability to recover from payload errors
+* Ability to handle packets with/without length set
+* Ability to handle flow control or no flow control
+* Most critical AVP's for normal operation
+* Challenge authentication
+* Hidden AVP's
+* Hello's to detect outages
+* Handles sync and async packets
+* Can act as LNS
+* Can be a source of a virtual LAC call
+* Reads configuration file
+* Automated LAC dialup via config file, including redial
+* Can be configured while running via a file system pipe
+* Access Control
+* Statistics report when sent a SIGUSR1
+* ACCM
+
+Major unimplemented specification features
+------------------------------------------
+* Rate Adaptive Timeouts
+* Out of order packet handling
+* Initial/Final LCP states
+* Q.931 Result Codes
+* Tie Breakers
+* Minimum/Maximum BPS
+* Call Errors
+
+Important non-specification related features to be added
+--------------------------------------------------------
+* More configuration options if needed
+* Kernel support for *much* improved performance
+
+Usage notes on /var/run/l2tp-control
+------------------------------------
+There are a few command line options to l2tpd:
+    -D  prevents l2tpd from detaching from terminal and running as a
+        daemon
+    -c <configfile> use alternate config file
+    -s <secretfile> use alternate secrets file
+    -p <pidfile> use alternate pid file
+
+Upon running l2tpd, a pipe is created in /var/run/l2tp-control.  Simple
+commands can then be echoed to this pipe to control l2tp on the fly.
+The commands are:  
+
+t <host> - create a tunnel to <host>
+c <tid> or <entry> - originate an l2tp call on the tunnel identified
+                     locally by <tid>, or dial the entry <entry>
+h <cid> - hang up a call with the local identifier <cid>
+d <tid> or <entry> - disconnect the tunnel locally identified by <tid>
+                     or a lac entry <entry>
+s - print out a status summary of currently connected tunnels and
+                     sessions
+
+For example, to establish a tunnel to marko.net, one might do:
+
+echo "t marko.net" >/var/run/l2tp-control
+
+l2tpd must be running for this to work.
+
+Various other notes
+-------------------
+The PPP options used to be hard coded in l2tp.h.  Now they (or at least
+some) are configurable - see the example config file and read file.[ch].
+
+Sending a SIGUSR1 to l2tpd will cause it to dump its status.
+
+Mailing List
+------------
+If you would like to contribute to discussions of the architecture of
+l2tpd, file formats, etc, we encourage you to join the l2tpd mailing
+list by visiting http://www.l2tpd.org/ and subscribing
+to our mailing lists.
+
+Original Project Legal Information: 
+-----------------------------------
+l2tpd is free software, distributed under the GNU General Public License
+(GPL)and you should read the LICENSE File if you are not already
+familiar with the GPL before using the product.
+
+If you distribute l2tpd, a modified version, or a derivative product,
+you MUST not remove Adtran's name from the product nor modify the terms
+of the copyright.

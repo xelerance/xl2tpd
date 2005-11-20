@@ -1,0 +1,81 @@
+0.69
+--
+Edited l2tpd.conf.5 man page to correct some information
+Added l2tpd.8 and l2tp-secrets.5 man pages
+Zero'ed out memory malloced to hold challenge, otherwise we may pass
+    wrong challenge to md5 code
+
+0.68
+--
+Updated copyright notice on all relevent files
+Changed vendor name as it appears in AVP's
+Add new sources of randomness, reading /dev/urandom
+Seed rand() with time()
+Stubs available for egd randomness source, not implemented yet though
+Don't close fd 0 as workaround for signal problems in daemon mode
+Fix some off by 6 errors in avp handling
+
+0.67
+--
+close pty connecting to pppd in child_handler()
+Add code to daemonize correctly
+Add command line options
+    -D to not daemonize
+    -p to specify a pidfile
+    -c to specify a config file
+    -s to specify a secrets file
+Catch a SIGHUP that's coming from who-knows-where and do nothing
+
+0.66
+--
+Fixed tunnel authentication mechanism so that it works!
+Fixed several segfaults...some in debugging code
+
+0.65.1
+--
+Reformatted all .c and .h files using GNU indent
+
+0.65
+--
+Fix to handling SLI packets
+reformatted some code in a few small places
+Added valid, new (since L2TP draft days) result codes
+autodialed calls switched to be "Incoming calls" rather than "Outgoing"
+Re-arranged some header declarations
+Remote systems may use the same Tunnel ID...this is OK
+Look for l2tpd.conf in /etc/l2tp and in /etc/l2tpd...look for
+    l2tp-secrets int he same directory
+Portability enhancement (act.sa_restorer only used on i386?)
+    (Jean-Francois Dive)
+
+0.64
+--
+Too many that I lost track...
+Scaleability improvements from Huiban Yoann at Siemens
+Rudimentary Outgoing Call Request system
+As in CREDITS, "an uncountable amount of little bug fixes"
+
+0.63
+--
+Syslog support added!!!
+Improved data sequencing & flow control serial number checking
+Removed call flow/session control serial number checking in ICRQ
+  -- Did we do this already and we're going mindless? :D
+Removed checking of now-defunct R bit
+Changed PPP framing to always sync
+Various and asundry other fixes
+
+NOW OPERABLE WITH CISCO IOS 12.1
+Continued interoperability improvements with Windows 2000 clients
+
+0.62
+--
+Removed call flow/session control (inapplicable as of RFC spec draft 13)
+Corrected invalid Receive Window Size AVP in ICCN
+Corrected Bearer Capabilities non-requirement in SCCRQ & SCCRP
+Verified operability with Cisco 3000 series
+
+0.61
+--
+Fixed shutdown of PPPd from SIGKILL to SIGTERM
+Beginning code cleanup and interoperability testing
