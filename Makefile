@@ -27,11 +27,10 @@
 # become runtime options) debugging flags
 #
 #DFLAGS= -g -O2 -DDEBUG_PPPD
-DFLAGS= -g -O2 -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY
 #
 # Uncomment the next line for Linux
 #
-OSFLAGS= -DLINUX -I/usr/include
+OSFLAGS= -DLINUX
 #
 # Uncomment the following to use the kernel interface under Linux
 #
@@ -54,20 +53,22 @@ OSFLAGS= -DLINUX -I/usr/include
 # Comment the following line to disable l2tpd maintaining IP address
 # pools to pass to pppd to control IP address allocation
 
-FFLAGS= -DIP_ALLOCATION 
+FFLAGS= -DIP_ALLOCATION
 
-CFLAGS= $(DFLAGS) -Wall -DSANITY $(OSFLAGS) $(FFLAGS)
+CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(FFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=l2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
-LIBS= $(OSLIB) # -lefence # efence for malloc checking
-BIN=l2tpd
-BINDIR=/usr/sbin
-ETCDIR=/etc
+#LIBS= $(OSLIB) # -lefence # efence for malloc checking
+EXEC=l2tpd
 
-all: $(BIN)
+all: $(EXEC)
 
 clean:
-	rm -f $(OBJS) $(BIN)
+	rm -f $(OBJS) $(EXEC)
 
-$(BIN): $(OBJS) $(HDRS) 
-	$(CC) -o $(BIN) $(DFLAGS) $(OBJS) $(LIBS)
+$(EXEC): $(OBJS) $(HDRS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+romfs:
+	$(ROMFSINST) /bin/$(EXEC)
+

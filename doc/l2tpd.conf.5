@@ -19,7 +19,7 @@ l2tp tunnels. The default is /etc/l2tpd/l2tp\-secrets.
 
 .TP 
 .B listen-addr
-Specify the IP address of the interface that l2tpd should use.  By default,
+The IP address of the interface on which the daemon listens.  By default,
 it listens on INADDR_ANY (0.0.0.0), meaning it listens on all interfaces.
 
 .TP 
@@ -28,8 +28,31 @@ Specify which UDP port l2tpd should use. The default is 1701.
 
 .TP 
 .B access control
-If set to use, the l2tpd process will only accept connections from
-peers addresses specified in the following sections. CHECK
+If set to yes, the l2tpd process will only accept connections from
+peers addresses specified in the following sections. The default is no.
+
+.TP
+.B debug avp
+Set this to yes to enable syslog output of L2TP AVP debugging information.
+
+.TP
+.B debug network
+Set this to yes to enable syslog output of network debugging information.
+
+.TP
+.B debug packet
+Set this to yes to enable printing of L2TP packet debugging information.
+Note: Output goes to STDOUT, so use this only in conjunction with the
+.B -D
+command line option.
+
+.TP
+.B debug state
+Set this to yes to enable syslog output of FSM debugging information.
+
+.TP
+.B debug tunnel
+Set this to yes to enable syslog output of tunnel debugging information.
 
 .SH "LNS SECTION"
 .TP 
@@ -42,7 +65,21 @@ between 2 peers. CHECK
 Specify the range of ip addresses the LNS will assign to the connecting
 LAC PPP tunnels. Multiple ranges can be defined. Using the 'no'
 statement disallows the use of that particular range.  Ranges are defined
-using the format IP \- IP (example: 1.1.1.1 \- 1.1.1.10)
+using the format IP \- IP (example: 1.1.1.1 \- 1.1.1.10).  Note that either
+at least one
+.B ip range
+option must be given, or you must set
+.B assign ip
+to no.
+
+.TP
+.B assign ip
+Set this to no if l2tpd should not assign IP addresses out of the pool
+defined with the
+.B ip range 
+option.  This can be useful if you have some other means to assign IP
+addresses, e. g. a pppd that supports RADIUS AAA.
+
 
 .TP 
 .B (no) lac

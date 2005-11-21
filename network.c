@@ -31,14 +31,6 @@ int server_socket;              /* Server socket */
 int kernel_support;             /* Kernel Support there or not? */
 #endif
 
-/*
- * Debugging info
- */
-int debug_tunnel = 0;
-int debug_network = 0;          /* Debug networking? */
-int packet_dump = 0;            /* Dump packets? */
-int debug_avp = 1;              /* Debug AVP negotiations? */
-int debug_state = 0;            /* Debug state machine? */
 
 int init_network (void)
 {
@@ -50,7 +42,7 @@ int init_network (void)
     server.sin_port = htons (gconfig.port);
     if ((server_socket = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
     {
-        l2tp_log (LOG_CRIT, "%s: Unable to allocate socket. Terminating.\n",
+        log (LOG_CRIT, "%s: Unable to allocate socket. Terminating.\n",
              __FUNCTION__);
         return -EINVAL;
     };
@@ -59,37 +51,37 @@ int init_network (void)
     if (bind (server_socket, (struct sockaddr *) &server, sizeof (server)))
     {
         close (server_socket);
-        l2tp_log (LOG_CRIT, "%s: Unable to bind socket. Terminating.\n",
-             __FUNCTION__);
+        log (LOG_CRIT, "%s: Unable to bind socket: %s. Terminating.\n",
+             __FUNCTION__, strerror(errno), errno);
         return -EINVAL;
     };
     if (getsockname (server_socket, (struct sockaddr *) &server, &length))
     {
-        l2tp_log (LOG_CRIT, "%s: Unable to read socket name.Terminating.\n",
+        log (LOG_CRIT, "%s: Unable to read socket name.Terminating.\n",
              __FUNCTION__);
         return -EINVAL;
     }
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
     {
-        l2tp_log (LOG_LOG, "Not looking for kernel support.\n");
+        log (LOG_LOG, "Not looking for kernel support.\n");
         kernel_support = 0;
     }
     else
     {
         if (ioctl (server_socket, SIOCSETL2TP, NULL) < 0)
         {
-            l2tp_log (LOG_LOG, "L2TP kernel support not detected.\n");
+            log (LOG_LOG, "L2TP kernel support not detected.\n");
             kernel_support = 0;
         }
         else
         {
-            l2tp_log (LOG_LOG, "Using l2tp kernel support.\n");
+            log (LOG_LOG, "Using l2tp kernel support.\n");
             kernel_support = -1;
         }
     }
 #else
-    l2tp_log (LOG_LOG, "This binary does not support kernel L2TP.\n");
+    log (LOG_LOG, "This binary does not support kernel L2TP.\n");
 #endif
     arg = fcntl (server_socket, F_GETFL);
     arg |= O_NONBLOCK;
@@ -168,7 +160,7 @@ void control_xmit (void *b)
     int ns;
     if (!buf)
     {
-        l2tp_log (LOG_WARN, "%s: called on NULL buffer!\n", __FUNCTION__);
+        log (LOG_WARN, "%s: called on NULL buffer!\n", __FUNCTION__);
         return;
     }
 
@@ -180,7 +172,7 @@ void control_xmit (void *b)
         if (ns < t->cLr)
         {
 #ifdef DEBUG_CONTROL_XMIT
-            l2tp_log (LOG_DEBUG, "%s: Tossing packet %d\n", __FUNCTION__, ns);
+            log (LOG_DEBUG, "%s: Tossing packet %d\n", __FUNCTION__, ns);
 #endif
             /* Okay, it's been received.  Let's toss it now */
             toss (buf);
@@ -197,21 +189,23 @@ void control_xmit (void *b)
         {
             if (t->self->needclose)
             {
-                l2tp_log (LOG_DEBUG,
-                     "%s: Unable to deliver closing message for tunnel %d. Destroying anyway.\n",
-                     __FUNCTION__, t->ourtid);
+                log (LOG_DEBUG,
+                     "Unable to deliver closing message for tunnel %d. Destroying anyway.\n",
+                     t->ourtid);
                 t->self->needclose = 0;
                 t->self->closing = -1;
             }
             else
             {
-                l2tp_log (LOG_DEBUG,
-                     "%s: Maximum retries exceeded for tunnel %d.  Closing.\n",
-                     __FUNCTION__, t->ourtid);
+                log (LOG_NOTICE,
+                     "Maximum retries exceeded for tunnel %d.  Closing.\n",
+                     t->ourtid);
                 strcpy (t->self->errormsg, "Timeout");
                 t->self->needclose = -1;
             }
         }
+		free(buf->rstart);
+		free(buf);
     }
     else
     {
@@ -222,7 +216,7 @@ void control_xmit (void *b)
         tv.tv_usec = 0;
         schedule (tv, control_xmit, buf);
 #ifdef DEBUG_CONTROL_XMIT
-        l2tp_log (LOG_DEBUG, "%s: Scheduling and transmitting packet %d\n",
+        log (LOG_DEBUG, "%s: Scheduling and transmitting packet %d\n",
              __FUNCTION__, ns);
 #endif
         udp_xmit (buf);
@@ -246,6 +240,66 @@ void udp_xmit (struct buffer *buf)
 
 }
 
+int build_fdset (fd_set *readfds)
+{
+	struct tunnel *tun;
+	struct call *call;
+	int max = 0;
+
+	tun = tunnels.head;
+	FD_ZERO (readfds);
+
+	while (tun)
+	{
+		call = tun->call_head;
+		while (call)
+		{
+			if (call->needclose ^ call->closing)
+			{
+				call_close (call);
+				call = tun->call_head;
+				if (!call)
+					break;
+				continue;
+			}
+			if (call->fd > -1)
+			{
+				if (!call->needclose && !call->closing)
+				{
+					if (call->fd > max)
+						max = call->fd;
+					FD_SET (call->fd, readfds);
+				}
+			}
+			call = call->next;
+		}
+		/* Now that call fds have been collected, and checked for
+		 * closing, check if the tunnel needs to be closed too
+		 */
+		if (tun->self->needclose ^ tun->self->closing)
+		{
+			if (gconfig.debug_tunnel)
+				log (LOG_DEBUG, "%s: closing down tunnel %d\n",
+						__FUNCTION__, tun->ourtid);
+			call_close (tun->self);
+			/* Reset the while loop
+			 * and check for NULL */
+			tun = tunnels.head;
+			if (!tun)
+				break;
+			continue;
+		}
+		tun = tun->next;
+	}
+	FD_SET (server_socket, readfds);
+	if (server_socket > max)
+		max = server_socket;
+	FD_SET (control_fd, readfds);
+	if (control_fd > max)
+		max = control_fd;
+	return max;
+}
+
 void network_thread ()
 {
     /*
@@ -265,60 +319,7 @@ void network_thread ()
     buf = new_buf (MAX_RECV_SIZE);
     for (;;)
     {
-        /*
-           * First, let's send out any outgoing packets that are waiting on us.
-           * xmit_udp should only
-           * contain control packets in the unthreaded version!
-         */
-        max = 0;
-        FD_ZERO (&readfds);
-        st = tunnels.head;
-        while (st)
-        {
-            if (st->self->needclose ^ st->self->closing)
-            {
-                if (debug_tunnel)
-                    l2tp_log (LOG_DEBUG, "%S: closing down tunnel %d\n",
-                         __FUNCTION__, st->ourtid);
-                call_close (st->self);
-                /* Reset the while loop
-                   and check for NULL */
-                st = tunnels.head;
-                if (!st)
-                    break;
-                continue;
-            }
-            sc = st->call_head;
-            while (sc)
-            {
-                if (sc->needclose ^ sc->closing)
-                {
-                    call_close (sc);
-                    sc = st->call_head;
-                    if (!sc)
-                        break;
-                    continue;
-                }
-                if (sc->fd > -1)
-                {
-/*					if (!sc->throttle && !sc->needclose && !sc->closing) { */
-                    if (!sc->needclose && !sc->closing)
-                    {
-                        if (sc->fd > max)
-                            max = sc->fd;
-                        FD_SET (sc->fd, &readfds);
-                    }
-                }
-                sc = sc->next;
-            }
-            st = st->next;
-        }
-        FD_SET (server_socket, &readfds);
-        if (server_socket > max)
-            max = server_socket;
-        FD_SET (control_fd, &readfds);
-        if (control_fd > max)
-            max = control_fd;
+        max = build_fdset (&readfds);
         tv.tv_sec = 1;
         tv.tv_usec = 0;
         schedule_unlock ();
@@ -346,34 +347,31 @@ void network_thread ()
                 if (recvsize < 0)
                 {
                     if (errno != EAGAIN)
-                        l2tp_log (LOG_WARN,
+                        log (LOG_WARN,
                              "%s: recvfrom returned error %d (%s)\n",
                              __FUNCTION__, errno, strerror (errno));
                 }
                 else
                 {
-                    l2tp_log (LOG_WARN, "%s: received too small a packet\n",
+                    log (LOG_WARN, "%s: received too small a packet\n",
                          __FUNCTION__);
                 }
             }
             else
             {
                 buf->len = recvsize;
-                fix_hdr (buf->start);
-                extract (buf->start, &tunnel, &call);
-                if (debug_network)
+                if (gconfig.debug_network)
                 {
-                    l2tp_log (LOG_DEBUG,
-			      "%s: recv packet from %s, size = %d,"
-			      "tunnel = %d, call = %d\n",
-			      __FUNCTION__,
-			      inet_ntoa (from.sin_addr), recvsize,
-			      tunnel, call);
+                    log (LOG_DEBUG, "%s: recv packet from %s, size = %d, "
+							"tunnel = %d, call = %d\n", __FUNCTION__,
+							inet_ntoa (from.sin_addr), recvsize, tunnel, call);
                 }
-                if (packet_dump)
+                if (gconfig.packet_dump)
                 {
                     do_packet_dump (buf);
                 }
+                fix_hdr (buf->start);
+                extract (buf->start, &tunnel, &call);
                 if (!
                     (c =
                      get_call (tunnel, call, from.sin_addr.s_addr,
@@ -391,14 +389,14 @@ void network_thread ()
                          * tunnel, but not with a valid CID, we'll just send a ZLB
                          * to ack receiving the packet.
                          */
-                        if (debug_tunnel)
-                            l2tp_log (LOG_DEBUG,
+                        if (gconfig.debug_tunnel)
+                            log (LOG_DEBUG,
                                  "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
                                  __FUNCTION__);
                         handle_special (buf, c, call);
                     }
                     else
-                        l2tp_log (LOG_DEBUG,
+                        log (LOG_DEBUG,
                              "%s: unable to find call or tunnel to handle packet.  call = %d, tunnel = %d Dumping.\n",
                              __FUNCTION__, call, tunnel);
 
@@ -410,8 +408,8 @@ void network_thread ()
                     c->container->chal_us.vector = NULL;
                     if (handle_packet (buf, c->container, c))
                     {
-                        if (debug_tunnel)
-                            l2tp_log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
+                        if (gconfig.debug_tunnel)
+                            log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
                     };
                     if (c->cnu)
                     {
@@ -435,7 +433,7 @@ void network_thread ()
                     int result;
                     recycle_payload (buf, sc->container->peer);
 #ifdef DEBUG_FLOW_MORE
-                    l2tp_log (LOG_DEBUG, "%s: rws = %d, pSs = %d, pLr = %d\n",
+                    log (LOG_DEBUG, "%s: rws = %d, pSs = %d, pLr = %d\n",
                          __FUNCTION__, sc->rws, sc->pSs, sc->pLr);
 #endif
 /*					if ((sc->rws>0) && (sc->pSs > sc->pLr + sc->rws) && !sc->rbit) {
@@ -457,7 +455,7 @@ void network_thread ()
                             read_packet (buf, sc->fd, SYNC_FRAMING)) > 0)
                     {
                         add_payload_hdr (sc->container, sc, buf);
-                        if (packet_dump)
+                        if (gconfig.packet_dump)
                         {
                             do_packet_dump (buf);
                         }
@@ -476,7 +474,7 @@ void network_thread ()
                     }
                     if (result != 0)
                     {
-                        l2tp_log (LOG_WARN,
+                        log (LOG_WARN,
                              "%s: tossing read packet, error = %s (%d).  Closing call.\n",
                              __FUNCTION__, strerror (-result), -result);
                         strcpy (sc->errormsg, strerror (-result));

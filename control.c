@@ -133,17 +133,17 @@ void hello (void *tun)
     buf = new_outgoing (t);
     add_message_type_avp (buf, Hello);
     add_control_hdr (t, t->self, buf);
-    if (packet_dump)
+    if (gconfig.packet_dump)
         do_packet_dump (buf);
 #ifdef DEBUG_HELLO
-    l2tp_log (LOG_DEBUG, "%s: sending Hello on %d\n", __FUNCTION__, t->ourtid);
+    log (LOG_DEBUG, "%s: sending Hello on %d\n", __FUNCTION__, t->ourtid);
 #endif
     control_xmit (buf);
     /*
      * Schedule another Hello in a little bit.
      */
 #ifdef DEBUG_HELLO
-    l2tp_log (LOG_DEBUG, "%s: scheduling another Hello on %d\n", __FUNCTION__,
+    log (LOG_DEBUG, "%s: scheduling another Hello on %d\n", __FUNCTION__,
          t->ourtid);
 #endif
     t->hello = schedule (tv, hello, (void *) t);
@@ -155,7 +155,7 @@ void control_zlb (struct buffer *buf, struct tunnel *t, struct call *c)
     add_control_hdr (t, c, buf);
     t->control_seq_num--;
 #ifdef DEBUG_ZLB
-    l2tp_log (LOG_DEBUG, "%s: sending control ZLB on tunnel %d\n", __FUNCTION__,
+    log (LOG_DEBUG, "%s: sending control ZLB on tunnel %d\n", __FUNCTION__,
          t->tid);
 #endif
     udp_xmit (buf);
@@ -185,12 +185,12 @@ int control_finish (struct tunnel *t, struct call *c)
     char dummy_buf[128] = "/var/l2tp/"; /* jz: needed to read /etc/ppp/var.options - just kick it if you dont like */
     if (c->msgtype < 0)
     {
-        l2tp_log (LOG_DEBUG, "%s: Whoa...  non-ZLB with no message type!\n",
+        log (LOG_DEBUG, "%s: Whoa...  non-ZLB with no message type!\n",
              __FUNCTION__);
         return -EINVAL;
     }
-    if (debug_state)
-        l2tp_log (LOG_DEBUG,
+    if (gconfig.debug_state)
+        log (LOG_DEBUG,
              "%s: message type is %s(%d).  Tunnel is %d, call is %d.\n",
              __FUNCTION__, msgtypes[c->msgtype], c->msgtype, t->tid, c->cid);
     switch (c->msgtype)
@@ -225,7 +225,12 @@ int control_finish (struct tunnel *t, struct call *c)
             add_bearer_caps_avp (buf, t->ourbc);
             /* FIXME:  Tie breaker */
             add_firmware_avp (buf);
-            add_hostname_avp (buf);
+            if (t->lac && t->lac->hostname && t->lac->hostname[0])
+                add_hostname_avp (buf, t->lac->hostname);
+            else if (t->lns && t->lns->hostname && t->lns->hostname[0])
+                add_hostname_avp (buf, t->lns->hostname);
+            else
+                add_hostname_avp (buf, hostname);
             add_vendor_avp (buf);
             add_tunnelid_avp (buf, t->ourtid);
             if (t->ourrws >= 0)
@@ -233,8 +238,20 @@ int control_finish (struct tunnel *t, struct call *c)
             if ((t->lac && t->lac->challenge)
                 || (t->lns && t->lns->challenge))
             {
+		if (t->chal_them.challenge)
+		    free(t->chal_them.challenge);
+                t->chal_them.challenge = malloc(MD_SIG_SIZE);
+                if (!(t->chal_them.challenge))
+                {
+                    log (LOG_WARN, "%s: malloc failed for challenge\n",
+			 __FUNCTION__);
+		    toss (buf);
+                    return -EINVAL;
+                }
                 mk_challenge (t->chal_them.challenge, MD_SIG_SIZE);
-                add_challenge_avp (buf, t->chal_them.challenge, MD_SIG_SIZE);
+                t->chal_them.chal_len = MD_SIG_SIZE;
+                add_challenge_avp (buf, t->chal_them.challenge,
+				   t->chal_them.chal_len);
                 t->chal_them.state = STATE_CHALLENGED;
                 /* We generate the challenge and make a note that we plan to
                    challenge the peer, but we can't predict the response yet
@@ -242,10 +259,10 @@ int control_finish (struct tunnel *t, struct call *c)
             }
             add_control_hdr (t, c, buf);
             c->cnu = 0;
-            if (packet_dump)
+            if (gconfig.packet_dump)
                 do_packet_dump (buf);
-            if (debug_state)
-                l2tp_log (LOG_DEBUG, "%s: control_finish: sending SCCRQ\n",
+            if (gconfig.debug_state)
+                log (LOG_DEBUG, "%s: sending SCCRQ\n",
                      __FUNCTION__);
             control_xmit (buf);
         }
@@ -284,10 +301,10 @@ int control_finish (struct tunnel *t, struct call *c)
                 add_bearer_avp (buf, 0);
                 add_control_hdr (t, c, buf);
                 c->cnu = 0;
-                if (packet_dump)
+                if (gconfig.packet_dump)
                     do_packet_dump (buf);
-                if (debug_state)
-                    l2tp_log (LOG_DEBUG, "%s: sending ICRQ\n", __FUNCTION__);
+                if (gconfig.debug_state)
+                    log (LOG_DEBUG, "%s: sending ICRQ\n", __FUNCTION__);
                 control_xmit (buf);
             }
             else
@@ -326,7 +343,7 @@ int control_finish (struct tunnel *t, struct call *c)
                 add_number_avp (buf, c->dial_no);
                 add_control_hdr (t, c, buf);
                 c->cnu = 0;
-                if (packet_dump)
+                if (gconfig.packet_dump)
                     do_packet_dump (buf);
                 control_xmit (buf);
             }
@@ -340,7 +357,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (t->tid <= 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer did not specify assigned tunnel ID.  Closing.\n",
                      __FUNCTION__);
             set_error (c, VENDOR_ERROR, "Specify your assigned tunnel ID");
@@ -350,7 +367,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (!(t->lns = get_lns (t)))
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Denied connection to unauthorized peer %s\n",
                      __FUNCTION__, IPADDY (t->peer.sin_addr));
             set_error (c, VENDOR_ERROR, "No Authorization");
@@ -362,7 +379,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (t->fc < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer did not specify framing capability.  Closing.\n",
                      __FUNCTION__);
             set_error (c, VENDOR_ERROR, "Specify framing capability");
@@ -381,10 +398,10 @@ int control_finish (struct tunnel *t, struct call *c)
          c->needclose = -1;
          return -EINVAL;
          }  */
-        if (!strlen (t->hostname))
+        if ((!strlen (t->hostname)) && ((t->chal_us.state) || ((t->lns->challenge))))
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer did not specify hostname.  Closing.\n",
                      __FUNCTION__);
             set_error (c, VENDOR_ERROR, "Specify your hostname");
@@ -404,7 +421,7 @@ int control_finish (struct tunnel *t, struct call *c)
                  * But it is legitimate for two different remote systems
                  * to use the same tid
                  */
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer requested tunnel %d twice, ignoring second one.\n",
                      __FUNCTION__, t->tid);
                 c->needclose = 0;
@@ -425,7 +442,12 @@ int control_finish (struct tunnel *t, struct call *c)
         add_frame_caps_avp (buf, t->ourfc);
         add_bearer_caps_avp (buf, t->ourbc);
         add_firmware_avp (buf);
-        add_hostname_avp (buf);
+        if (t->lac && t->lac->hostname && t->lac->hostname[0])
+            add_hostname_avp (buf, t->lac->hostname);
+        else if (t->lns && t->lns->hostname && t->lns->hostname[0])
+            add_hostname_avp (buf, t->lns->hostname);
+        else
+            add_hostname_avp (buf, hostname);
         add_vendor_avp (buf);
         add_tunnelid_avp (buf, t->ourtid);
         if (t->ourrws >= 0)
@@ -438,33 +460,38 @@ int control_finish (struct tunnel *t, struct call *c)
         }
         if (t->lns->challenge)
         {
+            if (t->chal_them.challenge)
+		free(t->chal_them.challenge);
             t->chal_them.challenge = malloc(MD_SIG_SIZE);
             if (!(t->chal_them.challenge))
             {
-                l2tp_log (LOG_WARN, "%s: malloc failed\n", __FUNCTION__);
+                log (LOG_WARN, "%s: malloc failed\n", __FUNCTION__);
                 set_error (c, VENDOR_ERROR, "malloc failed");
                 toss (buf);
                 return -EINVAL;
             }
             mk_challenge (t->chal_them.challenge, MD_SIG_SIZE);
+            t->chal_them.chal_len = MD_SIG_SIZE;
             t->chal_them.ss = SCCCN;
             if (handle_challenge (t, &t->chal_them))
             {
                 /* We already know what to expect back */
-                l2tp_log (LOG_WARN, "%s: No secret for '%s'\n", __FUNCTION__,
+                log (LOG_WARN, "%s: No secret for '%s'\n", __FUNCTION__,
                      t->hostname);
                 set_error (c, VENDOR_ERROR, "No secret on our side");
                 toss (buf);
                 return -EINVAL;
             };
-            add_challenge_avp (buf, t->chal_them.challenge, MD_SIG_SIZE);
+            add_challenge_avp (buf, t->chal_them.challenge,
+			       t->chal_them.chal_len);
         }
         add_control_hdr (t, c, buf);
-        if (packet_dump)
+        if (gconfig.packet_dump)
             do_packet_dump (buf);
         c->cnu = 0;
-        if (debug_state)
-            l2tp_log (LOG_DEBUG, "%s: sending SCCRP\n", __FUNCTION__);
+        if (gconfig.debug_state)
+            log (LOG_DEBUG, "%s: sending SCCRP\n", __FUNCTION__);
+		sleep(2);
         control_xmit (buf);
         break;
     case SCCRP:
@@ -475,7 +502,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (t->fc < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer did not specify framing capability.  Closing.\n",
                      __FUNCTION__);
             set_error (c, VENDOR_ERROR, "Specify framing capability");
@@ -494,10 +521,10 @@ int control_finish (struct tunnel *t, struct call *c)
          c->needclose = -1;
          return -EINVAL;
          } */
-        if (!strlen (t->hostname))
+        if ((!strlen (t->hostname)) && ((t->chal_them.state) || ((t->chal_us.state))))
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer did not specify hostname.  Closing.\n",
                      __FUNCTION__);
             set_error (c, VENDOR_ERROR, "Specify your hostname");
@@ -507,7 +534,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (t->tid <= 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer did not specify assigned tunnel ID.  Closing.\n",
                      __FUNCTION__);
             set_error (c, VENDOR_ERROR, "Specify your assigned tunnel ID");
@@ -520,7 +547,7 @@ int control_finish (struct tunnel *t, struct call *c)
             if (handle_challenge (t, &t->chal_them))
             {
                 set_error (c, VENDOR_ERROR, "No secret key on our side");
-                l2tp_log (LOG_WARN, "%s: No secret key for authenticating '%s'\n",
+                log (LOG_WARN, "%s: No secret key for authenticating '%s'\n",
                      __FUNCTION__, t->hostname);
                 c->needclose = -1;
                 return -EINVAL;
@@ -530,7 +557,7 @@ int control_finish (struct tunnel *t, struct call *c)
             {
                 set_error (c, VENDOR_ERROR,
                            "Invalid challenge authentication");
-                l2tp_log (LOG_DEBUG, "%s: Invalid authentication for host '%s'\n",
+                log (LOG_DEBUG, "%s: Invalid authentication for host '%s'\n",
                      __FUNCTION__, t->hostname);
                 c->needclose = -1;
                 return -EINVAL;
@@ -541,7 +568,7 @@ int control_finish (struct tunnel *t, struct call *c)
             t->chal_us.ss = SCCCN;
             if (handle_challenge (t, &t->chal_us))
             {
-                l2tp_log (LOG_WARN, "%s: No secret for authenticating to '%s'\n",
+                log (LOG_WARN, "%s: No secret for authenticating to '%s'\n",
                      __FUNCTION__, t->hostname);
                 set_error (c, VENDOR_ERROR, "No secret key on our end");
                 c->needclose = -1;
@@ -569,23 +596,23 @@ int control_finish (struct tunnel *t, struct call *c)
         if (t->chal_us.state)
             add_chalresp_avp (buf, t->chal_us.response, MD_SIG_SIZE);
         add_control_hdr (t, c, buf);
-        if (packet_dump)
+        if (gconfig.packet_dump)
             do_packet_dump (buf);
         c->cnu = 0;
-        if (debug_state)
-            l2tp_log (LOG_DEBUG, "%s: sending SCCCN\n", __FUNCTION__);
+        if (gconfig.debug_state)
+            log (LOG_DEBUG, "%s: sending SCCCN\n", __FUNCTION__);
         control_xmit (buf);
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;
         tv.tv_usec = 0;
 #ifdef DEBUG_HELLO
-        l2tp_log (LOG_DEBUG, "%s: scheduling initial HELLO on %d\n", __FUNCTION__,
+        log (LOG_DEBUG, "%s: scheduling initial HELLO on %d\n", __FUNCTION__,
              t->ourtid);
 #endif
         t->hello = schedule (tv, hello, (void *) t);
-        l2tp_log (LOG_LOG,
-             "%s: Connection established to %s, %d.  Local: %d, Remote: %d.\n",
-             __FUNCTION__, IPADDY (t->peer.sin_addr),
+        log (LOG_NOTICE,
+             "Connection established to %s, %d.  Local: %d, Remote: %d.\n",
+             IPADDY (t->peer.sin_addr),
              ntohs (t->peer.sin_port), t->ourtid, t->tid);
         if (t->lac)
         {
@@ -602,7 +629,7 @@ int control_finish (struct tunnel *t, struct call *c)
             {
                 set_error (c, VENDOR_ERROR,
                            "Invalid challenge authentication");
-                l2tp_log (LOG_DEBUG, "%s: Invalid authentication for host '%s'\n",
+                log (LOG_DEBUG, "%s: Invalid authentication for host '%s'\n",
                      __FUNCTION__, t->hostname);
                 c->needclose = -1;
                 return -EINVAL;
@@ -619,15 +646,15 @@ int control_finish (struct tunnel *t, struct call *c)
         }
 #endif
         t->state = SCCCN;
-        l2tp_log (LOG_LOG,
-             "%s: Connection established to %s, %d.  Local: %d, Remote: %d.  LNS session is '%s'\n",
-             __FUNCTION__, IPADDY (t->peer.sin_addr),
+        log (LOG_NOTICE,
+             "Connection established to %s, %d.  Local: %d, Remote: %d.  LNS session is '%s'\n",
+             IPADDY (t->peer.sin_addr),
              ntohs (t->peer.sin_port), t->ourtid, t->tid, t->lns->entname);
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;
         tv.tv_usec = 0;
 #ifdef DEBUG_HELLO
-        l2tp_log (LOG_DEBUG, "%s: scheduling initial HELLO on %d\n", __FUNCTION__,
+        log (LOG_DEBUG, "%s: scheduling initial HELLO on %d\n", __FUNCTION__,
              t->ourtid);
 #endif
         t->hello = schedule (tv, hello, (void *) t);
@@ -636,7 +663,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (t->qtid < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to disconnect without specifying tunnel ID\n",
                      __FUNCTION__);
             return -EINVAL;
@@ -644,7 +671,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if ((t->qtid != t->tid) && (t->tid > 0))
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to disconnect with invalid TID (%d != %d)\n",
                      __FUNCTION__, t->qtid, t->tid);
             return -EINVAL;
@@ -655,12 +682,12 @@ int control_finish (struct tunnel *t, struct call *c)
         if (t->self->result < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to disconnect without specifying result code.\n",
                      __FUNCTION__);
             return -EINVAL;
         }
-        l2tp_log (LOG_LOG,
+        log (LOG_LOG,
              "%s: Connection closed to %s, port %d (%s), Local: %d, Remote: %d\n",
              __FUNCTION__, IPADDY (t->peer.sin_addr),
              ntohs (t->peer.sin_port), t->self->errormsg, t->ourtid, t->tid);
@@ -681,7 +708,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (p->cid < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to initiate call without call ID\n",
                      __FUNCTION__);
             /* Here it doesn't make sense to use the needclose flag because 
@@ -696,7 +723,7 @@ int control_finish (struct tunnel *t, struct call *c)
             {
                 /* This can happen if we get a duplicate
                    ICRQ or if they don't get our ack packet */
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer requested call %d twice, ignoring second one.\n",
                      __FUNCTION__, p->cid);
                 p->needclose = 0;
@@ -710,7 +737,7 @@ int control_finish (struct tunnel *t, struct call *c)
          * number avp is included in the ICRQ at all which its required to be.
          * Since the serial number is only used for human debugging aid, this
          * isn't a big deal, but it would be nice to have *some* sort of check
-         * for it and perhaps just l2tp_log it and go on.  */
+         * for it and perhaps just log it and go on.  */
 /*    JLM	if (p->serno<1) {
 			if (DEBUG) log(LOG_DEBUG,
 			"%s: Peer did not specify serial number when initiating call\n", __FUNCTION__);
@@ -719,18 +746,22 @@ int control_finish (struct tunnel *t, struct call *c)
 		} */
 
 #ifdef IP_ALLOCATION
-        p->addr = get_addr (t->lns->range);
-        if (!p->addr)
-        {
-            set_error (p, ERROR_NORES, "No available IP address");
-            call_close (p);
-            l2tp_log (LOG_DEBUG, "%s: Out of IP addresses on tunnel %d!\n",
-                 __FUNCTION__, t->tid);
-            return -EINVAL;
+        if (t->lns->assign_ip) {
+            p->addr = get_addr (t->lns->range);
+            if (!p->addr)
+            {
+                set_error (p, ERROR_NORES, "No available IP address");
+                call_close (p);
+                log (LOG_DEBUG, "%s: Out of IP addresses on tunnel %d!\n",
+                     __FUNCTION__, t->tid);
+                return -EINVAL;
+            }
+            reserve_addr (p->addr);
         }
+        else
+            p->addr = 0;
 #endif
 
-        reserve_addr (p->addr);
         p->state = ICRP;
         buf = new_outgoing (t);
         add_message_type_avp (buf, ICRP);
@@ -752,18 +783,18 @@ int control_finish (struct tunnel *t, struct call *c)
          */
         /* add_ppd_avp(buf,ppd); */
         add_control_hdr (t, p, buf);
-        if (packet_dump)
+        if (gconfig.packet_dump)
             do_packet_dump (buf);
         p->cnu = 0;
-        if (debug_state)
-            l2tp_log (LOG_DEBUG, "%s: Sending ICRP\n", __FUNCTION__);
+        if (gconfig.debug_state)
+            log (LOG_DEBUG, "%s: Sending ICRP\n", __FUNCTION__);
         control_xmit (buf);
         break;
     case ICRP:
         if (c->cid < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to negotiate ICRP without specifying call ID\n",
                      __FUNCTION__);
             c->needclose = -1;
@@ -793,7 +824,7 @@ int control_finish (struct tunnel *t, struct call *c)
 /* add_seqreqd_avp (buf); *//* We don't have sequencing code, so
  * don't ask for sequencing */
         add_control_hdr (t, c, buf);
-        if (packet_dump)
+        if (gconfig.packet_dump)
             do_packet_dump (buf);
         c->cnu = 0;
 #ifdef USE_KERNEL
@@ -810,11 +841,11 @@ int control_finish (struct tunnel *t, struct call *c)
             ioctl (server_socket, L2TPIOCSETCALLOPTS, &co);
         }
 #endif
-        if (debug_state)
-            l2tp_log (LOG_DEBUG, "%s: Sending ICCN\n", __FUNCTION__);
-        l2tp_log (LOG_LOG,
-             "%s: Call established with %s, Local: %d, Remote: %d, Serial: %d\n",
-             __FUNCTION__, IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
+        if (gconfig.debug_state)
+            log (LOG_DEBUG, "%s: Sending ICCN\n", __FUNCTION__);
+        log (LOG_NOTICE,
+             "Call established with %s, Local: %d, Remote: %d, Serial: %d\n",
+             IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
              c->serno);
         control_xmit (buf);
         po = NULL;
@@ -871,21 +902,21 @@ int control_finish (struct tunnel *t, struct call *c)
     case ICCN:
         if (c == t->self)
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: Peer attempted ICCN on the actual tunnel, not the call",
                  __FUNCTION__);
             return -EINVAL;
         }
         if (c->txspeed < 1)
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: Peer did not specify transmit speed\n", __FUNCTION__);
             c->needclose = -1;
             return -EINVAL;
         };
         if (c->frame < 1)
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: Peer did not specify framing type\n", __FUNCTION__);
             c->needclose = -1;
             return -EINVAL;
@@ -949,9 +980,9 @@ int control_finish (struct tunnel *t, struct call *c)
         }
         start_pppd (c, po);
         opt_destroy (po);
-        l2tp_log (LOG_LOG,
-             "%s: Call established with %s, Local: %d, Remote: %d, Serial: %d\n",
-             __FUNCTION__, IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
+        log (LOG_NOTICE,
+             "Call established with %s, Local: %d, Remote: %d, Serial: %d\n",
+             IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
              c->serno);
         break;
     case OCRP:                 /* jz: nothing to do for OCRP, waiting for OCCN */
@@ -1007,7 +1038,7 @@ int control_finish (struct tunnel *t, struct call *c)
         };
         start_pppd (c, po);
 
-        l2tp_log (LOG_LOG, "parameters: Local: %d , Remote: %d , Serial: %d , Pid: %d , Tunnelid: %d , Phoneid: %s\n", c->ourcid, c->cid, c->serno, c->pppd, t->ourtid, c->dial_no); /*  jz: just show some information */
+        log (LOG_LOG, "parameters: Local: %d , Remote: %d , Serial: %d , Pid: %d , Tunnelid: %d , Phoneid: %s\n", c->ourcid, c->cid, c->serno, c->pppd, t->ourtid, c->dial_no); /*  jz: just show some information */
 
         opt_destroy (po);
         if (c->lac)
@@ -1019,7 +1050,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if (c->qcid < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to disconnect without specifying call ID\n",
                      __FUNCTION__);
             return -EINVAL;
@@ -1032,7 +1063,7 @@ int control_finish (struct tunnel *t, struct call *c)
             if (!p)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: Unable to determine call to be disconnected.\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -1043,7 +1074,7 @@ int control_finish (struct tunnel *t, struct call *c)
         if ((c->qcid != p->cid) && p->cid > 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to disconnect with invalid CID (%d != %d)\n",
                      __FUNCTION__, c->qcid, c->cid);
             return -EINVAL;
@@ -1052,12 +1083,12 @@ int control_finish (struct tunnel *t, struct call *c)
         if (c->result < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Peer tried to disconnect without specifying result code.\n",
                      __FUNCTION__);
             return -EINVAL;
         }
-        l2tp_log (LOG_LOG,
+        log (LOG_LOG,
              "%s: Connection closed to %s, serial %d (%s)\n", __FUNCTION__,
              IPADDY (t->peer.sin_addr), c->serno, c->errormsg);
         c->needclose = 0;
@@ -1068,7 +1099,7 @@ int control_finish (struct tunnel *t, struct call *c)
     case SLI:
         break;
     default:
-        l2tp_log (LOG_DEBUG,
+        log (LOG_DEBUG,
              "%s: Don't know how to finish a message of type %d\n",
              __FUNCTION__, c->msgtype);
         set_error (c, VENDOR_ERROR, "Unimplemented message %d\n", c->msgtype);
@@ -1089,7 +1120,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
     {
         if (DEBUG)
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: Received too small of packet\n", __FUNCTION__);
         }
         return -EINVAL;
@@ -1099,7 +1130,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
     {
         if (DEBUG)
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: Reported and actual sizes differ (%d != %d)\n",
                  __FUNCTION__, h->length, buf->len);
         }
@@ -1109,14 +1140,14 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
      * FIXME: H-bit handling goes here
      */
 #ifdef DEBUG_CONTROL
-    l2tp_log (LOG_DEBUG, "%s: control, cid = %d, Ns = %d, Nr = %d\n", __FUNCTION__,
+    log (LOG_DEBUG, "%s: control, cid = %d, Ns = %d, Nr = %d\n", __FUNCTION__,
          c->cid, h->Ns, h->Nr);
 #endif
     if (h->Ns != t->control_rec_seq_num)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
-                 "%s: Received out of order control packet on tunnel %d (%d != %d)\n",
+            log (LOG_DEBUG,
+                 "%s: Received out of order control packet on tunnel %d (got %d, expected %d)\n",
                  __FUNCTION__, t->tid, h->Ns, t->control_rec_seq_num);
         if (((h->Ns < t->control_rec_seq_num) && 
             ((t->control_rec_seq_num - h->Ns) < 32768)) ||
@@ -1130,7 +1161,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
              */
 #ifdef DEBUG_ZLB
             if (DEBUG)
-                l2tp_log (LOG_DEBUG, "%s: Sending an updated ZLB in reponse\n",
+                log (LOG_DEBUG, "%s: Sending an updated ZLB in reponse\n",
                      __FUNCTION__);
 #endif
             zlb = new_outgoing (t);
@@ -1164,7 +1195,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s: Control bit not set\n", __FUNCTION__);
+                log (LOG_DEBUG, "%s: Control bit not set\n", __FUNCTION__);
             }
             return -EINVAL;
         }
@@ -1172,7 +1203,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s: Length bit not set\n", __FUNCTION__);
+                log (LOG_DEBUG, "%s: Length bit not set\n", __FUNCTION__);
             }
             return -EINVAL;
         }
@@ -1180,7 +1211,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s: Flow bit not set\n", __FUNCTION__);
+                log (LOG_DEBUG, "%s: Flow bit not set\n", __FUNCTION__);
             }
             return -EINVAL;
         }
@@ -1190,17 +1221,17 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
             {
                 if (CVER (h->ver) == VER_PPTP)
                 {
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: PPTP packet received\n", __FUNCTION__);
                 }
                 else if (CVER (h->ver) < VER_L2TP)
                 {
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: L2F packet received\n", __FUNCTION__);
                 }
                 else
                 {
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: Unknown version received\n", __FUNCTION__);
                 }
             }
@@ -1226,7 +1257,7 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
     {
         if (DEBUG)
         {
-            l2tp_log (LOG_DEBUG, "%s: Aempted to send payload on tunnel\n",
+            log (LOG_DEBUG, "%s: Aempted to send payload on tunnel\n",
                  __FUNCTION__);
         }
         return -EINVAL;
@@ -1237,7 +1268,7 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
            no matter what.  we'll look more later */
         if (DEBUG)
         {
-            l2tp_log (LOG_DEBUG, "%s:Recieved to small of packet\n", __FUNCTION__);
+            log (LOG_DEBUG, "%s:Recieved to small of packet\n", __FUNCTION__);
         }
         return -EINVAL;
     }
@@ -1248,7 +1279,7 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s Control bit set\n", __FUNCTION__);
+                log (LOG_DEBUG, "%s Control bit set\n", __FUNCTION__);
             }
             return -EINVAL;
         }
@@ -1280,17 +1311,17 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
             {
                 if (PVER (h->ver) == VER_PPTP)
                 {
-                    l2tp_log (LOG_DEBUG, "%s: PPTP packet received\n",
+                    log (LOG_DEBUG, "%s: PPTP packet received\n",
                          __FUNCTION__);
                 }
                 else if (CVER (h->ver) < VER_L2TP)
                 {
-                    l2tp_log (LOG_DEBUG, "%s: L2F packet received\n",
+                    log (LOG_DEBUG, "%s: L2F packet received\n",
                          __FUNCTION__);
                 }
                 else
                 {
-                    l2tp_log (LOG_DEBUG, "%s: Unknown version received\n",
+                    log (LOG_DEBUG, "%s: Unknown version received\n",
                          __FUNCTION__);
                 }
             }
@@ -1300,7 +1331,7 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s payload too small (%d < %d)\n",
+                log (LOG_DEBUG, "%s payload too small (%d < %d)\n",
                      __FUNCTION__, buf->len, ehlen);
             }
             return -EINVAL;
@@ -1309,7 +1340,7 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s: size mismatch (%d != %d)\n",
+                log (LOG_DEBUG, "%s: size mismatch (%d != %d)\n",
                      __FUNCTION__, buf->len, h->length);
             }
             return -EINVAL;
@@ -1347,7 +1378,7 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
         new_hdr = (struct payload_hdr *) (buf->start - ehlen);
         if ((void *) new_hdr < (void *) buf->rstart)
         {
-            l2tp_log (LOG_WARN, "%s: not enough space to decompress frame\n",
+            log (LOG_WARN, "%s: not enough space to decompress frame\n",
                  __FUNCTION__);
             return -EINVAL;
 
@@ -1408,7 +1439,7 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
 		c->pSr=new_hdr->Ns;
 	} */
 #ifdef DEBUG_PAYLOAD
-    l2tp_log (LOG_DEBUG, "%s: payload, cid = %d, Ns = %d, Nr = %d\n", __FUNCTION__,
+    log (LOG_DEBUG, "%s: payload, cid = %d, Ns = %d, Nr = %d\n", __FUNCTION__,
          c->cid, new_hdr->Ns, new_hdr->Nr);
 #endif
     if (new_hdr->Ns != c->data_seq_num)
@@ -1421,9 +1452,9 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
         {
 #ifdef DEBUG_FLOW
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
-                     "%s: Already seen this packet before (%d < %d)\n",
-                     __FUNCTION__, new_hdr->Ns, c->pSr);
+                log (LOG_DEBUG,
+                     "%s: Already seen this packet before (%d)\n",
+                     __FUNCTION__, new_hdr->Ns);
 #endif
             return -EINVAL;
         }
@@ -1432,9 +1463,9 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
             /* FIXME: I should buffer for out of order packets */
 #ifdef DEBUG_FLOW
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
-                     "%s: Oops, lost a packet or two (%d != %d).  continuing...\n",
-                     __FUNCTION__, new_hdr->Ns, c->pSr);
+                log (LOG_DEBUG,
+                     "%s: Oops, lost a packet or two (%d).  continuing...\n",
+                     __FUNCTION__, new_hdr->Ns);
 #endif
             c->data_rec_seq_num = new_hdr->Ns;
         }
@@ -1442,9 +1473,9 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
         {
 #ifdef DEBUG_FLOW
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
-                     "%s: Received out of order payload packet (%d != %d)\n",
-                     __FUNCTION__, new_hdr->Ns, c->pSr);
+                log (LOG_DEBUG,
+                     "%s: Received out of order payload packet (%d)\n",
+                     __FUNCTION__, new_hdr->Ns);
 #endif
             return -EINVAL;
         }
@@ -1475,13 +1506,13 @@ void send_zlb (void *data)
     c = (struct call *) data;
     if (!c)
     {
-        l2tp_log (LOG_WARN, "%s: called on NULL call\n", __FUNCTION__);
+        log (LOG_WARN, "%s: called on NULL call\n", __FUNCTION__);
         return;
     }
     t = c->container;
     if (!t)
     {
-        l2tp_log (LOG_WARN, "%s: called on call with NULL container\n",
+        log (LOG_WARN, "%s: called on call with NULL container\n",
              __FUNCTION__);
         return;
     }
@@ -1492,7 +1523,7 @@ void send_zlb (void *data)
     c->data_seq_num--;                   /* We don't increment on ZLB's */
     c->zlb_xmit = NULL;
 #ifdef DEBUG_ZLB
-    l2tp_log (LOG_DEBUG, "%s: sending payload ZLB\n", __FUNCTION__);
+    log (LOG_DEBUG, "%s: sending payload ZLB\n", __FUNCTION__);
 #endif
     udp_xmit (buf);
     toss (buf);
@@ -1514,7 +1545,7 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
     if (c->fd < 0)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s: tty is not open yet.\n", __FUNCTION__);
+            log (LOG_DEBUG, "%s: tty is not open yet.\n", __FUNCTION__);
         return -EIO;
     }
     /*
@@ -1541,7 +1572,7 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
         }
         else if (err == 0)
         {
-            l2tp_log (LOG_WARN, "%s: wrote no bytes of async packet\n",
+            log (LOG_WARN, "%s: wrote no bytes of async packet\n",
                  __FUNCTION__);
             return -EINVAL;
         }
@@ -1553,19 +1584,19 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
             }
             else
             {
-                l2tp_log (LOG_WARN, "%s: async write failed: %s\n", __FUNCTION__,
+                log (LOG_WARN, "%s: async write failed: %s\n", __FUNCTION__,
                      strerror (errno));
             }
         }
         else if (err < buf->len)
         {
-            l2tp_log (LOG_WARN, "%s: short write (%d of %d bytes)\n", __FUNCTION__,
+            log (LOG_WARN, "%s: short write (%d of %d bytes)\n", __FUNCTION__,
                  err, buf->len);
             return -EINVAL;
         }
         else if (err > buf->len)
         {
-            l2tp_log (LOG_WARN, "%s: write returned LONGER than buffer length?\n",
+            log (LOG_WARN, "%s: write returned LONGER than buffer length?\n",
                  __FUNCTION__);
             return -EINVAL;
         }
@@ -1582,15 +1613,14 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
     wbuf[pos++] = e;
     for (x = 0; x < buf->len; x++)
     {
-       // we must at least still have 3 bytes left in the worst case scenario:
-       // 1 for a possible escape, 1 for the value and 1 to end the PPP stream.
-        if (pos >= (sizeof(wbuf) - 4)) {
-	    if (DEBUG)
-                l2tp_log(LOG_CRIT, "%s: rx packet is too big after PPP encoding (size %u, max is %u)\n", \
-                __FUNCTION__, buf->len, MAX_RECV_SIZE);
+        // we must at least still have 3 bytes left in the worst case scenario:
+        // 1 for a possible escape, 1 for the value and 1 to end the PPP stream.
+        if(pos >= (sizeof(wbuf) - 4)) {
+            if(DEBUG)
+                log(LOG_CRIT, "%s: rx packet is too big after PPP encoding (size %u, max is %u)\n",
+                                __FUNCTION__, buf->len, MAX_RECV_SIZE);
             return -EINVAL;
         }
-
         e = *((char *) buf->start + x);
         if ((e < 0x20) || (e == PPP_ESCAPE) || (e == PPP_FLAG))
         {
@@ -1612,7 +1642,7 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
                * everything ended normally
              */
             if (DEBUG)
-                l2tp_log (LOG_WARN, "%s: %s(%d)\n", __FUNCTION__, strerror (errno),
+                log (LOG_WARN, "%s: %s(%d)\n", __FUNCTION__, strerror (errno),
                      errno);
             c->needclose = -1;
             c->fd = -1;
@@ -1645,8 +1675,8 @@ void handle_special (struct buffer *buf, struct call *c, _u16 call)
         if (buf->len == sizeof (struct control_hdr))
         {
             /* If it's a ZLB, we ignore it */
-            if (debug_tunnel)
-                l2tp_log (LOG_DEBUG, "%s: ZLB for closed call\n", __FUNCTION__);
+            if (gconfig.debug_tunnel)
+                log (LOG_DEBUG, "%s: ZLB for closed call\n", __FUNCTION__);
             c->cid = 0;
             return;
         }
@@ -1661,8 +1691,8 @@ void handle_special (struct buffer *buf, struct call *c, _u16 call)
     else
     {
         c->cid = 0;
-        if (debug_tunnel)
-            l2tp_log (LOG_DEBUG, "%s: invalid control packet\n", __FUNCTION__);
+        if (gconfig.debug_tunnel)
+            log (LOG_DEBUG, "%s: invalid control packet\n", __FUNCTION__);
     }
 }
 
@@ -1670,6 +1700,9 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
                           struct call *c)
 {
     int res;
+#ifdef DEBUG_ZLB
+    struct timeval tv;
+#endif
     if (CTBIT (*((_u16 *) buf->start)))
     {
         /* We have a control packet */
@@ -1679,7 +1712,7 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
             if (buf->len == sizeof (struct control_hdr))
             {
 #ifdef DEBUG_ZLB
-                l2tp_log (LOG_DEBUG, "%s: control ZLB received\n", __FUNCTION__);
+                log (LOG_DEBUG, "%s: control ZLB received\n", __FUNCTION__);
 #endif
                 t->control_rec_seq_num--;
                 c->cnu = 0;
@@ -1688,7 +1721,7 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
                     if (c->container->cLr >= c->closeSs)
                     {
 #ifdef DEBUG_ZLB
-                        l2tp_log (LOG_DEBUG, "%s: ZLB for closing message found\n",
+                        log (LOG_DEBUG, "%s: ZLB for closing message found\n",
                              __FUNCTION__);
 #endif
                         c->needclose = 0;
@@ -1703,14 +1736,14 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
             }
             else
             {
-                if (debug_tunnel)
-                    l2tp_log (LOG_DEBUG, "%s: bad AVP handling!\n", __FUNCTION__);
+                if (gconfig.debug_tunnel)
+                    log (LOG_DEBUG, "%s: bad AVP handling!\n", __FUNCTION__);
                 return -EINVAL;
             }
         }
         else
         {
-            l2tp_log (LOG_DEBUG, "%s: bad control packet!\n", __FUNCTION__);
+            log (LOG_DEBUG, "%s: bad control packet!\n", __FUNCTION__);
             return -EINVAL;
         }
     }
@@ -1760,7 +1793,6 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
 							}
 							send_zlb((void *)c);
 						} else {
-						struct timeval tv;
 						We need to schedule sending a ZLB.  FIXME:  Should
 						be 1/4 RTT instead, when rate adaptive stuff is
 						in place. Spec allows .5 seconds though
@@ -1779,7 +1811,7 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
                 else if (buf->len == sizeof (struct payload_hdr))
                 {
 #ifdef DEBUG_ZLB
-                    l2tp_log (LOG_DEBUG, "%s: payload ZLB received\n",
+                    log (LOG_DEBUG, "%s: payload ZLB received\n",
                          __FUNCTION__);
 #endif
 /*					if (c->throttle) {
@@ -1802,21 +1834,21 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
                 }
                 else
                 {
-                    l2tp_log (LOG_DEBUG, "%s: payload too small!\n", __FUNCTION__);
+                    log (LOG_DEBUG, "%s: payload too small!\n", __FUNCTION__);
                     return -EINVAL;
                 }
             }
             else
             {
-                if (debug_tunnel)
-                    l2tp_log (LOG_DEBUG, "%s: unable to expand payload!\n",
+                if (gconfig.debug_tunnel)
+                    log (LOG_DEBUG, "%s: unable to expand payload!\n",
                          __FUNCTION__);
                 return -EINVAL;
             }
         }
         else
         {
-            l2tp_log (LOG_DEBUG, "%s: invalid payload packet!\n", __FUNCTION__);
+            log (LOG_DEBUG, "%s: invalid payload packet!\n", __FUNCTION__);
             return -EINVAL;
         }
     }

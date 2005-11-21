@@ -136,11 +136,11 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 return 0;
             }
             errors++;
-            l2tp_log (LOG_DEBUG, "%s: Error %d (%s)\n", __FUNCTION__, errno,
+            log (LOG_DEBUG, "%s: Error %d (%s)\n", __FUNCTION__, errno,
                  strerror (errno));
             if (errors > 10)
             {
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: Too many errors.  Declaring call dead.\n",
                      __FUNCTION__);
                 return -errno;
@@ -152,7 +152,7 @@ int read_packet (struct buffer *buf, int fd, int convert)
         case PPP_FLAG:
             if (escape)
             {
-                l2tp_log (LOG_DEBUG, "%s: got an escaped PPP_FLAG\n",
+                log (LOG_DEBUG, "%s: got an escaped PPP_FLAG\n",
                      __FUNCTION__);
                 return -EINVAL;
             }
@@ -188,15 +188,13 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 buf->len++;
                 break;
             };
-            l2tp_log (LOG_WARN, "%s: read overrun\n", __FUNCTION__);
+            log (LOG_WARN, "%s: read overrun\n", __FUNCTION__);
             return -EINVAL;
         }
     }
-
     /* I should never get here */
-    l2tp_log (LOG_WARN, "%s: You should not see this message.  If you do, please\n"
-	      "enter a bug report at http://bugs.openswan.org/", __FUNCTION__);
-
+    log (LOG_WARN, "%s: You should not see this message.  If you do, please enter "
+			"a bug report at http://sourceforge.net/projects/l2tpd", __FUNCTION__);
     return -EINVAL;
 }
 
@@ -207,7 +205,7 @@ void call_close (struct call *c)
     struct call *tmp, *tmp2;
     if (!c || !c->container)
     {
-        l2tp_log (LOG_DEBUG, "%s: called on null call or containerless call\n",
+        log (LOG_DEBUG, "%s: called on null call or containerless call\n",
              __FUNCTION__);
         return;
     }
@@ -231,7 +229,7 @@ void call_close (struct call *c)
                 || ((struct tunnel *) se->data == c->container))
             {
 #ifdef DEBUG_CLOSE
-                l2tp_log (LOG_DEBUG, "%s: Descheduling event\n", __FUNCTION__);
+                log (LOG_DEBUG, "%s: Descheduling event\n", __FUNCTION__);
 #endif
                 if (ose)
                 {
@@ -262,7 +260,7 @@ void call_close (struct call *c)
             /* Really close this tunnel, as our
                StopCCN has been ack'd */
 #ifdef DEBUG_CLOSE
-            l2tp_log (LOG_DEBUG, "%s: Actually closing tunnel %d\n", __FUNCTION__,
+            log (LOG_DEBUG, "%s: Actually closing tunnel %d\n", __FUNCTION__,
                  c->container->ourtid);
 #endif
 #ifdef USE_KERNEL
@@ -295,10 +293,10 @@ void call_close (struct call *c)
         add_result_code_avp (buf, c->result, c->error, c->errormsg,
                              strlen (c->errormsg));
         add_control_hdr (c->container, c, buf);
-        if (packet_dump)
+        if (gconfig.packet_dump)
             do_packet_dump (buf);
 #ifdef DEBUG_CLOSE
-        l2tp_log (LOG_DEBUG, "%s: enqueing close message for tunnel\n",
+        log (LOG_DEBUG, "%s: enqueing close message for tunnel\n",
              __FUNCTION__);
 #endif
         control_xmit (buf);
@@ -315,8 +313,8 @@ void call_close (struct call *c)
             call_close (tmp);
             tmp = tmp2;
         }
-        l2tp_log (LOG_LOG,
-             "%s : Connection %d closed to %s, port %d (%s)\n", __FUNCTION__,
+        log (LOG_LOG,
+             "Connection %d closed to %s, port %d (%s)\n", 
              c->container->tid,
              IPADDY (c->container->peer.sin_addr),
              ntohs (c->container->peer.sin_port), c->errormsg);
@@ -335,7 +333,7 @@ void call_close (struct call *c)
         if (c->closing)
         {
 #ifdef DEBUG_CLOSE
-            l2tp_log (LOG_DEBUG, "%s: Actually closing call %d\n", __FUNCTION__,
+            log (LOG_DEBUG, "%s: Actually closing call %d\n", __FUNCTION__,
                  c->ourcid);
 #endif
             destroy_call (c);
@@ -372,14 +370,14 @@ void call_close (struct call *c)
         add_callid_avp (buf, c->ourcid);
 #endif
         add_control_hdr (c->container, c, buf);
-        if (packet_dump)
+        if (gconfig.packet_dump)
             do_packet_dump (buf);
 #ifdef DEBUG_CLOSE
-        l2tp_log (LOG_DEBUG, "%s: enqueuing close message for call %d\n",
+        log (LOG_DEBUG, "%s: enqueuing close message for call %d\n",
              __FUNCTION__, c->ourcid);
 #endif
         control_xmit (buf);
-        l2tp_log (LOG_LOG, "%s: Call %d to %s disconnected\n", __FUNCTION__,
+        log (LOG_LOG, "%s: Call %d to %s disconnected\n", __FUNCTION__,
              c->ourcid, IPADDY (c->container->peer.sin_addr));
     }
     /*
@@ -463,7 +461,7 @@ void destroy_call (struct call *c)
             c->lac->active)
         {
 #ifdef DEBUG_MAGIC
-            l2tp_log (LOG_LOG, "%s: Will redial in %d seconds\n", __FUNCTION__,
+            log (LOG_LOG, "Will redial in %d seconds\n",
                  c->lac->rtimeout);
 #endif
             tv.tv_sec = c->lac->rtimeout;
@@ -481,6 +479,7 @@ struct call *new_call (struct tunnel *parent)
 {
     char entropy_buf[2] = "\0";
     struct call *tmp = malloc (sizeof (struct call));
+
     if (!tmp)
         return NULL;
     tmp->tx_pkts = 0;
@@ -515,11 +514,11 @@ struct call *new_call (struct tunnel *parent)
             /* tmp->ourcid = (rand () & 0xFFFF); */
             get_entropy(entropy_buf, 2);
         {
-            int *temp;
-            temp = (int *)entropy_buf;
+            unsigned short *temp;
+            temp = (unsigned short *)entropy_buf;
             tmp->ourcid = *temp & 0xFFFF;
 #ifdef DEBUG_ENTROPY
-            l2tp_log(LOG_DEBUG, "ourcid = %u, entropy_buf = %hx\n", tmp->ourcid, *temp);
+            log(LOG_DEBUG, "ourcid = %u, entropy_buf = %hx\n", tmp->ourcid, *temp);
 #endif
         }
 #else
@@ -608,7 +607,7 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port)
                             return sc;
                         sc = sc->next;
                     }
-                    l2tp_log (LOG_DEBUG, "%s: can't find call %d in tunnel %d\n",
+                    log (LOG_DEBUG, "%s: can't find call %d in tunnel %d\n",
                          __FUNCTION__, call, tunnel);
                     return NULL;
                 }
@@ -619,7 +618,7 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port)
             }
             st = st->next;
         }
-        l2tp_log (LOG_DEBUG, "%s:can't find tunnel %d\n", __FUNCTION__, tunnel);
+        log (LOG_DEBUG, "%s:can't find tunnel %d\n", __FUNCTION__, tunnel);
         return NULL;
     }
     else
@@ -632,7 +631,7 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port)
 
         if (call)
         {
-            l2tp_log (LOG_WARN,
+            log (LOG_WARN,
                  "%s: call ID specified, but no tunnel ID specified.  tossing.\n",
                  __FUNCTION__);
             return NULL;
@@ -641,15 +640,15 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port)
          * Well, nothing appropriate...  Let's add a new tunnel, if
          * we are not at capacity.
          */
-        if (debug_tunnel)
+        if (gconfig.debug_tunnel)
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: allocating new tunnel for host %s, port %d.\n",
                  __FUNCTION__, IPADDY (addr), ntohs (port));
         }
         if (!(st = new_tunnel ()))
         {
-            l2tp_log (LOG_WARN,
+            log (LOG_WARN,
                  "%s: unable to allocate new tunnel for host %s, port %d.\n",
                  __FUNCTION__, IPADDY (addr), ntohs (port));
             return NULL;

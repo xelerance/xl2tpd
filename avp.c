@@ -142,7 +142,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
     if (datalen != 8)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s: wrong size (%d != 8)\n", __FUNCTION__,
+            log (LOG_DEBUG, "%s: wrong size (%d != 8)\n", __FUNCTION__,
                  datalen);
         wrong_length (c, "Message Type", 8, datalen, 0);
         return -EINVAL;
@@ -150,13 +150,13 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
     if ((c->msgtype > MAX_MSG) || (!msgtypes[c->msgtype]))
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s: unknown message type %d\n", __FUNCTION__,
+            log (LOG_DEBUG, "%s: unknown message type %d\n", __FUNCTION__,
                  c->msgtype);
         return -EINVAL;
     }
-    if (debug_avp)
+    if (gconfig.debug_avp)
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s: message type %d (%s)\n", __FUNCTION__,
+            log (LOG_DEBUG, "%s: message type %d (%s)\n", __FUNCTION__,
                  c->msgtype, msgtypes[c->msgtype]);
 #ifdef SANITY
     if (t->sanity)
@@ -168,7 +168,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
         if ((c != t->self) && (c->msgtype < Hello))
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: attempting to negotiate tunnel inside a call!\n",
                      __FUNCTION__);
             return -EINVAL;
@@ -185,7 +185,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
                  */
 
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate SCCRQ with state != 0\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -195,7 +195,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (t->state != SCCRQ)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate SCCRP with state != SCCRQ!\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -205,7 +205,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (t->state != SCCRP)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate SCCCN with state != SCCRP!\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -215,7 +215,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (t->state != SCCCN)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate ICRQ when state != SCCCN\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -223,7 +223,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (c != t->self)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate ICRQ on a call!\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -233,7 +233,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (t->state != SCCCN)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate ICRP on tunnel!=SCCCN\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -241,7 +241,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (c->state != ICRQ)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate ICRP when state != ICRQ\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -251,7 +251,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (c->state != ICRP)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate ICCN when state != ICRP\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -261,7 +261,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (c->state != ICCN)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate SLI when state != ICCN\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -271,7 +271,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (t->state != SCCCN)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate OCRP on tunnel!=SCCCN\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -279,7 +279,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (c->state != OCRQ)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate OCRP when state != OCRQ\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -290,7 +290,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
             if (c->state != OCRQ)
             {
                 if (DEBUG)
-                    l2tp_log (LOG_DEBUG,
+                    log (LOG_DEBUG,
                          "%s: attempting to negotiate OCCN when state != OCRQ\n",
                          __FUNCTION__);
                 return -EINVAL;
@@ -301,7 +301,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
         case Hello:
             break;
         default:
-            l2tp_log (LOG_WARN, "%s: i don't know how to handle %s messages\n",
+            log (LOG_WARN, "%s: i don't know how to handle %s messages\n",
                  __FUNCTION__, msgtypes[c->msgtype]);
             return -EINVAL;
         }
@@ -310,15 +310,15 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
     if (c->msgtype == ICRQ)
     {
         struct call *tmp;
-        if (debug_avp)
+        if (gconfig.debug_avp)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG, "%s: new incoming call\n", __FUNCTION__);
+                log (LOG_DEBUG, "%s: new incoming call\n", __FUNCTION__);
         }
         tmp = new_call (t);
         if (!tmp)
         {
-            l2tp_log (LOG_WARN, "%s: unable to create new call\n", __FUNCTION__);
+            log (LOG_WARN, "%s: unable to create new call\n", __FUNCTION__);
             return -EINVAL;
         }
         tmp->next = t->call_head;
@@ -339,13 +339,14 @@ int rand_vector_avp (struct tunnel *t, struct call *c, void *data,
 {
     int size;
     _u16 *raw = (_u16 *) data;
-    size = (raw[0] & 0x0FFF) - 6;
+    size = raw[0] & 0x03FF;
+    size -= sizeof (struct avp_hdr);
     if (t->sanity)
     {
         if (size < 0)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG, "%s: Random vector too small (%d < 0)\n",
+                log (LOG_DEBUG, "%s: Random vector too small (%d < 0)\n",
                      __FUNCTION__, size);
             wrong_length (c, "Random Vector", 6, datalen, 1);
             return -EINVAL;
@@ -353,14 +354,14 @@ int rand_vector_avp (struct tunnel *t, struct call *c, void *data,
         if (size > MAX_VECTOR_SIZE)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG, "%s: Random vector too large (%d > %d)\n",
+                log (LOG_DEBUG, "%s: Random vector too large (%d > %d)\n",
                      __FUNCTION__, datalen, MAX_VECTOR_SIZE);
             wrong_length (c, "Random Vector", 6, datalen, 1);
             return -EINVAL;
         }
     }
-    if (debug_avp)
-        l2tp_log (LOG_DEBUG, "%s: Random Vector of %d octets\n", __FUNCTION__,
+    if (gconfig.debug_avp)
+        log (LOG_DEBUG, "%s: Random Vector of %d octets\n", __FUNCTION__,
              size);
     t->chal_us.vector = (unsigned char *) &raw[3];
     t->chal_us.vector_len = size;
@@ -380,10 +381,10 @@ int ignore_avp (struct tunnel *t, struct call *c, void *data, int datalen)
      * One option is to simply change the options we pass to pppd.
      *
      */
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s : Ignoring AVP\n", __FUNCTION__);
+            log (LOG_DEBUG, "%s : Ignoring AVP\n", __FUNCTION__);
     }
     return 0;
 }
@@ -396,7 +397,7 @@ int seq_reqd_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen != 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d != 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Sequencing Required", 6, datalen, 1);
@@ -408,17 +409,17 @@ int seq_reqd_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: sequencing required not appropriate for %s!\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return -EINVAL;
         }
     }
 #endif
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s: peer requires sequencing.\n", __FUNCTION__);
+            log (LOG_DEBUG, "%s: peer requires sequencing.\n", __FUNCTION__);
     }
     c->seq_reqd = -1;
     return 0;
@@ -441,7 +442,7 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen < 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d < 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Result Code", 10, datalen, 1);
@@ -454,7 +455,7 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: result code not appropriate for %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -466,7 +467,7 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
     if ((c->msgtype == StopCCN) && ((result > 7) || (result < 1)))
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: result code out of range (%d %d %d).  Ignoring.\n",
                  __FUNCTION__, result, error, datalen);
         return 0;
@@ -475,7 +476,7 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
     if ((c->msgtype == CDN) && ((result > 11) || (result < 1)))
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: result code out of range (%d %d %d).  Ignoring.\n",
                  __FUNCTION__, result, error, datalen);
         return 0;
@@ -484,18 +485,18 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
     c->error = error;
     c->result = result;
     safe_copy (c->errormsg, (char *) &raw[5], datalen - 10);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG && (c->msgtype == StopCCN))
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer closing for reason %d (%s), error = %d (%s)\n",
                  __FUNCTION__, result, stopccn_result_codes[result], error,
                  c->errormsg);
         }
         else
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer closing for reason %d (%s), error = %d (%s)\n",
                  __FUNCTION__, result, cdn_result_codes[result], error,
                  c->errormsg);
@@ -520,7 +521,7 @@ int protocol_version_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 8)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d != 8\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Protocol Version", 8, datalen, 1);
@@ -533,7 +534,7 @@ int protocol_version_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: protocol version not appropriate for %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -541,10 +542,10 @@ int protocol_version_avp (struct tunnel *t, struct call *c, void *data,
     }
 #endif
     ver = ntohs (raw[3]);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer is using version %d, revision %d.\n", __FUNCTION__,
                  (ver >> 8), ver & 0xFF);
     }
@@ -572,7 +573,7 @@ int framing_caps_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: framing capabilities not appropriate for %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -580,7 +581,7 @@ int framing_caps_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Framming Capabilities", 10, datalen, 0);
@@ -589,9 +590,9 @@ int framing_caps_avp (struct tunnel *t, struct call *c, void *data,
     }
 #endif
     caps = ntohs (raw[4]);
-    if (debug_avp)
+    if (gconfig.debug_avp)
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: supported peer frames:%s%s\n", __FUNCTION__,
                  caps & ASYNC_FRAMING ? " async" : "",
                  caps & SYNC_FRAMING ? " sync" : "");
@@ -618,7 +619,7 @@ int bearer_caps_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: bearer capabilities not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -626,7 +627,7 @@ int bearer_caps_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Bearer Capabilities", 10, datalen, 0);
@@ -635,11 +636,11 @@ int bearer_caps_avp (struct tunnel *t, struct call *c, void *data,
     }
 #endif
     caps = ntohs (raw[4]);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
         {
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: supported peer bearers:%s%s\n",
                  __FUNCTION__,
                  caps & ANALOG_BEARER ? " analog" : "",
@@ -673,7 +674,7 @@ int firmware_rev_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: firmware revision not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -681,7 +682,7 @@ int firmware_rev_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 8)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d != 8\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Firmware Revision", 8, datalen, 0);
@@ -690,10 +691,10 @@ int firmware_rev_avp (struct tunnel *t, struct call *c, void *data,
     }
 #endif
     ver = ntohs (raw[3]);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer reports firmware version %d (0x%.4x)\n",
                  __FUNCTION__, ver, ver);
     }
@@ -720,7 +721,7 @@ int bearer_type_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: bearer type not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -728,7 +729,7 @@ int bearer_type_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Bearer Type", 10, datalen, 0);
@@ -737,10 +738,10 @@ int bearer_type_avp (struct tunnel *t, struct call *c, void *data,
     }
 #endif
     b = ntohs (raw[4]);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer bears:%s\n", __FUNCTION__,
                  b & ANALOG_BEARER ? " analog" : "digital");
     }
@@ -767,7 +768,7 @@ int frame_type_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: frame type not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -775,7 +776,7 @@ int frame_type_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen != 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is incorrect size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Frame Type", 10, datalen, 0);
@@ -784,10 +785,10 @@ int frame_type_avp (struct tunnel *t, struct call *c, void *data, int datalen)
     }
 #endif
     b = ntohs (raw[4]);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer uses:%s frames\n", __FUNCTION__,
                  b & ASYNC_FRAMING ? " async" : "sync");
     }
@@ -813,7 +814,7 @@ int hostname_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: hostname not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -821,7 +822,7 @@ int hostname_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen < 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is too small.  %d < 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Hostname", 6, datalen, 1);
@@ -829,19 +830,20 @@ int hostname_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         }
     }
 #endif
-    size = raw[0] & 0x0FFF;
+    size = raw[0] & 0x03FF;
+    size -= sizeof (struct avp_hdr);
     if (size > MAXSTRLEN - 1)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s: truncating reported hostname (size is %d)\n",
+            log (LOG_DEBUG, "%s: truncating reported hostname (size is %d)\n",
                  __FUNCTION__, size);
         size = MAXSTRLEN - 1;
     }
-    safe_copy (t->hostname, (char *) &raw[3], size - 6);
-    if (debug_avp)
+    safe_copy (t->hostname, (char *) &raw[3], size);
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer reports hostname '%s'\n", __FUNCTION__,
                  t->hostname);
     }
@@ -866,7 +868,7 @@ int dialing_number_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: dialing number not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -874,7 +876,7 @@ int dialing_number_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen < 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is too small.  %d < 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Dialing Number", 6, datalen, 1);
@@ -882,20 +884,21 @@ int dialing_number_avp (struct tunnel *t, struct call *c, void *data,
         }
     }
 #endif
-    size = raw[0] & 0x0FFF;
+    size = raw[0] & 0x03FF;
+    size -= sizeof (struct avp_hdr);
     if (size > MAXSTRLEN - 1)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: truncating reported dialing number (size is %d)\n",
                  __FUNCTION__, size);
         size = MAXSTRLEN - 1;
     }
     safe_copy (t->call_head->dialing, (char *) &raw[3], size);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer reports dialing number '%s'\n", __FUNCTION__,
                  t->call_head->dialing);
     }
@@ -921,7 +924,7 @@ int dialed_number_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: dialed number not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -929,7 +932,7 @@ int dialed_number_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen < 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is too small.  %d < 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Dialed Number", 6, datalen, 1);
@@ -937,20 +940,21 @@ int dialed_number_avp (struct tunnel *t, struct call *c, void *data,
         }
     }
 #endif
-    size = raw[0] & 0x0FFF;
+    size = raw[0] & 0x03FF;
+    size -= sizeof (struct avp_hdr);
     if (size > MAXSTRLEN - 1)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: truncating reported dialed number (size is %d)\n",
                  __FUNCTION__, size);
         size = MAXSTRLEN - 1;
     }
     safe_copy (t->call_head->dialed, (char *) &raw[3], size);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer reports dialed number '%s'\n", __FUNCTION__,
                  t->call_head->dialed);
     }
@@ -976,7 +980,7 @@ int sub_address_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: sub_address not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -984,7 +988,7 @@ int sub_address_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen < 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is too small.  %d < 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Sub-address", 6, datalen, 1);
@@ -992,20 +996,21 @@ int sub_address_avp (struct tunnel *t, struct call *c, void *data,
         }
     }
 #endif
-    size = raw[0] & 0x0FFF;
+    size = raw[0] & 0x03FF;
+    size -= sizeof (struct avp_hdr);
     if (size > MAXSTRLEN - 1)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: truncating reported sub address (size is %d)\n",
                  __FUNCTION__, size);
         size = MAXSTRLEN - 1;
     }
     safe_copy (t->call_head->subaddy, (char *) &raw[3], size);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer reports subaddress '%s'\n", __FUNCTION__,
                  t->call_head->subaddy);
     }
@@ -1030,7 +1035,7 @@ int vendor_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: vendor not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1038,7 +1043,7 @@ int vendor_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen < 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is too small.  %d < 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Vendor", 6, datalen, 1);
@@ -1046,19 +1051,20 @@ int vendor_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         }
     }
 #endif
-    size = raw[0] & 0x0FFF;
+    size = raw[0] & 0x03FF;
+    size -= sizeof (struct avp_hdr);
     if (size > MAXSTRLEN - 1)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG, "%s: truncating reported vendor (size is %d)\n",
+            log (LOG_DEBUG, "%s: truncating reported vendor (size is %d)\n",
                  __FUNCTION__, size);
         size = MAXSTRLEN - 1;
     }
     safe_copy (t->vendor, (char *) &raw[3], size);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer reports vendor '%s'\n", __FUNCTION__, t->vendor);
     }
     return 0;
@@ -1081,7 +1087,7 @@ int challenge_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: challenge not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1089,7 +1095,7 @@ int challenge_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen < 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is too small.  %d < 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "challenge", 6, datalen, 1);
@@ -1103,21 +1109,23 @@ int challenge_avp (struct tunnel *t, struct call *c, void *data, int datalen)
     size -= sizeof (struct avp_hdr);
     /* if (size != MD_SIG_SIZE)
     {
-        l2tp_log (LOG_DEBUG, "%s: Challenge is not the right length (%d != %d)\n",
+        log (LOG_DEBUG, "%s: Challenge is not the right length (%d != %d)\n",
              __FUNCTION__, size, MD_SIG_SIZE);
         return -EINVAL;
     } */
-    t->chal_us.challenge = malloc(size+1);
+    if (t->chal_us.challenge)
+	free(t->chal_us.challenge);
+    t->chal_us.challenge = malloc(size);
     if (t->chal_us.challenge == NULL)
     {
         return -ENOMEM;
     }
-    memset(t->chal_us.challenge, 0, size+1);
     bcopy (&raw[3], (t->chal_us.challenge), size);
+    t->chal_us.chal_len = size;
     t->chal_us.state = STATE_CHALLENGED;
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
-        l2tp_log (LOG_DEBUG, "%s: challenge avp found\n", __FUNCTION__);
+        log (LOG_DEBUG, "%s: challenge avp found\n", __FUNCTION__);
     }
     return 0;
 }
@@ -1139,7 +1147,7 @@ int chalresp_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: challenge response not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1147,7 +1155,7 @@ int chalresp_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen < 6)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is too small.  %d < 6\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "challenge", 6, datalen, 1);
@@ -1155,19 +1163,19 @@ int chalresp_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         }
     }
 #endif
-    size = raw[0] & 0x0FFF;
+    size = raw[0] & 0x03FF;
     size -= sizeof (struct avp_hdr);
     if (size != MD_SIG_SIZE)
     {
-        l2tp_log (LOG_DEBUG, "%s: Challenge is not the right length (%d != %d)\n",
+        log (LOG_DEBUG, "%s: Challenge is not the right length (%d != %d)\n",
              __FUNCTION__, size, MD_SIG_SIZE);
         return -EINVAL;
     }
 
     bcopy (&raw[3], t->chal_them.reply, MD_SIG_SIZE);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
-        l2tp_log (LOG_DEBUG, "%s: Challenge reply found\n", __FUNCTION__);
+        log (LOG_DEBUG, "%s: Challenge reply found\n", __FUNCTION__);
     }
     return 0;
 }
@@ -1191,7 +1199,7 @@ int assigned_tunnel_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: tunnel ID not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1199,7 +1207,7 @@ int assigned_tunnel_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 8)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 8\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Assigned Tunnel ID", 8, datalen, 0);
@@ -1215,10 +1223,10 @@ int assigned_tunnel_avp (struct tunnel *t, struct call *c, void *data,
     {
         t->tid = ntohs (raw[3]);
     }
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: using peer's tunnel %d\n", __FUNCTION__,
                  ntohs (raw[3]));
     }
@@ -1246,7 +1254,7 @@ int assigned_call_avp (struct tunnel *t, struct call *c, void *data,
         case OCRQ:
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: call ID not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1254,7 +1262,7 @@ int assigned_call_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 8)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 8\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Assigned Call ID", 8, datalen, 0);
@@ -1280,13 +1288,13 @@ int assigned_call_avp (struct tunnel *t, struct call *c, void *data,
     }
     else
     {
-        l2tp_log (LOG_DEBUG, "%s:  Dunno what to do when it's state %s!\n",
+        log (LOG_DEBUG, "%s:  Dunno what to do when it's state %s!\n",
              __FUNCTION__, msgtypes[c->msgtype]);
     }
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: using peer's call %d\n", __FUNCTION__, ntohs (raw[3]));
     }
     return 0;
@@ -1313,7 +1321,7 @@ int packet_delay_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: packet delay not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1321,7 +1329,7 @@ int packet_delay_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 8)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 8\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Assigned Call ID", 8, datalen, 0);
@@ -1330,10 +1338,10 @@ int packet_delay_avp (struct tunnel *t, struct call *c, void *data,
     }
 #endif
     c->ppd = ntohs (raw[3]);
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer's delay is %d 1/10's of a second\n", __FUNCTION__,
                  ntohs (raw[3]));
     }
@@ -1357,7 +1365,7 @@ int call_serno_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: call ID not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1366,13 +1374,13 @@ int call_serno_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         {
 #ifdef STRICT
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Serial Number", 10, datalen, 0);
             return -EINVAL;
 #else
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer is using old style serial number.  Will be invalid.\n",
                  __FUNCTION__);
 #endif
@@ -1382,10 +1390,10 @@ int call_serno_avp (struct tunnel *t, struct call *c, void *data, int datalen)
 #endif
     t->call_head->serno = (((unsigned int) ntohs (raw[3])) << 16) |
         ((unsigned int) ntohs (raw[4]));
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: serial number is %d\n", __FUNCTION__,
                  t->call_head->serno);
     }
@@ -1410,7 +1418,7 @@ int rx_speed_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: rx connect speed not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1418,7 +1426,7 @@ int rx_speed_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen != 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Connect Speed (RX)", 10, datalen, 0);
@@ -1428,10 +1436,10 @@ int rx_speed_avp (struct tunnel *t, struct call *c, void *data, int datalen)
 #endif
     c->rxspeed = (((unsigned int) ntohs (raw[3])) << 16) |
         ((unsigned int) ntohs (raw[4]));
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: receive baud rate is %d\n", __FUNCTION__, c->rxspeed);
     }
     return 0;
@@ -1455,7 +1463,7 @@ int tx_speed_avp (struct tunnel *t, struct call *c, void *data, int datalen)
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: tx connect speed not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1463,7 +1471,7 @@ int tx_speed_avp (struct tunnel *t, struct call *c, void *data, int datalen)
         if (datalen != 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Connect Speed (tx)", 10, datalen, 0);
@@ -1473,10 +1481,10 @@ int tx_speed_avp (struct tunnel *t, struct call *c, void *data, int datalen)
 #endif
     c->txspeed = (((unsigned int) ntohs (raw[3])) << 16) |
         ((unsigned int) ntohs (raw[4]));
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: transmit baud rate is %d\n", __FUNCTION__, c->txspeed);
     }
     return 0;
@@ -1501,7 +1509,7 @@ int call_physchan_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: physical channel not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1509,7 +1517,7 @@ int call_physchan_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 10)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 10\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Physical Channel", 10, datalen, 0);
@@ -1519,10 +1527,10 @@ int call_physchan_avp (struct tunnel *t, struct call *c, void *data,
 #endif
     t->call_head->physchan = (((unsigned int) ntohs (raw[3])) << 16) |
         ((unsigned int) ntohs (raw[4]));
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: physical channel is %d\n", __FUNCTION__,
                  t->call_head->physchan);
     }
@@ -1552,7 +1560,7 @@ int receive_window_size_avp (struct tunnel *t, struct call *c, void *data,
             break;
         default:
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: RWS not appropriate for message %s.  Ignoring.\n",
                      __FUNCTION__, msgtypes[c->msgtype]);
             return 0;
@@ -1560,7 +1568,7 @@ int receive_window_size_avp (struct tunnel *t, struct call *c, void *data,
         if (datalen != 8)
         {
             if (DEBUG)
-                l2tp_log (LOG_DEBUG,
+                log (LOG_DEBUG,
                      "%s: avp is wrong size.  %d != 8\n", __FUNCTION__,
                      datalen);
             wrong_length (c, "Receive Window Size", 8, datalen, 0);
@@ -1571,10 +1579,10 @@ int receive_window_size_avp (struct tunnel *t, struct call *c, void *data,
     t->rws = ntohs (raw[3]);
 /*	if (c->rws >= 0)
 		c->fbit = FBIT; */
-    if (debug_avp)
+    if (gconfig.debug_avp)
     {
         if (DEBUG)
-            l2tp_log (LOG_DEBUG,
+            log (LOG_DEBUG,
                  "%s: peer wants RWS of %d.  Will use flow control.\n",
                  __FUNCTION__, t->rws);
     }
@@ -1596,8 +1604,8 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
     int hidlen = 0;
     char *data = buf->start + sizeof (struct control_hdr);
     avp = (struct avp_hdr *) data;
-    if (debug_avp)
-        l2tp_log (LOG_DEBUG, "%s: handling avp's for tunnel %d, call %d\n",
+    if (gconfig.debug_avp)
+        log (LOG_DEBUG, "%s: handling avp's for tunnel %d, call %d\n",
              __FUNCTION__, t->ourtid, c->ourcid);
     while (len > 0)
     {
@@ -1607,11 +1615,10 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         {
             if (AMBIT (avp->length))
             {
-                l2tp_log (LOG_WARN,
-			  "%s:  dont know how to handle mandatory attribute %d.  Closing %s.\n",
-			  __FUNCTION__,
-			  avp->attr,
-			  (c != t->self) ? "call" : "tunnel");
+                log (LOG_WARN,
+                     "%s:  dont know how to handle mandatory attribute %d.  Closing %s.\n",
+                     __FUNCTION__, avp->attr,
+                     (c != t->self) ? "call" : "tunnel");
                 set_error (c, VENDOR_ERROR,
                            "mandatory attribute %d cannot be handled",
                            avp->attr);
@@ -1621,7 +1628,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             else
             {
                 if (DEBUG)
-                    l2tp_log (LOG_WARN,
+                    log (LOG_WARN,
                          "%s:  dont know how to handle atribute %d.\n",
                          __FUNCTION__, avp->attr);
                 goto next;
@@ -1629,7 +1636,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (ALENGTH (avp->length) > len)
         {
-            l2tp_log (LOG_WARN,
+            log (LOG_WARN,
                  "%s: AVP received with length > remaining packet length!\n",
                  __FUNCTION__);
             set_error (c, ERROR_LENGTH, "Invalid AVP length");
@@ -1638,7 +1645,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (avp->attr && firstavp)
         {
-            l2tp_log (LOG_WARN, "%s: First AVP was not message type.\n",
+            log (LOG_WARN, "%s: First AVP was not message type.\n",
                  __FUNCTION__);
             set_error (c, VENDOR_ERROR, "First AVP must be message type");
             c->needclose = -1;
@@ -1646,7 +1653,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (ALENGTH (avp->length) < sizeof (struct avp_hdr))
         {
-            l2tp_log (LOG_WARN, "%s: AVP with too small of size (%d).\n",
+            log (LOG_WARN, "%s: AVP with too small of size (%d).\n",
                  __FUNCTION__, ALENGTH (avp->length));
             set_error (c, ERROR_LENGTH, "AVP too small");
             c->needclose = -1;
@@ -1654,7 +1661,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (AZBITS (avp->length))
         {
-            l2tp_log (LOG_WARN, "%s: %sAVP has reserved bits set.\n", __FUNCTION__,
+            log (LOG_WARN, "%s: %sAVP has reserved bits set.\n", __FUNCTION__,
                  AMBIT (avp->length) ? "Mandatory " : "");
             if (AMBIT (avp->length))
             {
@@ -1667,7 +1674,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         if (AHBIT (avp->length))
         {
 #ifdef DEBUG_HIDDEN
-            l2tp_log (LOG_DEBUG, "%s: Hidden bit set on AVP.\n", __FUNCTION__);
+            log (LOG_DEBUG, "%s: Hidden bit set on AVP.\n", __FUNCTION__);
 #endif
             /* We want to rewrite the AVP as an unhidden AVP
                and then pass it along as normal.  Remeber how
@@ -1675,8 +1682,8 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             hidlen = avp->length;
             if (decrypt_avp (data, t))
             {
-                if (debug_avp)
-                    l2tp_log (LOG_WARN, "%s: Unable to handle hidden %sAVP\n:",
+                if (gconfig.debug_avp)
+                    log (LOG_WARN, "%s: Unable to handle hidden %sAVP\n:",
                          __FUNCTION__,
                          (AMBIT (avp->length) ? "mandatory " : ""));
                 if (AMBIT (avp->length))
@@ -1701,7 +1708,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             {
                 if (AMBIT (avp->length))
                 {
-                    l2tp_log (LOG_WARN,
+                    log (LOG_WARN,
                          "%s: Bad exit status handling attribute %d (%s) on mandatory packet.\n",
                          __FUNCTION__, avp->attr,
                          avps[avp->attr].description);
@@ -1711,7 +1718,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
                 else
                 {
                     if (DEBUG)
-                        l2tp_log (LOG_DEBUG,
+                        log (LOG_DEBUG,
                              "%s: Bad exit status handling attribute %d (%s).\n",
                              __FUNCTION__, avp->attr,
                              avps[avp->attr].description);
@@ -1722,7 +1729,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         {
             if (AMBIT (avp->length))
             {
-                l2tp_log (LOG_WARN,
+                log (LOG_WARN,
                      "%s:  No handler for mandatory attribute %d (%s).  Closing %s.\n",
                      __FUNCTION__, avp->attr, avps[avp->attr].description,
                      (c != t->self) ? "call" : "tunnel");
@@ -1733,7 +1740,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             else
             {
                 if (DEBUG)
-                    l2tp_log (LOG_WARN, "%s:  no handler for atribute %d (%s).\n",
+                    log (LOG_WARN, "%s:  no handler for atribute %d (%s).\n",
                          __FUNCTION__, avp->attr,
                          avps[avp->attr].description);
             }
@@ -1755,7 +1762,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
     }
     if (len != 0)
     {
-        l2tp_log (LOG_WARN, "%s: negative overall packet length\n", __FUNCTION__);
+        log (LOG_WARN, "%s: negative overall packet length\n", __FUNCTION__);
         return -EINVAL;
     }
     return 0;

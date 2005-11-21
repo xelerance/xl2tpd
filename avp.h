@@ -20,7 +20,7 @@ struct avp_hdr
     _u16 length;
     _u16 vendorid;
     _u16 attr;
-};
+} __attribute__((packed));
 
 struct avp
 {
@@ -59,6 +59,8 @@ extern char *msgtypes[];
                                            of these set.  */
 
 #define ALENGTH(len) (len & 0x03FF)     /* Length:  Lenth of AVP */
+
+#define MAXAVPSIZE 1023
 
 #define MAXTIME 300             /* time to wait before checking
                                    Ns and Nr, in ms */
@@ -116,7 +118,7 @@ extern int add_challenge_avp (struct buffer *, char *, int);
 extern int add_avp_rws (struct buffer *, _u16);
 extern int add_tunnelid_avp (struct buffer *, _u16);
 extern int add_vendor_avp (struct buffer *);
-extern int add_hostname_avp (struct buffer *);
+extern int add_hostname_avp (struct buffer *, const char *);
 extern int add_firmware_avp (struct buffer *);
 extern int add_bearer_caps_avp (struct buffer *buf, _u16 caps);
 extern int add_frame_caps_avp (struct buffer *buf, _u16 caps);

@@ -1,3 +1,15 @@
+$Id: CHANGELOG,v 1.10 2005/09/29 13:37:51 vogel Exp $
+
+0.70
+--
+Change path for config files from /etc/l2tp to /etc/l2tpd (jacco2@dds.nl)
+Turn of echo no ptys to pppd (Damien de Soto)
+Add pty name to command line passed to pppd (Chris Wilson)
+Added listen-addr parameter to l2tpd.conf (jacco2@dds.nl)
+Close stdin when in daemon mode (jacco2@dds.nl)
+Improve interoperability with MSL2TP (jacco2@dds.nl)
+Eliminate some warnings (jacco2@dds.nl)
+
 0.69
 --
 Edited l2tpd.conf.5 man page to correct some information

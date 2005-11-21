@@ -49,9 +49,13 @@ struct host
 #define SENSE_ALLOW -1
 #define SENSE_DENY 0
 
+#ifndef DEFAULT_AUTH_FILE
 #define DEFAULT_AUTH_FILE "/etc/l2tpd/l2tp-secrets"
-#define ALT_DEFAULT_AUTH_FILE "/etc/l2tp/l2tp-secrets"
+#endif
+#ifndef DEFAULT_CONFIG_FILE
 #define DEFAULT_CONFIG_FILE "/etc/l2tpd/l2tpd.conf"
+#endif
+#define ALT_DEFAULT_AUTH_FILE "/etc/l2tp/l2tp-secrets"
 #define ALT_DEFAULT_CONFIG_FILE "/etc/l2tp/l2tpd.conf"
 #define DEFAULT_PID_FILE "/var/run/l2tpd.pid"
 
@@ -75,6 +79,7 @@ struct lns
     char entname[STRLEN];       /* Name of this entry */
     struct iprange *lacs;       /* Hosts permitted to connect */
     struct iprange *range;      /* Range of IP's we provide */
+    int assign_ip;              /* Do we actually provide IP addresses? */
     int passwdauth;             /* Authenticate by passwd file? (or PAM) */
     int pap_require;            /* Require PAP auth for PPP */
     int chap_require;           /* Require CHAP auth for PPP */
@@ -137,9 +142,15 @@ struct global
     char configfile[STRLEN];    /* File containing configuration info */
     char altconfigfile[STRLEN]; /* File containing configuration info */
     char pidfile[STRLEN];       /* File containing the pid number*/
+    char controlfile[STRLEN];   /* Control file name (named pipe) */
     int daemon;                 /* Use daemon mode? */
     int accesscontrol;          /* Use access control? */
     int forceuserspace;         /* Force userspace? */
+    int packet_dump;		/* Dump (print) all packets? */
+    int debug_avp;		/* Print AVP debugging info? */
+    int debug_network;		/* Print network debugging info? */
+    int debug_tunnel;		/* Print tunnel debugging info? */
+    int debug_state;		/* Print FSM debugging info? */
 };
 
 extern struct global gconfig;   /* Global configuration options */

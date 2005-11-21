@@ -30,19 +30,15 @@
 #include "l2tp.h"
 
 
-void l2tp_log (int level, const char *fmt, ...)
+void log (int level, const char *fmt, ...)
 {
     char buf[256];
     va_list args;
     va_start (args, fmt);
     vsnprintf (buf, sizeof (buf), fmt, args);
-    va_end (args);              //bk - otherwise ppc segfaults
-    va_start (args, fmt);       //bk
-    vfprintf (stderr, fmt, args);
-    fflush (stderr);
+    va_end (args);
     openlog (BINARY, LOG_PID, LOG_DAEMON);
     syslog (level, "%s", buf);
-    va_end (args);
 }
 
 void set_error (struct call *c, int error, const char *fmt, ...)
@@ -99,7 +95,7 @@ void bufferDump (char *buf, int buflen)
             c++;                /* again two characters to display ONE byte */
         }
         *c = '\0';
-        l2tp_log (LOG_WARN, "%s: buflen=%d, buffer[%d]: *%s*\n", __FUNCTION__,
+        log (LOG_WARN, "%s: buflen=%d, buffer[%d]: *%s*\n", __FUNCTION__,
              buflen, i, line);
     }
 
@@ -115,7 +111,7 @@ void bufferDump (char *buf, int buflen)
     if (c != line)
     {
         *c = '\0';
-        l2tp_log (LOG_WARN, "%s:             buffer[%d]: *%s*\n", __FUNCTION__, i,
+        log (LOG_WARN, "%s:             buffer[%d]: *%s*\n", __FUNCTION__, i,
              line);
     }
 }
@@ -166,9 +162,9 @@ inline void swaps (void *buf_v, int len)
     /* Reverse byte order (if proper to do so) 
        to make things work out easier */
     int x;
-    _u16 *tmp = (_u16 *) buf_v;
-    for (x = 0; x < len / 2; x++)
-        tmp[x] = ntohs (tmp[x]);
+	struct hw { _u16 s; } __attribute__ ((packed)) *p = (struct hw *) buf_v;
+	for (x = 0; x < len / 2; x++, p++)
+		p->s = ntohs(p->s); 
 #endif
 }
 
@@ -199,7 +195,7 @@ struct ppp_opts *add_opt (struct ppp_opts *option, char *fmt, ...)
     new = (struct ppp_opts *) malloc (sizeof (struct ppp_opts));
     if (!new)
     {
-        l2tp_log (LOG_WARN,
+        log (LOG_WARN,
              "%s : Unable to allocate ppp option memory.  Expect a crash\n",
              __FUNCTION__);
         return NULL;
@@ -265,7 +261,7 @@ int get_dev_entropy(char *buf, int count)
     if (devrandom == -1)
     {
 #ifdef DEBUG_ENTROPY
-        l2tp_log(LOG_WARN, "%s: couldn't open /dev/urandom,"
+        log(LOG_WARN, "%s: couldn't open /dev/urandom,"
                       "falling back to rand()\n",
                       __FUNCTION__);
 #endif
@@ -288,13 +284,13 @@ int get_entropy (char *buf, int count)
     }
     else if (rand_source == RAND_EGD)
     {
-        l2tp_log(LOG_WARN, "%s: EGD Randomness source not yet implemented\n",
+        log(LOG_WARN, "%s: EGD Randomness source not yet implemented\n",
                 __FUNCTION__);
         return -1;
     }
     else
     {
-        l2tp_log(LOG_WARN, "%s: Invalid Randomness source specified (%d)\n",
+        log(LOG_WARN, "%s: Invalid Randomness source specified (%d)\n",
                 __FUNCTION__, rand_source);
         return -1;
     }

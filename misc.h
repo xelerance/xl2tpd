@@ -58,13 +58,14 @@ struct ppp_opts
 
 #define LOG_DEBUG 7
 #define LOG_LOG   6
+#define LOG_NOTICE 5
 #define LOG_WARN  4
 #define LOG_CRIT  2
 
 #define halt() printf("Halted.\n") ; for(;;)
 
 extern char hostname[];
-extern void l2tp_log (int level, const char *fmt, ...);
+extern void log (int level, const char *fmt, ...);
 extern struct buffer *new_buf (int);
 extern void udppush_handler (int);
 extern int addfcs (struct buffer *buf);

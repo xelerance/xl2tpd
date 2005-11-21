@@ -15,61 +15,65 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <sys/utsname.h>
 #include "l2tp.h"
+
+struct half_words {
+	_u16 s0;
+	_u16 s1;
+	_u16 s2;
+	_u16 s3;
+} __attribute__ ((packed));
+
+void add_header(struct buffer *buf, _u8 length, _u16 type) {
+	struct avp_hdr *avp = (struct avp_hdr *) (buf->start + buf->len);
+	avp->length = htons (length | MBIT);
+	avp->vendorid = htons (VENDOR_ID);
+	avp->attr = htons (type);
+}
 
 /* 
  * These routines should add avp's to a buffer
  * to be sent
  */
 
-
 /* FIXME:  If SANITY is on, we should check for buffer overruns */
-
-/* FIXME: Can't this be condensed alot? */
 
 int add_message_type_avp (struct buffer *buf, _u16 type)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x8 | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = 0;
-    raw[3] = htons (type);
-    buf->len += 8;
+	struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+	add_header(buf, 0x8, 0);
+	ptr->s0 = htons(type);
+    buf->len += 0x8;
     return 0;
 }
 
 int add_protocol_avp (struct buffer *buf)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x8 | MBIT);        /* Length and M bit */
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x2);       /* Value of our AVP */
-    raw[3] = htons (OUR_L2TP_VERSION);
-    buf->len += 8;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0x8, 0x2);        /* Length and M bit */
+    ptr->s0 = htons (OUR_L2TP_VERSION);
+    buf->len += 0x8;
     return 0;
 }
 
 int add_frame_caps_avp (struct buffer *buf, _u16 caps)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x3);
-    raw[3] = 0;
-    raw[4] = htons (caps);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x3);
+    ptr->s0 = 0;
+    ptr->s1 = htons (caps);
+    buf->len += 0xA;
     return 0;
 }
 
 int add_bearer_caps_avp (struct buffer *buf, _u16 caps)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x4);
-    raw[3] = 0;
-    raw[4] = htons (caps);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x4);
+    ptr->s0 = 0;
+    ptr->s1 = htons (caps);
+    buf->len += 0xA;
     return 0;
 }
 
@@ -77,116 +81,85 @@ int add_bearer_caps_avp (struct buffer *buf, _u16 caps)
 
 int add_firmware_avp (struct buffer *buf)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x8);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x6);
-    raw[3] = htons (FIRMWARE_REV);
-    buf->len += 8;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0x8, 0x6);
+    ptr->s0 = htons (FIRMWARE_REV);
+    buf->len += 0x8;
     return 0;
 }
 
-/*
-int add_hostname_avp(struct buffer *buf) {
-	_u16 *raw = (_u16 *)(buf->start + buf->len);
-	raw[0] = htons((0x6 + strlen(hostname)) | MBIT);
-	raw[1] = htons(VENDOR_ID);
-	raw[2] = htons(0x7);
-	strcpy((char *)(&raw[3]), hostname);
-	buf->len += 6 + strlen(hostname);
-	return 0;
-}
-*/
-
-int add_hostname_avp (struct buffer *buf)
+int add_hostname_avp (struct buffer *buf, const char *hostname)
 {
-    char names[6] = "eriwan";
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xC | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x7);
-    strcpy ((char *) (&raw[3]), names);
-    buf->len += 12;
+    size_t namelen = strlen(hostname);
+    if (namelen > MAXAVPSIZE - 6) {
+        namelen = MAXAVPSIZE - 6;
+    }
+    add_header(buf, 0x6 + namelen, 0x7);
+    strncpy ((char *) (buf->start + buf->len + sizeof(struct avp_hdr)),
+	     hostname, namelen);
+    buf->len += 0x6 + namelen;
     return 0;
 }
 
 int add_vendor_avp (struct buffer *buf)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x6 + strlen (VENDOR_NAME));
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x8);
-    strcpy ((char *) (&raw[3]), VENDOR_NAME);
-    buf->len += 6 + strlen (VENDOR_NAME);
+    add_header(buf, 0x6 + strlen (VENDOR_NAME), 0x8);
+    strcpy ((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), VENDOR_NAME);
+    buf->len += 0x6 + strlen (VENDOR_NAME);
     return 0;
 }
 
 int add_tunnelid_avp (struct buffer *buf, _u16 tid)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x8 | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x9);
-    raw[3] = htons (tid);
-    buf->len += 8;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0x8, 0x9);
+    ptr->s0 = htons (tid);
+    buf->len += 0x8;
     return 0;
 }
 
 int add_avp_rws (struct buffer *buf, _u16 rws)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x8 | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0xA);
-    raw[3] = htons (rws);
-    buf->len += 8;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0x8, 0xA);
+    ptr->s0 = htons (rws);
+    buf->len += 0x8;
     return 0;
 }
 
 int add_challenge_avp (struct buffer *buf, char *c, int len)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons ((0x6 + len) | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0xB);
-    bcopy (c, (char *) (&raw[3]), len);
-    buf->len += 6 + len;
+    add_header(buf, (0x6 + len), 0xB);
+    memcpy((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), c, len);
+    buf->len += 0x6 + len;
     return 0;
 }
 
 int add_chalresp_avp (struct buffer *buf, char *c, int len)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons ((0x6 + len) | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0xD);
-    bcopy (c, (char *) (&raw[3]), len);
-    buf->len += 6 + len;
+    add_header(buf, (0x6 + len), 0xD);
+    memcpy((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), c, len);
+    buf->len += 0x6 + len;
     return 0;
 }
 
 int add_randvect_avp (struct buffer *buf, char *c, int len)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons ((0x6 + len) | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x24);
-    bcopy (c, (char *) (&raw[3]), len);
-    buf->len += 6 + len;
+    add_header(buf, (0x6 + len), 0x24);
+    memcpy((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), c, len);
+    buf->len += 0x6 + len;
     return 0;
 }
 
 int add_result_code_avp (struct buffer *buf, _u16 result, _u16 error,
                          char *msg, int len)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons ((0xA + len) | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x1);
-    raw[3] = htons (result);
-    raw[4] = htons (error);
-    bcopy (msg, (char *) &raw[5], len);
-    buf->len += (10 + len);
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, (0xA + len), 0x1);
+    ptr->s0 = htons (result);
+    ptr->s1 = htons (error);
+    memcpy ((char *) &ptr->s2, msg, len);
+    buf->len += 0xA + len;
     return 0;
 }
 
@@ -197,16 +170,14 @@ int add_callid_avp (struct buffer *buf, _u16 callid, struct tunnel *t)
 int add_callid_avp (struct buffer *buf, _u16 callid)
 {
 #endif
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
 #ifdef TEST_HIDDEN
     if (t->hbit)
         raw++;
 #endif
-    raw[0] = htons (0x8 | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0xE);
-    raw[3] = htons (callid);
-    buf->len += 8;
+    add_header(buf, 0x8, 0xE);
+    ptr->s0 = htons (callid);
+    buf->len += 0x8;
 #ifdef TEST_HIDDEN
     if (t->hbit)
         encrypt_avp (buf, 8, t);
@@ -216,94 +187,77 @@ int add_callid_avp (struct buffer *buf, _u16 callid)
 
 int add_serno_avp (struct buffer *buf, unsigned int serno)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0xF);
-    raw[3] = htons ((serno >> 16) & 0xFFFF);
-    raw[4] = htons (serno & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0xF);
+    ptr->s0 = htons ((serno >> 16) & 0xFFFF);
+    ptr->s1 = htons (serno & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 int add_bearer_avp (struct buffer *buf, int bearer)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x12);
-    raw[3] = htons ((bearer >> 16) & 0xFFFF);
-    raw[4] = htons (bearer & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x12);
+    ptr->s0 = htons ((bearer >> 16) & 0xFFFF);
+    ptr->s1 = htons (bearer & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 int add_frame_avp (struct buffer *buf, int frame)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x13);
-    raw[3] = htons ((frame >> 16) & 0xFFFF);
-    raw[4] = htons (frame & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x13);
+    ptr->s0 = htons ((frame >> 16) & 0xFFFF);
+    ptr->s1 = htons (frame & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 int add_txspeed_avp (struct buffer *buf, int speed)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x18);
-    raw[3] = htons ((speed >> 16) & 0xFFFF);
-    raw[4] = htons (speed & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x18);
+    ptr->s0 = htons ((speed >> 16) & 0xFFFF);
+    ptr->s1 = htons (speed & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 int add_rxspeed_avp (struct buffer *buf, int speed)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x26);
-    raw[3] = htons ((speed >> 16) & 0xFFFF);
-    raw[4] = htons (speed & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x26);
+    ptr->s0 = htons ((speed >> 16) & 0xFFFF);
+    ptr->s1 = htons (speed & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 int add_physchan_avp (struct buffer *buf, unsigned int physchan)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x8 | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x19);
-    raw[3] = htons ((physchan >> 16) & 0xFFFF);
-    raw[4] = htons (physchan & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x19);
+    ptr->s0 = htons ((physchan >> 16) & 0xFFFF);
+    ptr->s1 = htons (physchan & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 int add_ppd_avp (struct buffer *buf, _u16 ppd)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x8 | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x14);
-    raw[3] = htons (ppd);
-    buf->len += 8;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0x8, 0x14);
+    ptr->s0 = htons (ppd);
+    buf->len += 0x8;
     return 0;
 }
 
 int add_seqreqd_avp (struct buffer *buf)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0x6 | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x27);
-    buf->len += 6;
+    add_header(buf, 0x6, 0x27);
+    buf->len += 0x6;
     return 0;
 }
 
@@ -312,37 +266,30 @@ int add_seqreqd_avp (struct buffer *buf)
 /* jz: Minimum BPS - 16 */
 int add_minbps_avp (struct buffer *buf, int speed)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x10);
-    raw[3] = htons ((speed >> 16) & 0xFFFF);
-    raw[4] = htons (speed & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x10);
+    ptr->s0 = htons ((speed >> 16) & 0xFFFF);
+    ptr->s1 = htons (speed & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 /* jz: Maximum BPS - 17 */
 int add_maxbps_avp (struct buffer *buf, int speed)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons (0xA | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x11);
-    raw[3] = htons ((speed >> 16) & 0xFFFF);
-    raw[4] = htons (speed & 0xFFFF);
-    buf->len += 10;
+    struct half_words *ptr = (struct half_words *) (buf->start + buf->len + sizeof(struct avp_hdr));
+    add_header(buf, 0xA, 0x11);
+    ptr->s0 = htons ((speed >> 16) & 0xFFFF);
+    ptr->s1 = htons (speed & 0xFFFF);
+    buf->len += 0xA;
     return 0;
 }
 
 /* jz: Dialed Number 21 */
 int add_number_avp (struct buffer *buf, char *no)
 {
-    _u16 *raw = (_u16 *) (buf->start + buf->len);
-    raw[0] = htons ((0x6 + strlen (no)) | MBIT);
-    raw[1] = htons (VENDOR_ID);
-    raw[2] = htons (0x15);
-    strncpy ((char *) (&(raw[3])), no, strlen (no));
-    buf->len += 6 + strlen (no);
+    add_header(buf, (0x6 + strlen (no)), 0x15);
+    strncpy ((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), no, strlen (no));
+    buf->len += 0x6 + strlen (no);
     return 0;
 }

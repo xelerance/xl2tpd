@@ -38,7 +38,9 @@ typedef unsigned long long _u64;
 #define BINARY "l2tpd"
 #define SERVER_VERSION "0.69"
 #define VENDOR_NAME "l2tpd.org"
+#ifndef PPPD
 #define PPPD		"/usr/sbin/pppd"
+#endif
 #define CALL_PPP_OPTS "defaultroute"
 #define FIRMWARE_REV	0x0690  /* Revision of our firmware (software, in this case) */
 #define DEF_MAX_TUNNELS 32      /* By default only allow this many
@@ -54,7 +56,7 @@ struct control_hdr
     _u16 cid;                   /* Call ID */
     _u16 Ns;                    /* Next sent */
     _u16 Nr;                    /* Next received */
-};
+} __attribute__((packed));
 
 #define CTBIT(ver) (ver & 0x8000)       /* Determins if control or not */
 #define CLBIT(ver) (ver & 0x4000)       /* Length bit present.  Must be 1
@@ -79,7 +81,7 @@ struct payload_hdr
     _u16 Nr;                    /* Optional next received */
     _u16 o_size;                /* Optional offset size */
     _u16 o_pad;                 /* Optional offset padding */
-};
+} __attribute__((packed));
 
 #define NZL_TIMEOUT_DIVISOR 4   /* Divide TIMEOUT by this and
                                    you know how often to send
@@ -192,10 +194,6 @@ extern struct tunnel_list tunnels;
 extern void tunnel_close (struct tunnel *t);
 extern void network_thread ();
 extern int init_network ();
-extern int debug_tunnel;
-extern int packet_dump;
-extern int debug_avp;
-extern int debug_state;
 extern int max_tunnels;
 extern int kernel_support;
 extern int server_socket;

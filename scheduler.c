@@ -56,7 +56,7 @@ void alarm_handler (int signal)
     if (cnt != 1)
     {
         /* Whoa, we got called from within ourselves! */
-        l2tp_log (LOG_DEBUG, "%s : Whoa... cnt = %d\n", __FUNCTION__, cnt);
+        log (LOG_DEBUG, "%s : Whoa... cnt = %d\n", __FUNCTION__, cnt);
         return;
     }
     while (events)
@@ -89,7 +89,7 @@ void alarm_handler (int signal)
         }
         if ((then.tv_sec <= 0) && (then.tv_usec <= 0))
         {
-            l2tp_log (LOG_WARN, "%s: Whoa...  Scheduling for <=0 time???\n",
+            log (LOG_WARN, "%s: Whoa...  Scheduling for <=0 time???\n",
                  __FUNCTION__);
         }
         else
