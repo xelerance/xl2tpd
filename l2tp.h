@@ -36,8 +36,8 @@ typedef unsigned long long _u64;
 #define CONTROL_PIPE "/var/run/l2tp-control"
 
 #define BINARY "l2tpd"
-#define SERVER_VERSION "0.69"
-#define VENDOR_NAME "l2tpd.org"
+#define SERVER_VERSION "1.00-X"
+#define VENDOR_NAME "xelerance.com"
 #ifndef PPPD
 #define PPPD		"/usr/sbin/pppd"
 #endif

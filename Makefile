@@ -60,6 +60,7 @@ HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=l2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
 #LIBS= $(OSLIB) # -lefence # efence for malloc checking
 EXEC=l2tpd
+BINDIR=/usr/sbin
 
 all: $(EXEC)
 
@@ -71,4 +72,7 @@ $(EXEC): $(OBJS) $(HDRS)
 
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
+
+install: ${EXEC}
+	install --mode=0755 ${EXEC} ${DESTDIR}${BINDIR}
 
