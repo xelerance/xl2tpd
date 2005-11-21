@@ -42,7 +42,7 @@ int init_network (void)
     server.sin_port = htons (gconfig.port);
     if ((server_socket = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
     {
-        log (LOG_CRIT, "%s: Unable to allocate socket. Terminating.\n",
+        l2tp_log (LOG_CRIT, "%s: Unable to allocate socket. Terminating.\n",
              __FUNCTION__);
         return -EINVAL;
     };
@@ -51,37 +51,37 @@ int init_network (void)
     if (bind (server_socket, (struct sockaddr *) &server, sizeof (server)))
     {
         close (server_socket);
-        log (LOG_CRIT, "%s: Unable to bind socket: %s. Terminating.\n",
+        l2tp_log (LOG_CRIT, "%s: Unable to bind socket: %s. Terminating.\n",
              __FUNCTION__, strerror(errno), errno);
         return -EINVAL;
     };
     if (getsockname (server_socket, (struct sockaddr *) &server, &length))
     {
-        log (LOG_CRIT, "%s: Unable to read socket name.Terminating.\n",
+        l2tp_log (LOG_CRIT, "%s: Unable to read socket name.Terminating.\n",
              __FUNCTION__);
         return -EINVAL;
     }
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
     {
-        log (LOG_LOG, "Not looking for kernel support.\n");
+        l2tp_log (LOG_LOG, "Not looking for kernel support.\n");
         kernel_support = 0;
     }
     else
     {
         if (ioctl (server_socket, SIOCSETL2TP, NULL) < 0)
         {
-            log (LOG_LOG, "L2TP kernel support not detected.\n");
+            l2tp_log (LOG_LOG, "L2TP kernel support not detected.\n");
             kernel_support = 0;
         }
         else
         {
-            log (LOG_LOG, "Using l2tp kernel support.\n");
+            l2tp_log (LOG_LOG, "Using l2tp kernel support.\n");
             kernel_support = -1;
         }
     }
 #else
-    log (LOG_LOG, "This binary does not support kernel L2TP.\n");
+    l2tp_log (LOG_LOG, "This binary does not support kernel L2TP.\n");
 #endif
     arg = fcntl (server_socket, F_GETFL);
     arg |= O_NONBLOCK;
@@ -160,7 +160,7 @@ void control_xmit (void *b)
     int ns;
     if (!buf)
     {
-        log (LOG_WARN, "%s: called on NULL buffer!\n", __FUNCTION__);
+        l2tp_log (LOG_WARN, "%s: called on NULL buffer!\n", __FUNCTION__);
         return;
     }
 
@@ -172,7 +172,7 @@ void control_xmit (void *b)
         if (ns < t->cLr)
         {
 #ifdef DEBUG_CONTROL_XMIT
-            log (LOG_DEBUG, "%s: Tossing packet %d\n", __FUNCTION__, ns);
+            l2tp_log (LOG_DEBUG, "%s: Tossing packet %d\n", __FUNCTION__, ns);
 #endif
             /* Okay, it's been received.  Let's toss it now */
             toss (buf);
@@ -189,7 +189,7 @@ void control_xmit (void *b)
         {
             if (t->self->needclose)
             {
-                log (LOG_DEBUG,
+                l2tp_log (LOG_DEBUG,
                      "Unable to deliver closing message for tunnel %d. Destroying anyway.\n",
                      t->ourtid);
                 t->self->needclose = 0;
@@ -197,7 +197,7 @@ void control_xmit (void *b)
             }
             else
             {
-                log (LOG_NOTICE,
+                l2tp_log (LOG_NOTICE,
                      "Maximum retries exceeded for tunnel %d.  Closing.\n",
                      t->ourtid);
                 strcpy (t->self->errormsg, "Timeout");
@@ -216,7 +216,7 @@ void control_xmit (void *b)
         tv.tv_usec = 0;
         schedule (tv, control_xmit, buf);
 #ifdef DEBUG_CONTROL_XMIT
-        log (LOG_DEBUG, "%s: Scheduling and transmitting packet %d\n",
+        l2tp_log (LOG_DEBUG, "%s: Scheduling and transmitting packet %d\n",
              __FUNCTION__, ns);
 #endif
         udp_xmit (buf);
@@ -279,7 +279,7 @@ int build_fdset (fd_set *readfds)
 		if (tun->self->needclose ^ tun->self->closing)
 		{
 			if (gconfig.debug_tunnel)
-				log (LOG_DEBUG, "%s: closing down tunnel %d\n",
+				l2tp_log (LOG_DEBUG, "%s: closing down tunnel %d\n",
 						__FUNCTION__, tun->ourtid);
 			call_close (tun->self);
 			/* Reset the while loop
@@ -347,13 +347,13 @@ void network_thread ()
                 if (recvsize < 0)
                 {
                     if (errno != EAGAIN)
-                        log (LOG_WARN,
+                        l2tp_log (LOG_WARN,
                              "%s: recvfrom returned error %d (%s)\n",
                              __FUNCTION__, errno, strerror (errno));
                 }
                 else
                 {
-                    log (LOG_WARN, "%s: received too small a packet\n",
+                    l2tp_log (LOG_WARN, "%s: received too small a packet\n",
                          __FUNCTION__);
                 }
             }
@@ -362,7 +362,7 @@ void network_thread ()
                 buf->len = recvsize;
                 if (gconfig.debug_network)
                 {
-                    log (LOG_DEBUG, "%s: recv packet from %s, size = %d, "
+                    l2tp_log (LOG_DEBUG, "%s: recv packet from %s, size = %d, "
 							"tunnel = %d, call = %d\n", __FUNCTION__,
 							inet_ntoa (from.sin_addr), recvsize, tunnel, call);
                 }
@@ -390,13 +390,13 @@ void network_thread ()
                          * to ack receiving the packet.
                          */
                         if (gconfig.debug_tunnel)
-                            log (LOG_DEBUG,
+                            l2tp_log (LOG_DEBUG,
                                  "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
                                  __FUNCTION__);
                         handle_special (buf, c, call);
                     }
                     else
-                        log (LOG_DEBUG,
+                        l2tp_log (LOG_DEBUG,
                              "%s: unable to find call or tunnel to handle packet.  call = %d, tunnel = %d Dumping.\n",
                              __FUNCTION__, call, tunnel);
 
@@ -409,7 +409,7 @@ void network_thread ()
                     if (handle_packet (buf, c->container, c))
                     {
                         if (gconfig.debug_tunnel)
-                            log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
+                            l2tp_log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
                     };
                     if (c->cnu)
                     {
@@ -433,7 +433,7 @@ void network_thread ()
                     int result;
                     recycle_payload (buf, sc->container->peer);
 #ifdef DEBUG_FLOW_MORE
-                    log (LOG_DEBUG, "%s: rws = %d, pSs = %d, pLr = %d\n",
+                    l2tp_log (LOG_DEBUG, "%s: rws = %d, pSs = %d, pLr = %d\n",
                          __FUNCTION__, sc->rws, sc->pSs, sc->pLr);
 #endif
 /*					if ((sc->rws>0) && (sc->pSs > sc->pLr + sc->rws) && !sc->rbit) {
@@ -474,7 +474,7 @@ void network_thread ()
                     }
                     if (result != 0)
                     {
-                        log (LOG_WARN,
+                        l2tp_log (LOG_WARN,
                              "%s: tossing read packet, error = %s (%d).  Closing call.\n",
                              __FUNCTION__, strerror (-result), -result);
                         strcpy (sc->errormsg, strerror (-result));

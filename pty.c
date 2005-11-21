@@ -57,6 +57,6 @@ int getPtyMaster (char *tty10, char *tty01)
             }
         }
     }
-    log (LOG_CRIT, "%s: No more free pseudo-tty's\n", __FUNCTION__);
+    l2tp_log (LOG_CRIT, "%s: No more free pseudo-tty's\n", __FUNCTION__);
     return -1;
 }

@@ -62,7 +62,7 @@ int init_config ()
         }
         else
         {
-            log (LOG_CRIT, "%s: Unable to open config file %s or %s\n",
+            l2tp_log (LOG_CRIT, "%s: Unable to open config file %s or %s\n",
                  __FUNCTION__, gconfig.configfile, gconfig.altconfigfile);
             return -1;
         }
@@ -80,7 +80,7 @@ struct lns *new_lns ()
     tmp = (struct lns *) malloc (sizeof (struct lns));
     if (!tmp)
     {
-        log (LOG_CRIT, "%s: Unable to allocate memory for new LNS\n",
+        l2tp_log (LOG_CRIT, "%s: Unable to allocate memory for new LNS\n",
              __FUNCTION__);
         return NULL;
     }
@@ -125,7 +125,7 @@ struct lac *new_lac ()
     tmp = (struct lac *) malloc (sizeof (struct lac));
     if (!tmp)
     {
-        log (LOG_CRIT, "%s: Unable to allocate memory for lac entry!\n",
+        l2tp_log (LOG_CRIT, "%s: Unable to allocate memory for lac entry!\n",
              __FUNCTION__);
         return NULL;
     }
@@ -178,7 +178,7 @@ int set_boolean (char *word, char *value, int *ptr)
 {
     int val;
 #ifdef DEBUG_FILE
-    log (LOG_DEBUG, "set_%s: %s  flag to '%s'\n", word, word, value);
+    l2tp_log (LOG_DEBUG, "set_%s: %s  flag to '%s'\n", word, word, value);
 #endif /* ; */
     if ((val = yesno (value)) < 0)
     {
@@ -194,7 +194,7 @@ int set_int (char *word, char *value, int *ptr)
 {
     int val;
 #ifdef DEBUG_FILE
-    log (LOG_DEBUG, "set_%s: %s  flag to '%s'\n", word, word, value);
+    l2tp_log (LOG_DEBUG, "set_%s: %s  flag to '%s'\n", word, word, value);
 #endif /* ; */
     if ((val = atoi (value)) < 0)
     {
@@ -208,7 +208,7 @@ int set_int (char *word, char *value, int *ptr)
 int set_string (char *word, char *value, char *ptr, int len)
 {
 #ifdef DEBUG_FILE
-    log (LOG_DEBUG, "set_%s: %s  flag to '%s'\n", word, word, value);
+    l2tp_log (LOG_DEBUG, "set_%s: %s  flag to '%s'\n", word, word, value);
 #endif /* ; */
     strncpy (ptr, value, len);
     return 0;
@@ -220,7 +220,7 @@ int set_port (char *word, char *value, int context, void *item)
     {
     case CONTEXT_GLOBAL:
 #ifdef DEBUG_FILE
-        log (LOG_DEBUG, "set_port: Setting global port number to %s\n",
+        l2tp_log (LOG_DEBUG, "set_port: Setting global port number to %s\n",
              value);
 #endif
         set_int (word, value, &(((struct global *) item)->port));
@@ -245,7 +245,7 @@ int set_rtimeout (char *word, char *value, int context, void *item)
     {
     case CONTEXT_LAC:
 #ifdef DEBUG_FILE
-        log (LOG_DEBUG, "set_rtimeout: Setting redial timeout to %s\n",
+        l2tp_log (LOG_DEBUG, "set_rtimeout: Setting redial timeout to %s\n",
              value);
 #endif
         set_int (word, value, &(((struct lac *) item)->rtimeout));
@@ -315,7 +315,7 @@ int set_rmax (char *word, char *value, int context, void *item)
     {
     case CONTEXT_LAC:
 #ifdef DEBUG_FILE
-        log (LOG_DEBUG, "set_rmax: Setting max redials to %s\n", value);
+        l2tp_log (LOG_DEBUG, "set_rmax: Setting max redials to %s\n", value);
 #endif
         set_int (word, value, &(((struct lac *) item)->rmax));
         break;
@@ -339,7 +339,7 @@ int set_authfile (char *word, char *value, int context, void *item)
     {
     case CONTEXT_GLOBAL:
 #ifdef DEBUG_FILE
-        log (LOG_DEBUG, "set_authfile: Setting global auth file to '%s'\n",
+        l2tp_log (LOG_DEBUG, "set_authfile: Setting global auth file to '%s'\n",
              value);
 #endif /* ; */
         strncpy (((struct global *) item)->authfile, value,
@@ -886,7 +886,7 @@ int set_iprange (char *word, char *value, int context, void *item)
     if (!lns->range)
         return -1;
 #ifdef DEBUG_FILE
-    log (LOG_DEBUG, "range start = %x, end = %x, sense=%ud\n",
+    l2tp_log (LOG_DEBUG, "range start = %x, end = %x, sense=%ud\n",
          ntohl (lns->range->start), ntohl (lns->range->end), lns->range->sense);
 #endif
     return 0;
@@ -908,7 +908,7 @@ int set_lac (char *word, char *value, int context, void *item)
     if (!lns->lacs)
         return -1;
 #ifdef DEBUG_FILE
-    log (LOG_DEBUG, "lac start = %x, end = %x, sense=%ud\n",
+    l2tp_log (LOG_DEBUG, "lac start = %x, end = %x, sense=%ud\n",
          ntohl (lns->lacs->start), ntohl (lns->lacs->end), lns->lacs->sense);
 #endif
     return 0;
@@ -950,7 +950,7 @@ int set_listenaddr (char *word, char *value, int context, void *item)
     {
     case CONTEXT_GLOBAL:
 #ifdef DEBUG_FILE
-        log (LOG_DEBUG, "set_listenaddr: Setting listen address to %s\n",
+        l2tp_log (LOG_DEBUG, "set_listenaddr: Setting listen address to %s\n",
              value);
 #endif
         if (set_ip (word, value, &(((struct global *) item)->listenaddr)))
@@ -1012,7 +1012,7 @@ int set_lns (char *word, char *value, int context, void *item)
     {
     case CONTEXT_LAC:
 #ifdef DEBUG_FILE
-        log (LOG_DEBUG, "set_lns: setting LNS to '%s'\n", value);
+        l2tp_log (LOG_DEBUG, "set_lns: setting LNS to '%s'\n", value);
 #endif
         l = (struct lac *) item;
         d = strchr (value, ':');
@@ -1059,9 +1059,9 @@ int set_lns (char *word, char *value, int context, void *item)
 
 int set_rand_sys ()
 {
-    log(LOG_WARN, "The \"rand()\" function call is not a very good source"
+    l2tp_log(LOG_WARN, "The \"rand()\" function call is not a very good source"
             "of randomness\n");
-   rand_source = RAND_SYS;
+    rand_source = RAND_SYS;
     return 0;
 }
 
@@ -1073,7 +1073,7 @@ int set_rand_dev ()
 
 int set_rand_egd (char *value)
 {
-    log(LOG_WARN, "%s: not yet implemented!\n", __FUNCTION__);
+    l2tp_log(LOG_WARN, "%s: not yet implemented!\n", __FUNCTION__);
     rand_source = RAND_EGD;
     return -1;
 }
@@ -1101,7 +1101,7 @@ int set_rand_source (char *word, char *value, int context, void *item)
  
     if (context != CONTEXT_GLOBAL)
     {
-        log(LOG_WARN, "%s: %s not valid in context %d\n",
+        l2tp_log(LOG_WARN, "%s: %s not valid in context %d\n",
                 __FUNCTION__, word, context);
         return -1;
     }
@@ -1125,7 +1125,7 @@ int set_rand_source (char *word, char *value, int context, void *item)
     }
     else
     {
-        log(LOG_WARN, "%s: %s is not a valid randomness source\n",
+        l2tp_log(LOG_WARN, "%s: %s is not a valid randomness source\n",
                 __FUNCTION__, value);
         return -1;
 
@@ -1171,7 +1171,7 @@ int parse_config (FILE * f)
             /* We've got a context description */
             if (!(t = strchr (s, ']')))
             {
-                log (LOG_CRIT, "parse_config: line %d: No closing bracket\n",
+                l2tp_log (LOG_CRIT, "parse_config: line %d: No closing bracket\n",
                      linenum);
                 return -1;
             }
@@ -1191,7 +1191,7 @@ int parse_config (FILE * f)
             {
                 context = CONTEXT_GLOBAL;
 #ifdef DEBUG_FILE
-                log (LOG_DEBUG,
+                l2tp_log (LOG_DEBUG,
                      "parse_config: global context descriptor %s\n",
                      d ? d : "");
 #endif
@@ -1236,7 +1236,7 @@ int parse_config (FILE * f)
                     strncpy (((struct lns *) data)->entname,
                              d, sizeof (((struct lns *) data)->entname));
 #ifdef DEBUG_FILE
-                log (LOG_DEBUG, "parse_config: lns context descriptor %s\n",
+                l2tp_log (LOG_DEBUG, "parse_config: lns context descriptor %s\n",
                      d ? d : "");
 #endif
             }
@@ -1279,13 +1279,13 @@ int parse_config (FILE * f)
                     strncpy (((struct lac *) data)->entname,
                              d, sizeof (((struct lac *) data)->entname));
 #ifdef DEBUG_FILE
-                log (LOG_DEBUG, "parse_config: lac context descriptor %s\n",
+                l2tp_log (LOG_DEBUG, "parse_config: lac context descriptor %s\n",
                      d ? d : "");
 #endif
             }
             else
             {
-                log (LOG_WARN,
+                l2tp_log (LOG_WARN,
                      "parse_config: line %d: unknown context '%s'\n", linenum,
                      s);
                 return -1;
@@ -1295,14 +1295,14 @@ int parse_config (FILE * f)
         {
             if (!context)
             {
-                log (LOG_WARN,
+                l2tp_log (LOG_WARN,
                      "parse_config: line %d: data '%s' occurs with no context\n",
                      linenum, s);
                 return -1;
             }
             if (!(t = strchr (s, '=')))
             {
-                log (LOG_WARN, "parse_config: line %d: no '=' in data\n",
+                l2tp_log (LOG_WARN, "parse_config: line %d: no '=' in data\n",
                      linenum);
                 return -1;
             }
@@ -1316,7 +1316,7 @@ int parse_config (FILE * f)
             while (*t && (*t < 33))
                 t++;
 #ifdef DEBUG_FILE
-            log (LOG_DEBUG, "parse_config: field is %s, value is %s\n", s, t);
+            l2tp_log (LOG_DEBUG, "parse_config: field is %s, value is %s\n", s, t);
 #endif
             /* Okay, bit twidling is done.  Let's handle this */
             for (kw = words; kw->keyword; kw++)
@@ -1325,7 +1325,7 @@ int parse_config (FILE * f)
                 {
                     if (kw->handler (s, t, context | def, data))
                     {
-                        log (LOG_WARN, "parse_config: line %d: %s", linenum,
+                        l2tp_log (LOG_WARN, "parse_config: line %d: %s", linenum,
                              filerr);
                         return -1;
                     }
@@ -1334,7 +1334,7 @@ int parse_config (FILE * f)
             }
             if (!kw->keyword)
             {
-                log (LOG_CRIT, "parse_config: line %d: Unknown field '%s'\n",
+                l2tp_log (LOG_CRIT, "parse_config: line %d: Unknown field '%s'\n",
                      linenum, s);
                 return -1;
             }
