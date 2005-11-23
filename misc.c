@@ -29,6 +29,14 @@
 #include <netinet/in.h>
 #include "l2tp.h"
 
+void init_log()
+{
+    static int logopen=0;
+    
+    if(!logopen) {
+	openlog (BINARY, LOG_PID, LOG_DAEMON);
+    }
+}
 
 void l2tp_log (int level, const char *fmt, ...)
 {
@@ -37,8 +45,13 @@ void l2tp_log (int level, const char *fmt, ...)
     va_start (args, fmt);
     vsnprintf (buf, sizeof (buf), fmt, args);
     va_end (args);
-    openlog (BINARY, LOG_PID, LOG_DAEMON);
-    syslog (level, "%s", buf);
+    
+    if(gconfig.daemon) {
+	init_log();
+	syslog (level, "%s", buf);
+    } else {
+	fprintf(stderr, "l2tpd[%d]: %s", getpid(), buf);
+    }
 }
 
 void set_error (struct call *c, int error, const char *fmt, ...)
