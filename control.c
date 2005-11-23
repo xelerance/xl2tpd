@@ -668,12 +668,13 @@ int control_finish (struct tunnel *t, struct call *c)
                      __FUNCTION__);
             return -EINVAL;
         }
-        if ((t->qtid != t->tid) && (t->tid > 0))
+
+        if ((t->qtid != t->ourtid) && (t->ourtid > 0))
         {
             if (DEBUG)
                 l2tp_log (LOG_DEBUG,
                      "%s: Peer tried to disconnect with invalid TID (%d != %d)\n",
-                     __FUNCTION__, t->qtid, t->tid);
+                     __FUNCTION__, t->qtid, t->ourtid);
             return -EINVAL;
         }
         /* In case they're disconnecting immediately after SCCN */
@@ -737,7 +738,7 @@ int control_finish (struct tunnel *t, struct call *c)
          * number avp is included in the ICRQ at all which its required to be.
          * Since the serial number is only used for human debugging aid, this
          * isn't a big deal, but it would be nice to have *some* sort of check
-         * for it and perhaps just l2tp_log it and go on.  */
+         * for it and perhaps just log it and go on.  */
 /*    JLM	if (p->serno<1) {
 			if (DEBUG) log(LOG_DEBUG,
 			"%s: Peer did not specify serial number when initiating call\n", __FUNCTION__);
@@ -1069,14 +1070,16 @@ int control_finish (struct tunnel *t, struct call *c)
                 return -EINVAL;
             }
         }
-        else
+        else {
             p = c;
-        if ((c->qcid != p->cid) && p->cid > 0)
+	}
+
+        if ((c->qcid != p->cid) && p->ourcid > 0)
         {
             if (DEBUG)
                 l2tp_log (LOG_DEBUG,
                      "%s: Peer tried to disconnect with invalid CID (%d != %d)\n",
-                     __FUNCTION__, c->qcid, c->cid);
+                     __FUNCTION__, c->qcid, c->ourcid);
             return -EINVAL;
         }
         c->qcid = -1;
