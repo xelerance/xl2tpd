@@ -290,7 +290,7 @@ void death_handler (int signal)
 int start_pppd (struct call *c, struct ppp_opts *opts)
 {
     /* char a, b; */
-    char *tty;
+    char tty[512];
     char *stropt[80];
     struct ppp_opts *p;
 #ifdef USE_KERNEL
@@ -339,47 +339,14 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         stropt[pos] = NULL;
     }
     else
-    {
 #endif
-	c->fd = open("/dev/ptmx", O_RDWR);
-	if (c->fd == -1)
-	{
-		l2tp_log (LOG_WARN, "%s: unable to open /dev/ptmx to allocate pty\n",
-				__FUNCTION__);
-		return -EINVAL;
-	} else
-	{
-	    if (grantpt(c->fd))
-	    {
-		l2tp_log (LOG_WARN, "%s: unable to grantpt() on pty\n",
-				__FUNCTION__);
-		close(c->fd);
-		return -EINVAL;
-	    }
-	    if (unlockpt(c->fd))
-	    {
-		l2tp_log (LOG_WARN, "%s: unable to unlockpt() on pty\n",
-			__FUNCTION__);
-		close(c->fd);
-		return -EINVAL;
-	    }
-	    tty = ptsname(c->fd);
-	    if (tty == NULL)
-	    {
-		l2tp_log (LOG_WARN, "%s: unable to obtain name of slave tty\n",
-			__FUNCTION__);
-		close(c->fd);
-		return -EINVAL;
-	    }
-	}
-	
-	
- /*	if ((c->fd = getPtyMaster (&a, &b)) < 0)
+    {
+	if ((c->fd = getPtyMaster (tty, sizeof(tty))) < 0)
         {
             l2tp_log (LOG_WARN, "%s: unable to allocate pty, abandoning!\n",
-                 __FUNCTION__);
+		      __FUNCTION__);
             return -EINVAL;
-        } */
+        } 
 
         /* set fd opened above to not echo so we don't see read our own packets
            back of the file descriptor that we just wrote them to */
@@ -389,7 +356,6 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         ptyconf.c_lflag &= ~ECHO;
         tcsetattr (c->fd, TCSANOW, &ptyconf);
 
-/*        snprintf (tty, sizeof (tty), "/dev/tty%c%c", a, b); */
         fd2 = open (tty, O_RDWR);
         if (fd2 < 0) {
             l2tp_log (LOG_WARN, "unable to open tty %s, cannot start pppd", tty);
@@ -397,9 +363,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         }
 	stropt[pos++] = strdup(tty);	
 	stropt[pos] = NULL;
-#ifdef USE_KERNEL
     }
-#endif
 
 #ifdef DEBUG_PPPD
     l2tp_log (LOG_DEBUG, "%s: I'm running:  ", __FUNCTION__);
@@ -1153,7 +1117,7 @@ void init (int argc,char *argv[])
         l2tp_log (LOG_CRIT, "%s: Unable to load config file\n", __FUNCTION__);
         exit (1);
     }
-    if (uname (&uts))
+    if (uname (&uts)<0)
     {
         l2tp_log (LOG_CRIT, "%s : Unable to determine host system\n",
              __FUNCTION__);

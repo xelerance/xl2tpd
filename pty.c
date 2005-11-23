@@ -14,8 +14,20 @@
  *
  */
 
-#include "l2tp.h"
+#define _ISOC99_SOURCE
+#define _XOPEN_SOURCE
+#define _BSD_SOURCE
+#define _XOPEN_SOURCE_EXTENDED
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <stdio.h>
 #include <fcntl.h>
+#include "l2tp.h"
+
+
 
 #ifdef SOLARIS
 #define PTY00 "/dev/ptyXX"
@@ -35,7 +47,7 @@
 #define PTY01 "0123456789abcdefghijklmnopqrstuv"
 #endif
 
-int getPtyMaster (char *tty10, char *tty01)
+int getPtyMaster_pty (char *tty10, char *tty01)
 {
     char *p10;
     char *p01;
@@ -60,3 +72,68 @@ int getPtyMaster (char *tty10, char *tty01)
     l2tp_log (LOG_CRIT, "%s: No more free pseudo-tty's\n", __FUNCTION__);
     return -1;
 }
+
+int getPtyMaster_ptmx(char *ttybuf, int ttybuflen)
+{
+    int fd;
+    char *tty;
+
+    fd = open("/dev/ptmx", O_RDWR);
+    if (fd == -1)
+    {
+	l2tp_log (LOG_WARN, "%s: unable to open /dev/ptmx to allocate pty\n",
+		  __FUNCTION__);
+	return -EINVAL;
+    }
+
+    /* change the onwership */
+    if (grantpt(fd))
+    {
+	l2tp_log (LOG_WARN, "%s: unable to grantpt() on pty\n",
+		  __FUNCTION__);
+	close(fd);
+	return -EINVAL;
+    }
+
+    if (unlockpt(fd))
+    {
+	l2tp_log (LOG_WARN, "%s: unable to unlockpt() on pty\n",
+		  __FUNCTION__);
+	close(fd);
+	return -EINVAL;
+    }
+
+    tty = ptsname(fd);
+    if (tty == NULL)
+    {
+	l2tp_log (LOG_WARN, "%s: unable to obtain name of slave tty\n",
+		  __FUNCTION__);
+	close(fd);
+	return -EINVAL;
+    }
+    ttybuf[0]='\0';
+    strncat(ttybuf, tty, ttybuflen);
+
+    return fd;
+}
+	
+int getPtyMaster(char *ttybuf, int ttybuflen)
+{
+    int fd = getPtyMaster_ptmx(ttybuf, ttybuflen);
+    char a, b;
+    
+    if(fd >= 0) {
+	return fd;
+    }
+
+    l2tp_log (LOG_WARN, "%s: failed to use pts -- using legacy ptys\n", __FUNCTION__);
+    fd = getPtyMaster_pty(&a,&b);
+    
+    if(fd >= 0) {
+	snprintf(ttybuf, ttybuflen, "/dev/tty%c%c", a, b);
+	return fd;
+    }
+
+    return -EINVAL;
+}
+	

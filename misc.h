@@ -73,7 +73,7 @@ extern inline void swaps (void *, int);
 extern void do_packet_dump (struct buffer *);
 extern void status (const char *fmt, ...);
 extern void status_handler (int signal);
-extern int getPtyMaster (char *a, char *b);
+extern int getPtyMaster(char *, int);
 extern void do_control (void);
 extern void recycle_buf (struct buffer *);
 extern void safe_copy (char *, char *, int);
