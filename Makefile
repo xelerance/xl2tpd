@@ -26,7 +26,7 @@
 # Also look at the top of network.c for some other (eventually to 
 # become runtime options) debugging flags
 #
-#DFLAGS= -g -O2 -DDEBUG_PPPD
+DFLAGS= -g -O2 -DDEBUG_PPPD -DDEBUG_PAYLOAD
 #
 # Uncomment the next line for Linux
 #
@@ -45,6 +45,7 @@ OSFLAGS= -DLINUX
 # the basic search path, and will over-ride some gcc-specific
 # include paths and cause problems.
 #
+#CC=gcc
 #OSFLAGS= -DSOLARIS
 #OSLIBS= -lnsl -lsocket
 #
@@ -58,7 +59,8 @@ FFLAGS= -DIP_ALLOCATION
 CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(FFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=l2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
-#LIBS= $(OSLIB) # -lefence # efence for malloc checking
+SRCS=${OBJS:.o=.c} ${HDRS}
+#LIBS= $(OSLIBS) # -lefence # efence for malloc checking
 EXEC=l2tpd
 BINDIR=/usr/sbin
 
@@ -76,3 +78,5 @@ romfs:
 install: ${EXEC}
 	install --mode=0755 ${EXEC} ${DESTDIR}${BINDIR}
 
+TAGS:	${SRCS}
+	etags ${SRCS}
