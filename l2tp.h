@@ -36,7 +36,7 @@ typedef unsigned long long _u64;
 #define CONTROL_PIPE "/var/run/l2tp-control"
 
 #define BINARY "l2tpd"
-#define SERVER_VERSION "1.00-X"
+#define SERVER_VERSION "1.02-X"
 #define VENDOR_NAME "xelerance.com"
 #ifndef PPPD
 #define PPPD		"/usr/sbin/pppd"
@@ -90,7 +90,12 @@ struct payload_hdr
 #define PAYLOAD_BUF 10          /* Provide 10 expansion bytes
                                    so we can "decompress" the
                                    payloads and simplify coding */
-#define DEFAULT_MAX_RETRIES 5   /* Recommended value from spec */
+#if 1
+#define DEFAULT_MAX_RETRIES 5    /* Recommended value from spec */
+#else
+#define DEFAULT_MAX_RETRIES 95   /* give us more time to debug */
+#endif
+
 #define DEFAULT_RWS_SIZE   4    /* Default max outstanding 
                                    control packets in queue */
 #define DEFAULT_TX_BPS		10000000        /* For outgoing calls, report this speed */
