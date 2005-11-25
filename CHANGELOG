@@ -1,5 +1,9 @@
 $Id: CHANGELOG,v 1.10 2005/09/29 13:37:51 vogel Exp $
 
+1.04
+--
+actually, 1.03 tag in GIT was in the wrong place. This is the right release.
+
 1.03
 --
 fixes for gcc 4.xx compilation
