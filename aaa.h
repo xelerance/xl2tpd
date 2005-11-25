@@ -52,5 +52,5 @@ extern void reserve_addr (unsigned int);
 extern void unreserve_addr (unsigned int);
 extern void init_addr ();
 extern int handle_challenge (struct tunnel *, struct challenge *);
-extern void mk_challenge (char *, int);
+extern void mk_challenge (unsigned char *, int);
 #endif

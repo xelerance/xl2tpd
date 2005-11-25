@@ -35,7 +35,7 @@ int kernel_support;             /* Kernel Support there or not? */
 int init_network (void)
 {
     long arg;
-    int length = sizeof (server);
+    unsigned int length = sizeof (server);
     gethostname (hostname, sizeof (hostname));
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = gconfig.listenaddr; 
@@ -306,7 +306,7 @@ void network_thread ()
      * We loop forever waiting on either data from the ppp drivers or from
      * our network socket.  Control handling is no longer done here.
      */
-    int fromlen;                /* Length of the address */
+    unsigned int fromlen;                /* Length of the address */
     int tunnel, call;           /* Tunnel and call */
     int recvsize;               /* Length of data received */
     struct buffer *buf;         /* Payload buffer */
@@ -317,6 +317,10 @@ void network_thread ()
     struct timeval tv;          /* Timeout for select */
     /* This one buffer can be recycled for everything except control packets */
     buf = new_buf (MAX_RECV_SIZE);
+
+    tunnel = 0;
+    call = 0;
+
     for (;;)
     {
         max = build_fdset (&readfds);

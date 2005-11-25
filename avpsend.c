@@ -127,7 +127,7 @@ int add_avp_rws (struct buffer *buf, _u16 rws)
     return 0;
 }
 
-int add_challenge_avp (struct buffer *buf, char *c, int len)
+int add_challenge_avp (struct buffer *buf, unsigned char *c, int len)
 {
     add_header(buf, (0x6 + len), 0xB);
     memcpy((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), c, len);
@@ -135,7 +135,7 @@ int add_challenge_avp (struct buffer *buf, char *c, int len)
     return 0;
 }
 
-int add_chalresp_avp (struct buffer *buf, char *c, int len)
+int add_chalresp_avp (struct buffer *buf, unsigned char *c, int len)
 {
     add_header(buf, (0x6 + len), 0xD);
     memcpy((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), c, len);
@@ -143,7 +143,7 @@ int add_chalresp_avp (struct buffer *buf, char *c, int len)
     return 0;
 }
 
-int add_randvect_avp (struct buffer *buf, char *c, int len)
+int add_randvect_avp (struct buffer *buf, unsigned char *c, int len)
 {
     add_header(buf, (0x6 + len), 0x24);
     memcpy((char *) (buf->start + buf->len + sizeof(struct avp_hdr)), c, len);

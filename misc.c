@@ -92,18 +92,18 @@ inline void recycle_buf (struct buffer *b)
 }
 
 #define bufferDumpWIDTH 16
-void bufferDump (char *buf, int buflen)
+void bufferDump (unsigned char *buf, int buflen)
 {
     int i = 0, j = 0;
     /* we need TWO characters to DISPLAY ONE byte */
-    unsigned char line[2 * bufferDumpWIDTH + 1], *c;
+    char line[2 * bufferDumpWIDTH + 1], *c;
 
     for (i = 0; i < buflen / bufferDumpWIDTH; i++)
     {
         c = line;
         for (j = 0; j < bufferDumpWIDTH; j++)
         {
-            sprintf (c, "%02x ", (buf[i * bufferDumpWIDTH + j]) & 0xff);
+	  sprintf (c, "%02x ", (buf[i * bufferDumpWIDTH + j]) & 0xff);
             c++;
             c++;                /* again two characters to display ONE byte */
         }
@@ -244,7 +244,7 @@ int get_egd_entropy(char *buf, int count)
     return -1;
 }
 
-int get_sys_entropy(char *buf, int count)
+int get_sys_entropy(unsigned char *buf, int count)
 {
     /*
      * This way of filling buf with rand() generated data is really
@@ -265,7 +265,7 @@ int get_sys_entropy(char *buf, int count)
     return count;
 }
 
-int get_dev_entropy(char *buf, int count)
+int get_dev_entropy(unsigned char *buf, int count)
 {
     int devrandom;
     ssize_t entropy_amount;
@@ -285,7 +285,7 @@ int get_dev_entropy(char *buf, int count)
     return entropy_amount;
 }
 
-int get_entropy (char *buf, int count)
+int get_entropy (unsigned char *buf, int count)
 {
     if (rand_source == RAND_SYS)
     {

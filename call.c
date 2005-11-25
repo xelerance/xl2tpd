@@ -504,7 +504,7 @@ void destroy_call (struct call *c)
 
 struct call *new_call (struct tunnel *parent)
 {
-    char entropy_buf[2] = "\0";
+    unsigned char entropy_buf[2] = "\0";
     struct call *tmp = malloc (sizeof (struct call));
 
     if (!tmp)

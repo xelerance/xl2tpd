@@ -733,7 +733,7 @@ void lac_disconnect (int tid)
 struct tunnel *new_tunnel ()
 {
     struct tunnel *tmp = malloc (sizeof (struct tunnel));
-    char entropy_buf[2] = "\0";
+    unsigned char entropy_buf[2] = "\0";
     if (!tmp)
         return NULL;
     tmp->control_seq_num = 0;

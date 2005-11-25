@@ -114,7 +114,7 @@ extern int challenge_avp (struct tunnel *, struct call *, void *, int);
 extern int chalresp_avp (struct tunnel *, struct call *, void *, int);
 extern int rand_vector_avp (struct tunnel *, struct call *, void *, int);
 
-extern int add_challenge_avp (struct buffer *, char *, int);
+extern int add_challenge_avp (struct buffer *, unsigned char *, int);
 extern int add_avp_rws (struct buffer *, _u16);
 extern int add_tunnelid_avp (struct buffer *, _u16);
 extern int add_vendor_avp (struct buffer *);
@@ -137,8 +137,8 @@ extern int add_callid_avp (struct buffer *, _u16);
 #endif
 extern int add_ppd_avp (struct buffer *, _u16);
 extern int add_seqreqd_avp (struct buffer *);
-extern int add_chalresp_avp (struct buffer *, char *, int);
-extern int add_randvect_avp (struct buffer *, char *, int);
+extern int add_chalresp_avp (struct buffer *, unsigned char *, int);
+extern int add_randvect_avp (struct buffer *, unsigned char *, int);
 extern int add_minbps_avp (struct buffer *buf, int speed);      /* jz: needed for outgoing call */
 extern int add_maxbps_avp (struct buffer *buf, int speed);      /* jz: needed for outgoing call */
 extern int add_number_avp (struct buffer *buf, char *no);       /* jz: needed for outgoing call */
