@@ -1,5 +1,20 @@
 $Id: CHANGELOG,v 1.10 2005/09/29 13:37:51 vogel Exp $
 
+1.01
+--
+various debugging added, but debugging should not be on by default
+async/sync conversion routines must be ready for possibility that the read will block due to routing loops
+refactor control socket handling.
+use man page in doc/
+move all logic about pty usage to pty.c try ptmx first. if it fails try legacy ptys
+rename log() to l2tp_log(), as "log" is a math function.
+
+1.00
+--
+First version managed by Xelerance, called xl2tpd.
+if we aren't deamonized, then log to stderr.
+added install: and DESTDIR support 
+
 0.70
 --
 Change path for config files from /etc/l2tp to /etc/l2tpd (jacco2@dds.nl)
