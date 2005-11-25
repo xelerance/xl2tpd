@@ -26,7 +26,7 @@
 # Also look at the top of network.c for some other (eventually to 
 # become runtime options) debugging flags
 #
-DFLAGS= -g -O2 -DDEBUG_PPPD -DDEBUG_PAYLOAD
+DFLAGS= -g -O2 
 #
 # Uncomment the next line for Linux
 #
