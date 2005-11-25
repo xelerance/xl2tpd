@@ -1,5 +1,13 @@
 $Id: CHANGELOG,v 1.10 2005/09/29 13:37:51 vogel Exp $
 
+1.03
+--
+fixes for gcc 4.xx compilation
+
+1.02
+--
+udpated CHNANGELOG
+
 1.01
 --
 various debugging added, but debugging should not be on by default
