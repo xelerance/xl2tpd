@@ -1547,7 +1547,7 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
 
     if (c->fd < 0)
     {
-        if (DEBUG)
+        if (DEBUG || 1)
             l2tp_log (LOG_DEBUG, "%s: tty is not open yet.\n", __FUNCTION__);
         return -EIO;
     }
@@ -1563,7 +1563,6 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
     /*
      * FIXME:  What about offset?
      */
-
     while (!convert)
     {
         /* We are given async frames, so write them
@@ -1635,18 +1634,27 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
 
     }
     wbuf[pos++] = PPP_FLAG;
+
+#if 0
+    if(DEBUG) {
+      l2tp_log(LOG_DEBUG, "after sync->async, expanded %d->%d\n",
+	       buf->len, pos);
+    }
+#endif
+
     x = write (c->fd, wbuf, pos);
     if (x < pos)
     {
+      if (DEBUG)
+	l2tp_log (LOG_WARN, "%s: %s(%d)\n", __FUNCTION__, strerror (errno),
+		  errno);
+
         if (!(errno == EINTR) && !(errno == EAGAIN))
         {
             /*
                * I guess pppd died.  we'll pretend
                * everything ended normally
              */
-            if (DEBUG)
-                l2tp_log (LOG_WARN, "%s: %s(%d)\n", __FUNCTION__, strerror (errno),
-                     errno);
             c->needclose = -1;
             c->fd = -1;
             return -EIO;
