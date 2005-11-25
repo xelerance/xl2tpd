@@ -99,13 +99,14 @@ int read_packet (struct buffer *buf, int fd, int convert)
     static int max = 0;
     int res;
     int errors = 0;
+
     /* Read a packet, doing async->sync conversion if necessary */
     p = buf->start;
     while (1)
     {
         if (pos >= max)
         {
-            max = read (fd, rbuf, sizeof (rbuf));
+            max = read(fd, rbuf, sizeof (rbuf));
             res = max;
             pos = 0;
         }
@@ -113,7 +114,10 @@ int read_packet (struct buffer *buf, int fd, int convert)
         {
             res = 1;
         }
+
         c = rbuf[pos++];
+
+	/* if there was a short read, then see what is about */
         if (res < 1)
         {
             if (res == 0)
@@ -121,8 +125,9 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 /*
                    * Hmm..  Nothing to read.  It happens
                  */
+		pos=0;
+		max=0;
                 return 0;
-/*			} else if ((errno == EINTR ) || (errno == EAGAIN)) { */
             }
             else if ((errno == EIO) || (errno == EINTR) || (errno == EAGAIN))
             {
@@ -133,6 +138,8 @@ int read_packet (struct buffer *buf, int fd, int convert)
                    * anyway, we discared whatever it is we
                    * have
                  */
+		pos=0;
+		max=0;
                 return 0;
             }
             errors++;
@@ -143,10 +150,13 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 l2tp_log (LOG_DEBUG,
                      "%s: Too many errors.  Declaring call dead.\n",
                      __FUNCTION__);
+		pos=0;
+		max=0;
                 return -errno;
             }
             continue;
         }
+
         switch (c)
         {
         case PPP_FLAG:
@@ -154,17 +164,26 @@ int read_packet (struct buffer *buf, int fd, int convert)
             {
                 l2tp_log (LOG_DEBUG, "%s: got an escaped PPP_FLAG\n",
                      __FUNCTION__);
+		pos=0;
+		max=0;
                 return -EINVAL;
             }
+
             if (convert)
             {
-                if (!buf->len)
+                if (buf->len == 0) {
+		    /* if the buffer is empty, then we have the beginning
+		     * of a packet, not the end
+		     */
                     break;
-                /* Drop the FCS */
+		}
+		
+                /* must be the end, drop the FCS */
                 buf->len -= 2;
             }
             else
             {
+		/* if there is space, then insert the byte */
                 if (buf->len < buf->maxlen)
                 {
                     *p = c;
@@ -172,11 +191,16 @@ int read_packet (struct buffer *buf, int fd, int convert)
                     buf->len++;
                 }
             }
+
+	    /* return what we have now */
             return buf->len;
+
         case PPP_ESCAPE:
             escape = PPP_TRANS;
             if (convert)
                 break;
+
+	    /* fall through */
         default:
             if (convert)
                 c ^= escape;
@@ -189,6 +213,8 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 break;
             };
             l2tp_log (LOG_WARN, "%s: read overrun\n", __FUNCTION__);
+	    pos=0;
+	    max=0;
             return -EINVAL;
         }
     }
