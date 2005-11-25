@@ -204,8 +204,8 @@ void control_xmit (void *b)
                 t->self->needclose = -1;
             }
         }
-		free(buf->rstart);
-		free(buf);
+	free(buf->rstart);
+	free(buf);
     }
     else
     {
