@@ -373,12 +373,11 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     }
 
 #ifdef DEBUG_PPPD
-    l2tp_log (LOG_DEBUG, "%s: I'm running:  ", __FUNCTION__);
+    l2tp_log (LOG_DEBUG, "%s: I'm running: \n", __FUNCTION__);
     for (x = 0; stropt[x]; x++)
     {
-        l2tp_log (LOG_DEBUG, "\"%s\" ", stropt[x]);
+        l2tp_log (LOG_DEBUG, "\"%s\" \n", stropt[x]);
     };
-    l2tp_log (LOG_DEBUG, "\n");
 #endif
 #ifdef __uClinux__
     c->pppd = vfork ();
