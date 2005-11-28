@@ -1,41 +1,38 @@
-## Spec file for l2tpd
-## Layer 2 Tunnelling Protocol Daemon (RFC 2661)
+Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
+Name: l2tpd
+Version: 0.69.20051030
+Release: 14
+License: GPL
+Url: http://sourceforge.net/projects/%{name}/
+Group: System Environment/Daemons
 
-Summary:        Layer 2 Tunnelling Protocol Daemon (RFC 2661)
-Name:		l2tpd
-Version:	1.00
-Vendor:		Michael Richardson <mcr@xelerance.com>
-# previously Jeff McAdams <jeffm@iglou.com>
-# Original packagers: Lenny Cartier <lenny@mandrakesoft.com>
-# and Per Øyvind Karlsen <peroyvind@delonic.no>
-# and Jacco de Leeuw <jacco2@dds.nl>
-Packager:	Paul Wouters <paul@xelerance.com>
-Release:	10xxx
-License:	GPL
-Url:		http://wiki.openswan.org/index.php/l2tpd
-Group:		System/Servers
+# cvs is not available as tar ball on sourceforge.
+#Source0: http://prdownloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
+Source0: %{name}-0.69.20051030.tar.gz
+Source1: %{name}.init
+Source2: %{name}.conf
+Source3: %{name}-options.l2tpd
+Source4: %{name}-chapsecrets.sample
 
-%define		openswanconfigpath openswan
-%define		ipsecconfigpath ipsec.d
+Patch0: %{name}-log.patch
+Patch1: %{name}-version.patch
+Patch2: %{name}-solaris.patch
+Patch3: %{name}-stopccn.patch
+Patch4: %{name}-move-pty-logic.patch
+Patch5: %{name}-log-strerr.patch
+Patch6: %{name}-socket.patch
+Patch7: %{name}-async-sync.patch
+Patch8: %{name}-nodebug-default.patch
+Patch9: %{name}-moredebug.patch
+Patch10: %{name}-max-retries.patch
+Patch11: %{name}-uaddr.patch
+Patch12: %{name}-gcc4-fixes.patch
+Patch13: %{name}-changelog.patch
+Patch14: %{name}-patents.patch
 
-# Are you building on SuSE?
-# Set here (1=yes 0=no):
-%define		suse 0
-
-Source0:	INSERT ME PAUL
-
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
-Requires:	ppp
-%if ! %{suse}
-Requires:	initscripts chkconfig
-%else
-Requires:	aaa_base
-%define		_initrddir /etc/init.d
-%endif
-
-# rpm-helper is a script by Mandrake which basically does a chkconfig.
-# Commented out for compatibility with Red Hat and older Mandrakes.
-#PreReq:		rpm-helper
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Requires: ppp 
+#BuildRequires:
 
 %description
 l2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
@@ -44,179 +41,133 @@ sessions from dial-in servers (modem banks, ADSL DSLAMs) to back-end PPP
 servers. Another important application is Virtual Private Networks where
 the IPsec protocol is used to secure the L2TP connection (L2TP/IPsec,
 RFC 3193). The L2TP/IPsec protocol is mainly used by Windows and 
-MacOS X clients. On Linux, l2tpd can be used in combination with IPsec
+Mac OS X clients. On Linux, l2tpd can be used in combination with IPsec
 implementations such as FreeS/WAN, Openswan, Strongswan and KAME.
 Example configuration files for such a setup are included in this RPM.
 
 l2tpd works by opening a pseudo-tty for communicating with pppd.
 It runs completely in userspace.
 
-Based on the Mandrake RPM by Lenny Cartier <lenny@mandrakesoft.com>
-and Per Øyvind Karlsen <peroyvind@delonic.no>
+
 %prep
 %setup -q
-#%patch0 -p0 -b .debian
-# Patch 4 seems better.
-%patch4 -p0 -b .strdup-pty
-%patch5 -p0 -b .noecho
-%patch1 -p1 -b .close-stdin
-%patch2 -p0 -b .etcl2tp-path
-%patch6 -p0 -b .warnings
-%patch7 -p0 -b .listenaddr
-%patch8 -p0 -b .hostname
-%patch9 -p0 -b .stopconnection
-%patch10 -p0 -b .bufoverflow
-%if %{suse}
-cp -p %{SOURCE10} .
-%else
-cp -p %{SOURCE2} .
-%endif
-cp -p %{SOURCE3} RPM.README
+%patch0 -p1 -b .log
+%patch1 -p1 -b .version
+%patch2 -p1 -b .solaris
+%patch3 -p1 -b .stopccn
+%patch4 -p1 -b .move-pty-logic
+%patch5 -p1 -b .log-strerr
+%patch6 -p1 -b .socket
+%patch7 -p1 -b .async-sync
+%patch8 -p1 -b .nodebug-default
+%patch9 -p1 -b .moredebug
+%patch10 -p1 -b .max-retries
+%patch11 -p1 -b .uaddr
+%patch12 -p1 -b .gcc4-fixes
+%patch13 -p1 -b .changelog
+%patch14 -p1 -b .patents
 
 %build
 # %make is not available on all distributions?
 make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 
 %install
-function CheckBuildRoot {
-    # do a few sanity checks on the BuildRoot
-    # to make sure we don't damage a system
-    case "${RPM_BUILD_ROOT}" in
-        ''|' '|/|/bin|/boot|/dev|/etc|/home|/lib|/mnt|/root|/sbin|/tmp|/usr|/var)
-            echo "Yikes!  Don't use '${RPM_BUILD_ROOT}' for a BuildRoot!"
-            echo "The BuildRoot gets deleted when this package is rebuilt;"
-            echo "something like '/tmp/build-blah' is a better choice."
-            return 1
-            ;;
-        *)  return 0
-            ;;
-    esac
-}
-function CleanBuildRoot {
-    if CheckBuildRoot; then
-        rm -rf "${RPM_BUILD_ROOT}"
-    else
-        exit 1
-    fi
-}
-CleanBuildRoot
-
 # There's no 'install' rule in the Makefile, so let's do it manually
-install -d ${RPM_BUILD_ROOT}%{_sbindir}
-install -m755 %{name} ${RPM_BUILD_ROOT}%{_sbindir}
-install -d ${RPM_BUILD_ROOT}%{_mandir}/{man5,man8}
-install -m644 doc/%{name}.conf.5 ${RPM_BUILD_ROOT}%{_mandir}/man5
-install -m644 doc/l2tp-secrets.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/
-install -m644 doc/%{name}.8 ${RPM_BUILD_ROOT}%{_mandir}/man8
-install -d ${RPM_BUILD_ROOT}%{_sysconfdir}/{%{name},ppp,%{ipsecconfigpath}}
-install -m644 doc/%{name}.conf.sample ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/
-install -m644 %{SOURCE4} ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/%{name}.conf
-install -m644 %{SOURCE5} ${RPM_BUILD_ROOT}%{_sysconfdir}/ppp/options.l2tpd
-install -m644 %{SOURCE6} ${RPM_BUILD_ROOT}%{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK.conf
-install -m644 %{SOURCE7} ${RPM_BUILD_ROOT}%{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT.conf
-install -m644 %{SOURCE8} ${RPM_BUILD_ROOT}%{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK-orgWIN2KXP.conf
-install -m644 %{SOURCE9} ${RPM_BUILD_ROOT}%{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT-orgWIN2KXP.conf
-install -m600 doc/l2tp-secrets.sample ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/l2tp-secrets
-install -m600 %{SOURCE11} ${RPM_BUILD_ROOT}%{_sysconfdir}/ppp/chap-secrets.sample
-install -d ${RPM_BUILD_ROOT}%{_initrddir}
-%if %{suse}
-install -m755 %{SOURCE10} ${RPM_BUILD_ROOT}%{_initrddir}/%{name}
-ln -s ../../%{_initrddir}/%{name} ${RPM_BUILD_ROOT}%{_sbindir}/rc%{name}
-%else
-install -m755 %{SOURCE2} ${RPM_BUILD_ROOT}%{_initrddir}/%{name}
-%endif
+install -d %{buildroot}%{_sbindir}
+install -m755 %{name} %{buildroot}%{_sbindir}
+install -d %{buildroot}%{_mandir}/{man5,man8}
+install -m644 doc/%{name}.conf.5 %{buildroot}%{_mandir}/man5
+install -m644 doc/l2tp-secrets.5 %{buildroot}%{_mandir}/man5/
+install -m644 doc/%{name}.8 %{buildroot}%{_mandir}/man8
+install -d %{buildroot}%{_sysconfdir}/{%{name},ppp,ipsec.d}
+install -m644 doc/%{name}.conf.sample %{buildroot}%{_sysconfdir}/%{name}/
+install -m644 %{SOURCE2} %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/ppp/options.l2tpd
+install -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/%{name}/l2tp-secrets
+install -m600 %{SOURCE4} %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
+install -d %{buildroot}%{_initrddir}
+install -m755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 
 %post
-# For security reasons l2tpd is not started when the RPM is installed
-# or at a reboot. To start l2tpd manually, use:
-#   /sbin/service l2tpd start
-# To start l2tpd at a reboot, use:
-#   /sbin/chkconfig --add l2tpd
-#
-# The Mandrake RPMs for Openswan, Strongswan and FreeS/WAN do not use
-# /etc/ipsec.d/ for some reason. The symbolic links below are a workaround.
-# (Probably should test for existence instead of forced creation after making
-# a backup copy).
-if [ -d %{_sysconfdir}/%{freeswanconfigpath} ]; then
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK.conf %{_sysconfdir}/%{freeswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT.conf %{_sysconfdir}/%{freeswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK-orgWIN2KXP.conf %{_sysconfdir}/%{freeswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT-orgWIN2KXP.conf %{_sysconfdir}/%{freeswanconfigpath}
-fi
-if [ -d %{_sysconfdir}/%{openswanconfigpath} ]; then
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK.conf %{_sysconfdir}/%{openswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT.conf %{_sysconfdir}/%{openswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK-orgWIN2KXP.conf %{_sysconfdir}/%{openswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT-orgWIN2KXP.conf %{_sysconfdir}/%{openswanconfigpath}
-fi
-if [ -d %{_sysconfdir}/%{strongswanconfigpath} ]; then
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK.conf %{_sysconfdir}/%{strongswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT.conf %{_sysconfdir}/%{strongswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-PSK-orgWIN2KXP.conf %{_sysconfdir}/%{strongswanconfigpath}
-  ln -sfb %{_sysconfdir}/%{ipsecconfigpath}/L2TP-CERT-orgWIN2KXP.conf %{_sysconfdir}/%{strongswanconfigpath}
-fi
+# do not activate daemon upon request. Fedora Extra policy
 
 %preun
-# Don't leave the daemon running at uninstall.
-if [ "$1" = 0 ]; then
-%if ! %{suse}
-  /sbin/service %{name} stop 2>&1 >/dev/null
-%else
-  /usr/sbin/rcl2tpd stop 2>&1 >/dev/null
-%endif
+if [ -f /var/run/%{name}.pid ]
+then
+        /sbin/service %{name} stop > /dev/null 2>&1
 fi
+if [ $1 -eq 0 ]
+then
+        /sbin/chkconfig --del %{name} > /dev/null 2>&1
+fi
+# "Everyone is doing it, so why can't we?"
 exit 0
 
 %postun
 if [ "$1" -ge "1" ]; then
-%if ! %{suse}
-  /sbin/service %{name} try-restart 2>&1 >/dev/null
-%else
-  /usr/sbin/rcl2tpd try-restart 2>&1 >/dev/null
-%endif
+  /sbin/service %{name} condrestart 2>&1 >/dev/null
 fi
+# "Everyone is doing it, so why can't we?"
+exit 0
 
 %clean
-function CheckBuildRoot {
-    # Do a few sanity checks on the BuildRoot
-    # to make sure we don't damage a system.
-    case "${RPM_BUILD_ROOT}" in
-        ''|' '|/|/bin|/boot|/dev|/etc|/home|/lib|/mnt|/root|/sbin|/tmp|/usr|/var)
-            echo "Yikes!  Don't use '${RPM_BUILD_ROOT}' for a BuildRoot!"
-            echo "The BuildRoot gets deleted when this package is rebuilt;"
-            echo "something like '/tmp/build-blah' is a better choice."
-            return 1
-            ;;
-        *)  return 0
-            ;;
-    esac
-}
-function CleanBuildRoot {
-    if CheckBuildRoot; then
-        rm -rf "${RPM_BUILD_ROOT}"
-    else
-        exit 1
-    fi
-}
-CleanBuildRoot
 
 %files
 %defattr(-,root,root)
-%doc BUGS CHANGELOG CREDITS LICENSE README TODO doc/rfc2661.txt RPM.README
+%doc BUGS CHANGELOG CREDITS LICENSE README TODO doc/rfc2661.txt 
+%doc CHANGELOG.Xelerance README.patents
 %{_sbindir}/%{name}
 %{_mandir}/*/*
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/*
 %config(noreplace) %{_sysconfdir}/ppp/*
-%dir %{_sysconfdir}/%{ipsecconfigpath}
-%config(noreplace) %{_sysconfdir}/%{ipsecconfigpath}/*
-%config(noreplace) %{_initrddir}/%{name}
-%if %{suse}
-%config(noreplace) %{_sbindir}/rc%{name}
-%endif
+%attr(0755,root,root)  %{_initrddir}/%{name}
+
 
 %changelog
-* Sun Nov 7 2004 Jacco de Leeuw <jacco2@dds.nl> 0.69-10jdl
+* Sun Nov 27 2005 Paul Wouters <paul@xelerance.com> 0.69.20051030
+- Pulled up sourceforget.net CVS fixes.
+- various debugging added, but debugging should not be on by default.
+- async/sync conversion routines must be ready for possibility that the read
+  will block due to routing loops.
+- refactor control socket handling.
+- move all logic about pty usage to pty.c. Try ptmx first, if it fails try
+  legacy ptys
+- rename log() to l2tp_log(), as "log" is a math function.
+- if we aren't deamonized, then log to stderr.
+- added install: and DESTDIR support.
+
+* Thu Oct 20 2005 Paul Wouters <paul@xelerance.com> 0.69-13
+- Removed suse/mandrake specifics. Comply for Fedora Extras guidelines
+
+* Tue Jun 21 2005 Jacco de Leeuw <jacco2@dds.nl> 0.69-12jdl
+- Added log() patch by Paul Wouters so that l2tpd compiles on FC4.
+
+* Sat Jun 4 2005 Jacco de Leeuw <jacco2@dds.nl>
+- l2tpd.org has been hijacked. Project moved back to SourceForge:
+  http://l2tpd.sourceforge.net 
+
+* Tue May 3 2005 Jacco de Leeuw <jacco2@dds.nl>
+- Small Makefile fixes. Explicitly use gcc instead of cc. 
+  Network services library was not linked on Solaris due to typo.
+
+* Thu Mar 17 2005 Jacco de Leeuw <jacco2@dds.nl> 0.69-11jdl
+- Choosing between SysV or BSD style ptys is now configurable through
+  a compile-time boolean "unix98pty".
+
+* Fri Feb 4 2005 Jacco de Leeuw <jacco2@dds.nl>
+- Added code from Roaring Penguin (rp-l2tp) to support SysV-style ptys.
+  Requires the N_HDLC kernel module. 
+
+* Fri Nov 26 2004 Jacco de Leeuw <jacco2@dds.nl>
+- Updated the README.
+
+* Wed Nov 10 2004 Jacco de Leeuw <jacco2@dds.nl> 0.69-10jdl
+- Patch by Marald Klein and Roger Luethi. Fixes writing PID file.
+  (http://l2tpd.graffl.net/msg01790.html)
+  Long overdue. Rereleasing 10jdl.
+
+* Tue Nov 9 2004 Jacco de Leeuw <jacco2@dds.nl> 0.69-10jdl
 - [SECURITY FIX] Added fix from Debian because of a bss-based
   buffer overflow.
   (http://www.mail-archive.com/l2tpd-devel@l2tpd.org/msg01071.html)
@@ -259,7 +210,7 @@ CleanBuildRoot
   used for 'listen-addr' and 'local ip'.
 - Modified init script. Upgrades should work better now. You
   still need to start/chkconfig l2tpd manually.
-- Renamed the example FreeS/WAN .conf files to better reflect
+- Renamed the example Openswan .conf files to better reflect
   the situation. There are two variants using different portselectors.
   Previously I thought Windows 2000/XP used portselector 17/0
   and the rest used 17/1701. But with the release of an updated 
@@ -324,8 +275,8 @@ CleanBuildRoot
 
 * Mon Oct 21 2002 Lenny Cartier <lenny@mandrakesoft.com> 0.69-3mdk
 - from Per Øyvind Karlsen <peroyvind@delonic.no> :
-	- PreReq and Requires
-	- Fix preun_service
+ - PreReq and Requires
+ - Fix preun_service
 
 * Thu Oct 17 2002 Per Øyvind Karlsen <peroyvind@delonic.no> 0.69-2mdk
 - Move l2tpd from /usr/bin to /usr/sbin
