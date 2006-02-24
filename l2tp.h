@@ -32,6 +32,7 @@ typedef unsigned long long _u64;
 #include "control.h"
 #include "aaa.h"
 #include "common.h"
+#include "ipsecmast.h"
 
 #define CONTROL_PIPE "/var/run/l2tp-control"
 
@@ -134,6 +135,8 @@ struct tunnel
     _u64 tb;                    /* Their tie breaker */
     _u64 ourtb;                 /* Our tie breaker */
     int tid;                    /* Peer's tunnel identifier */
+    IPsecSAref_t refme;         /* IPsec SA particulars */
+    IPsecSAref_t refhim;
     int ourtid;                 /* Our tunnel identifier */
     int qtid;                   /* TID for disconnection */
     int firmware;               /* Peer's firmware revision */
@@ -209,7 +212,7 @@ extern struct buffer *new_payload (struct sockaddr_in);
 extern void recycle_payload (struct buffer *, struct sockaddr_in);
 extern void add_payload_hdr (struct tunnel *, struct call *, struct buffer *);
 extern int read_packet (struct buffer *, int, int);
-extern void udp_xmit (struct buffer *);
+extern void udp_xmit (struct buffer *buf, struct tunnel *t);
 extern void control_xmit (void *);
 extern int ppd;
 extern int switch_io;           /* jz */

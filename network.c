@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include "l2tp.h"
+#include "ipsecmast.h"
 
 char hostname[256];
 struct sockaddr_in server, from;        /* Server and transmitter structs */
@@ -46,8 +47,7 @@ int init_network (void)
              __FUNCTION__);
         return -EINVAL;
     };
-    /* L2TP/IPSec: Set up SA for listening port here?  NTB 20011015
-     */
+
     if (bind (server_socket, (struct sockaddr *) &server, sizeof (server)))
     {
         close (server_socket);
@@ -61,6 +61,22 @@ int init_network (void)
              __FUNCTION__);
         return -EINVAL;
     }
+    /*
+     * For L2TP/IPsec with KLIPSng, set the socket to receive IPsec REFINFO
+     * values.
+     */
+    arg=1;
+    if(setsockopt(server_socket, SOL_IP, IP_IPSEC_REFINFO,
+		  &arg, sizeof(arg)) != 0) {
+	    l2tp_log(LOG_CRIT, "setsockopt recvref: %s\n", strerror(errno));
+
+	    /*
+	     * COULD just set a flag saying we can't cope with multiple hosts
+	     * behind a NAT, but we won't do that yet.
+	     */
+	    return -EINVAL;
+    }
+    
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
     {
@@ -81,7 +97,7 @@ int init_network (void)
         }
     }
 #else
-    l2tp_log (LOG_LOG, "This binary does not support kernel L2TP.\n");
+    l2tp_log (LOG_INFO, "This binary does not support kernel L2TP.\n");
 #endif
     arg = fcntl (server_socket, F_GETFL);
     arg |= O_NONBLOCK;
@@ -160,7 +176,7 @@ void control_xmit (void *b)
     int ns;
     if (!buf)
     {
-        l2tp_log (LOG_WARN, "%s: called on NULL buffer!\n", __FUNCTION__);
+        l2tp_log (LOG_WARNING, "%s: called on NULL buffer!\n", __FUNCTION__);
         return;
     }
 
@@ -219,25 +235,54 @@ void control_xmit (void *b)
         l2tp_log (LOG_DEBUG, "%s: Scheduling and transmitting packet %d\n",
              __FUNCTION__, ns);
 #endif
-        udp_xmit (buf);
+        udp_xmit (buf, t);
     }
 }
 
-void udp_xmit (struct buffer *buf)
+void udp_xmit (struct buffer *buf, struct tunnel *t)
 {
+    struct cmsghdr *cmsg;
+    char cbuf[CMSG_SPACE(sizeof (unsigned int))];
+    unsigned int *refp;
+    struct msghdr msgh;
+    int err;
+    struct iovec iov;
+    
     /*
-     * Just send it all out.
+     * OKAY, now send a packet with the right SAref values.
      */
-#if 0
-    struct sockaddr_in to;
-    to.sin_family = AF_INET;
-    to.sin_port = buf->port;
-    /* if (buf->retry>-1) buf->retry++; */
-    bcopy (&buf->addr, &to.sin_addr, sizeof (buf->addr));
-#endif
-    sendto (server_socket, buf->start, buf->len, 0,
-            (struct sockaddr *) &buf->peer, sizeof (buf->peer));
+    memset(&msgh, 0, sizeof(struct msghdr));
 
+    if(t->refhim != IPSEC_SAREF_NULL) {
+	msgh.msg_control = cbuf;
+	msgh.msg_controllen = sizeof(cbuf);
+
+	cmsg = CMSG_FIRSTHDR(&msgh);
+	cmsg->cmsg_level = SOL_IP;
+	cmsg->cmsg_type  = IP_IPSEC_REFINFO;
+	cmsg->cmsg_len   = CMSG_LEN(sizeof(unsigned int));
+	l2tp_log(LOG_DEBUG,"sending with saref=%d\n", t->refhim);
+	refp = (unsigned int *)CMSG_DATA(cmsg);
+	*refp = t->refhim;
+    }
+    
+    iov.iov_base = buf->start;
+    iov.iov_len  = buf->len;
+
+    /* return packet from whence it came */
+    msgh.msg_name    = &buf->peer;
+    msgh.msg_namelen = sizeof(buf->peer);
+    
+    msgh.msg_iov  = &iov;
+    msgh.msg_iovlen = 1;
+    msgh.msg_flags = 0;
+
+
+    /* Receive one packet. */
+    if ((err = sendmsg(server_socket, &msgh, 0)) < 0) {
+	l2tp_log(LOG_ERR, "udp_xmit failed with err=%d:%s\n",
+		 err,strerror(errno));
+    }
 }
 
 int build_fdset (fd_set *readfds)
@@ -306,7 +351,8 @@ void network_thread ()
      * We loop forever waiting on either data from the ppp drivers or from
      * our network socket.  Control handling is no longer done here.
      */
-    unsigned int fromlen;                /* Length of the address */
+    struct sockaddr_in from, to;
+    unsigned int fromlen, tolen;
     int tunnel, call;           /* Tunnel and call */
     int recvsize;               /* Length of data received */
     struct buffer *buf;         /* Payload buffer */
@@ -315,6 +361,11 @@ void network_thread ()
     fd_set readfds;             /* Descriptors to watch for reading */
     int max;                    /* Highest fd */
     struct timeval tv;          /* Timeout for select */
+    struct msghdr msgh;
+    struct iovec iov;
+    char cbuf[256];
+    unsigned int refme, refhim;
+
     /* This one buffer can be recycled for everything except control packets */
     buf = new_buf (MAX_RECV_SIZE);
 
@@ -339,93 +390,139 @@ void network_thread ()
              * Okay, now we're ready for reading and processing new data.
              */
             recycle_buf (buf);
+
             /* Reserve space for expanding payload packet headers */
             buf->start += PAYLOAD_BUF;
             buf->len -= PAYLOAD_BUF;
-            fromlen = sizeof (from);
-            recvsize =
-                recvfrom (server_socket, buf->start, buf->len, 0,
-                          (struct sockaddr *) &from, &fromlen);
+
+	    memset(&from, 0, sizeof(from));
+	    memset(&to,   0, sizeof(to));
+	    
+	    fromlen = sizeof(from);
+	    tolen   = sizeof(to);
+	    
+	    memset(&msgh, 0, sizeof(struct msghdr));
+	    iov.iov_base = buf->start;
+	    iov.iov_len  = buf->len;
+	    msgh.msg_control = cbuf;
+	    msgh.msg_controllen = sizeof(cbuf);
+	    msgh.msg_name = &from;
+	    msgh.msg_namelen = fromlen;
+	    msgh.msg_iov  = &iov;
+	    msgh.msg_iovlen = 1;
+	    msgh.msg_flags = 0;
+	    
+	    /* Receive one packet. */
+	    recvsize = recvmsg(server_socket, &msgh, 0);
+
             if (recvsize < MIN_PAYLOAD_HDR_LEN)
             {
                 if (recvsize < 0)
                 {
                     if (errno != EAGAIN)
-                        l2tp_log (LOG_WARN,
+                        l2tp_log (LOG_WARNING,
                              "%s: recvfrom returned error %d (%s)\n",
                              __FUNCTION__, errno, strerror (errno));
                 }
                 else
                 {
-                    l2tp_log (LOG_WARN, "%s: received too small a packet\n",
+                    l2tp_log (LOG_WARNING, "%s: received too small a packet\n",
                          __FUNCTION__);
                 }
+		continue;
             }
-            else
-            {
-                buf->len = recvsize;
-                if (gconfig.debug_network)
-                {
-                    l2tp_log (LOG_DEBUG, "%s: recv packet from %s, size = %d, "
-							"tunnel = %d, call = %d\n", __FUNCTION__,
-							inet_ntoa (from.sin_addr), recvsize, tunnel, call);
-                }
-                if (gconfig.packet_dump)
-                {
-                    do_packet_dump (buf);
-                }
-                fix_hdr (buf->start);
-                extract (buf->start, &tunnel, &call);
-                if (!
-                    (c =
-                     get_call (tunnel, call, from.sin_addr.s_addr,
-                               from.sin_port)))
-                {
-                    if ((c =
-                         get_tunnel (tunnel, from.sin_addr.s_addr,
-                                     from.sin_port)))
-                    {
-                        /*
-                         * It is theoretically possible that we could be sent
-                         * a control message (say a StopCCN) on a call that we
-                         * have already closed or some such nonsense.  To prevent
-                         * this from closing the tunnel, if we get a call on a valid
-                         * tunnel, but not with a valid CID, we'll just send a ZLB
-                         * to ack receiving the packet.
-                         */
-                        if (gconfig.debug_tunnel)
-                            l2tp_log (LOG_DEBUG,
-                                 "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
-                                 __FUNCTION__);
-                        handle_special (buf, c, call);
-                    }
-                    else
-                        l2tp_log (LOG_DEBUG,
-                             "%s: unable to find call or tunnel to handle packet.  call = %d, tunnel = %d Dumping.\n",
-                             __FUNCTION__, call, tunnel);
 
-                }
-                else
-                {
-                    buf->peer = from;
-                    /* Handle the packet */
-                    c->container->chal_us.vector = NULL;
-                    if (handle_packet (buf, c->container, c))
-                    {
-                        if (gconfig.debug_tunnel)
-                            l2tp_log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
-                    };
-                    if (c->cnu)
-                    {
-                        /* Send Zero Byte Packet */
-                        control_zlb (buf, c->container, c);
-                        c->cnu = 0;
-                    }
-                }
-            }
-        };
 
-        st = tunnels.head;
+	    refme=refhim=0xffffffff;
+	    /* extract IPsec info out */
+	    {
+		struct cmsghdr *cmsg;
+		/* Process auxiliary received data in msgh */
+		for (cmsg = CMSG_FIRSTHDR(&msgh);
+		     cmsg != NULL;
+		     cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
+		    if (cmsg->cmsg_level == IPPROTO_IP
+			&& cmsg->cmsg_type == IP_IPSEC_REFINFO) {
+			unsigned int *refp;
+			
+			refp = (unsigned int *)CMSG_DATA(cmsg);
+			refme =refp[0];
+			refhim=refp[1];
+		    }
+		}
+	    }
+
+	    /*
+	     * some logic could be added here to verify that we only
+	     * get L2TP packets inside of IPsec, or to provide different
+	     * classes of service to packets not inside of IPsec.
+	     */
+	    buf->len = recvsize;
+	    if (gconfig.debug_network)
+	    {
+		l2tp_log(LOG_DEBUG, "%s: recv packet from %s, size = %d, "
+			 "tunnel = %d, call = %d ref=%u refhim=%u\n",
+			 __FUNCTION__, inet_ntoa (from.sin_addr),
+			 recvsize, tunnel, call, refme, refhim);
+	    }
+
+	    if (gconfig.packet_dump)
+	    {
+		do_packet_dump (buf);
+	    }
+	    fix_hdr (buf->start);
+	    extract (buf->start, &tunnel, &call);
+	    if (!
+		(c = get_call (tunnel, call, from.sin_addr.s_addr,
+			       from.sin_port, refme, refhim)))
+	    {
+		if ((c =
+		     get_tunnel (tunnel, from.sin_addr.s_addr,
+				 from.sin_port)))
+		{
+		    /*
+		     * It is theoretically possible that we could be sent
+		     * a control message (say a StopCCN) on a call that we
+		     * have already closed or some such nonsense.  To
+		     * prevent this from closing the tunnel, if we get a
+		     * call on a valid tunnel, but not with a valid CID,
+		     * we'll just send a ZLB to ack receiving the packet.
+		     */
+		    if (gconfig.debug_tunnel)
+			l2tp_log (LOG_DEBUG,
+				  "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
+				  __FUNCTION__);
+		    handle_special (buf, c, call);
+		}
+		else
+		    l2tp_log (LOG_DEBUG,
+			      "%s: unable to find call or tunnel to handle packet.  call = %d, tunnel = %d Dumping.\n",
+			      __FUNCTION__, call, tunnel);
+		
+	    }
+	    else
+	    {
+		buf->peer = from;
+		/* Handle the packet */
+		c->container->chal_us.vector = NULL;
+		if (handle_packet (buf, c->container, c))
+		{
+		    if (gconfig.debug_tunnel)
+			l2tp_log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
+		};
+		if (c->cnu)
+		{
+		    /* Send Zero Byte Packet */
+		    control_zlb (buf, c->container, c);
+		    c->cnu = 0;
+		}
+	    };
+	}
+
+	/*
+	 * finished obvious sources, look for data from PPP connections.
+	 */
+	st = tunnels.head;
         while (st)
         {
             sc = st->call_head;
@@ -440,7 +537,7 @@ void network_thread ()
                     l2tp_log (LOG_DEBUG, "%s: rws = %d, pSs = %d, pLr = %d\n",
                          __FUNCTION__, sc->rws, sc->pSs, sc->pLr);
 #endif
-/*					if ((sc->rws>0) && (sc->pSs > sc->pLr + sc->rws) && !sc->rbit) {
+/*		    if ((sc->rws>0) && (sc->pSs > sc->pLr + sc->rws) && !sc->rbit) {
 #ifdef DEBUG_FLOW
 						log(LOG_DEBUG, "%s: throttling payload (call = %d, tunnel = %d, Lr = %d, Ss = %d, rws = %d)!\n",__FUNCTION__,
 								 sc->cid, sc->container->tid, sc->pLr, sc->pSs, sc->rws); 
@@ -473,12 +570,12 @@ void network_thread ()
                         }
                         sc->tx_bytes += buf->len;
                         sc->tx_pkts++;
-                        udp_xmit (buf);
+                        udp_xmit (buf, st);
                         recycle_payload (buf, sc->container->peer);
                     }
                     if (result != 0)
                     {
-                        l2tp_log (LOG_WARN,
+                        l2tp_log (LOG_WARNING,
                              "%s: tossing read packet, error = %s (%d).  Closing call.\n",
                              __FUNCTION__, strerror (-result), -result);
                         strcpy (sc->errormsg, strerror (-result));

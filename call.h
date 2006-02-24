@@ -14,6 +14,7 @@
 #include <sys/time.h>
 #include "misc.h"
 #include "common.h"
+#include "ipsecmast.h"
 
 #define CALL_CACHE_SIZE 256
 
@@ -96,7 +97,9 @@ struct call
 
 extern void push_handler (int);
 extern void toss (struct buffer *);
-extern struct call *get_call (int, int, unsigned int, int);
+extern struct call *get_call (int tunnel, int call, unsigned int addr,
+			      int port,
+			      IPsecSAref_t refme, IPsecSAref_t refhim);
 extern struct call *get_tunnel (int, unsigned int, int);
 extern void destroy_call (struct call *);
 extern struct call *new_call (struct tunnel *);

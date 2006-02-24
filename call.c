@@ -28,6 +28,7 @@
 #ifdef USE_KERNEL
 #include <sys/ioctl.h>
 #endif
+#include "ipsecmast.h"
 
 struct buffer *new_payload (struct sockaddr_in peer)
 {
@@ -608,7 +609,9 @@ struct call *get_tunnel (int tunnel, unsigned int addr, int port)
     }
     return NULL;
 }
-struct call *get_call (int tunnel, int call, unsigned int addr, int port)
+
+struct call *get_call (int tunnel, int call, unsigned int addr, int port,
+		       IPsecSAref_t refme, IPsecSAref_t refhim)
 {
     /*
      * Figure out which call struct should handle this. 
@@ -623,15 +626,17 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port)
         st = tunnels.head;
         while (st)
         {
-            if (st->ourtid == tunnel)
+            if (st->ourtid == tunnel &&
+		st->refme  == refme &&
+		st->refhim == refhim) 
             {
                 if (call)
                 {
                     sc = st->call_head;
                     while (sc)
                     {
-                        if (sc->ourcid == call)
-                            return sc;
+			/* confirm that this is in fact a call with the right SA! */
+			if (sc->ourcid == call) return sc;
                         sc = sc->next;
                     }
                     l2tp_log (LOG_DEBUG, "%s: can't find call %d in tunnel %d\n",
@@ -675,13 +680,15 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port)
         }
         if (!(st = new_tunnel ()))
         {
-            l2tp_log (LOG_WARN,
+            l2tp_log (LOG_WARNING,
                  "%s: unable to allocate new tunnel for host %s, port %d.\n",
                  __FUNCTION__, IPADDY (addr), ntohs (port));
             return NULL;
         };
         st->peer.sin_family = AF_INET;
         st->peer.sin_port = port;
+	st->refme  = refme;
+	st->refhim = refhim;
         bcopy (&addr, &st->peer.sin_addr, sizeof (addr));
 #ifdef USE_KERNEL
         if (kernel_support)

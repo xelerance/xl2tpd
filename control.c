@@ -158,7 +158,7 @@ void control_zlb (struct buffer *buf, struct tunnel *t, struct call *c)
     l2tp_log (LOG_DEBUG, "%s: sending control ZLB on tunnel %d\n", __FUNCTION__,
          t->tid);
 #endif
-    udp_xmit (buf);
+    udp_xmit (buf, t);
 }
 
 int control_finish (struct tunnel *t, struct call *c)
@@ -1172,7 +1172,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
 #endif
             zlb = new_outgoing (t);
             control_zlb (zlb, t, c);
-            udp_xmit (zlb);
+            udp_xmit (zlb, t);
             toss (zlb);
         }
         else if (!t->control_rec_seq_num && (t->tid == -1))
@@ -1531,7 +1531,7 @@ void send_zlb (void *data)
 #ifdef DEBUG_ZLB
     l2tp_log (LOG_DEBUG, "%s: sending payload ZLB\n", __FUNCTION__);
 #endif
-    udp_xmit (buf);
+    udp_xmit (buf, t);
     toss (buf);
 }
 
@@ -1699,7 +1699,7 @@ void handle_special (struct buffer *buf, struct call *c, _u16 call)
         /* FIXME: If I'm not a CDN, I need to send a CDN */
         control_zlb (buf, t, c);
         c->cid = 0;
-        udp_xmit (buf);
+        udp_xmit (buf, t);
         toss (buf);
     }
     else
