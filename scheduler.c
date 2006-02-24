@@ -89,7 +89,7 @@ void alarm_handler (int signal)
         }
         if ((then.tv_sec <= 0) && (then.tv_usec <= 0))
         {
-            l2tp_log (LOG_WARN, "%s: Whoa...  Scheduling for <=0 time???\n",
+            l2tp_log (LOG_WARNING, "%s: Whoa...  Scheduling for <=0 time???\n",
                  __FUNCTION__);
         }
         else

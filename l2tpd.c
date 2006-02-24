@@ -81,8 +81,8 @@ void show_status (void)
     unsigned long cnt = 0;
 
     int s = 0;
-    l2tp_log (LOG_WARN, "====== l2tpd statistics ========\n");
-    l2tp_log (LOG_WARN, " Scheduler entries:\n");
+    l2tp_log (LOG_WARNING, "====== l2tpd statistics ========\n");
+    l2tp_log (LOG_WARNING, " Scheduler entries:\n");
     se = events;
     while (se)
     {
@@ -92,32 +92,32 @@ void show_status (void)
         c = (struct call *) se->data;
         if (se->func == &hello)
         {
-            l2tp_log (LOG_WARN, "%d: HELLO to %d\n", s, t->tid);
+            l2tp_log (LOG_WARNING, "%d: HELLO to %d\n", s, t->tid);
         }
         else if (se->func == &magic_lac_dial)
         {
-            l2tp_log (LOG_WARN, "%d: Magic dial on %s\n", s, tlac->entname);
+            l2tp_log (LOG_WARNING, "%d: Magic dial on %s\n", s, tlac->entname);
         }
         else if (se->func == &send_zlb)
         {
-            l2tp_log (LOG_WARN, "%d: Send payload ZLB on call %d:%d\n", s,
+            l2tp_log (LOG_WARNING, "%d: Send payload ZLB on call %d:%d\n", s,
                      c->container->tid, c->cid);
         }
         else if (se->func == &dethrottle)
         {
-            l2tp_log (LOG_WARN, "%d: Dethrottle call %d:%d\n", s, c->container->tid,
+            l2tp_log (LOG_WARNING, "%d: Dethrottle call %d:%d\n", s, c->container->tid,
                      c->cid);
         }
         else
-            l2tp_log (LOG_WARN, "%d: Unknown event\n", s);
+            l2tp_log (LOG_WARNING, "%d: Unknown event\n", s);
         se = se->next;
     };
-    l2tp_log (LOG_WARN, "Total Events scheduled: %d\n", s);
-    l2tp_log (LOG_WARN, "Number of tunnels open: %d\n", tunnels.count);
+    l2tp_log (LOG_WARNING, "Total Events scheduled: %d\n", s);
+    l2tp_log (LOG_WARNING, "Number of tunnels open: %d\n", tunnels.count);
     t = tunnels.head;
     while (t)
     {
-        l2tp_log (LOG_WARN, "Tunnel %s, ID = %d (local), %d (remote) to %s:%d,"
+        l2tp_log (LOG_WARNING, "Tunnel %s, ID = %d (local), %d (remote) to %s:%d,"
                  " control_seq_num = %d, control_rec_seq_num = %d,"
                  " cLr = %d, call count = %d",
                  (t->lac ? t->lac->entname : (t->lns ? t->lns->entname : "")),
@@ -128,7 +128,7 @@ void show_status (void)
         while (c)
         {
             cnt++;
-            l2tp_log (LOG_WARN, 
+            l2tp_log (LOG_WARNING, 
                      "Call %s # %lu, ID = %d (local), %d (remote), serno = %u,"
                      " data_seq_num = %d, data_rec_seq_num = %d,"
                      " pLr = %d, tx = %u bytes (%u), rx= %u bytes (%u)",
@@ -141,33 +141,33 @@ void show_status (void)
         }
         t = t->next;
     }
-    l2tp_log (LOG_WARN, "==========Config File===========\n");
+    l2tp_log (LOG_WARNING, "==========Config File===========\n");
     tlns = lnslist;
     while (tlns)
     {
-        l2tp_log (LOG_WARN, "LNS entry %s\n",
+        l2tp_log (LOG_WARNING, "LNS entry %s\n",
                  tlns->entname[0] ? tlns->entname : "(unnamed)");
         tlns = tlns->next;
     };
     tlac = laclist;
     while (tlac)
     {
-        l2tp_log (LOG_WARN, "LAC entry %s, LNS is/are:",
+        l2tp_log (LOG_WARNING, "LAC entry %s, LNS is/are:",
                  tlac->entname[0] ? tlac->entname : "(unnamed)");
         h = tlac->lns;
         if (h)
         {
             while (h)
             {
-                l2tp_log (LOG_WARN, " %s", h->hostname);
+                l2tp_log (LOG_WARNING, " %s", h->hostname);
                 h = h->next;
             }
         }
         else
-            l2tp_log (LOG_WARN, " [none]");
+            l2tp_log (LOG_WARNING, " [none]");
         tlac = tlac->next;
     };
-    l2tp_log (LOG_WARN, "================================\n");
+    l2tp_log (LOG_WARNING, "================================\n");
 }
 
 void null_handler(int sig)
@@ -319,12 +319,12 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     stropt[pos] = NULL;
     if (c->pppd > 0)
     {
-        l2tp_log(LOG_WARN, "%s: PPP already started on call!\n", __FUNCTION__);
+        l2tp_log(LOG_WARNING, "%s: PPP already started on call!\n", __FUNCTION__);
         return -EINVAL;
     }
     if (c->fd > -1)
     {
-        l2tp_log (LOG_WARN, "%s: file descriptor already assigned!\n",
+        l2tp_log (LOG_WARNING, "%s: file descriptor already assigned!\n",
              __FUNCTION__);
         return -EINVAL;
     }
@@ -346,7 +346,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     {
 	if ((c->fd = getPtyMaster (tty, sizeof(tty))) < 0)
         {
-            l2tp_log (LOG_WARN, "%s: unable to allocate pty, abandoning!\n",
+            l2tp_log (LOG_WARNING, "%s: unable to allocate pty, abandoning!\n",
 		      __FUNCTION__);
             return -EINVAL;
         } 
@@ -359,13 +359,13 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         ptyconf.c_lflag &= ~ECHO;
         tcsetattr (c->fd, TCSANOW, &ptyconf);
 	if(fcntl(c->fd, F_SETFL, O_NONBLOCK)!=0) {
-	    l2tp_log(LOG_WARN, "failed to set nonblock: %s\n", strerror(errno));
+	    l2tp_log(LOG_WARNING, "failed to set nonblock: %s\n", strerror(errno));
 	    return -EINVAL;
 	}
 
         fd2 = open (tty, O_RDWR);
         if (fd2 < 0) {
-            l2tp_log (LOG_WARN, "unable to open tty %s, cannot start pppd", tty);
+            l2tp_log (LOG_WARNING, "unable to open tty %s, cannot start pppd", tty);
             return -EINVAL;
         }
 	stropt[pos++] = strdup(tty);	
@@ -388,7 +388,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     if (c->pppd < 0)
     {
 	/* parent */
-        l2tp_log(LOG_WARN,"%s: unable to fork(), abandoning!\n", __FUNCTION__);
+        l2tp_log(LOG_WARNING,"%s: unable to fork(), abandoning!\n", __FUNCTION__);
         return -EINVAL;
     }
     else if (!c->pppd)
@@ -427,7 +427,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             setenv( "CALLER_ID", c->dialing, 1 );
         }
         execv (PPPD, stropt);
-        l2tp_log (LOG_WARN, "%s: Exec of %s failed!\n", __FUNCTION__, PPPD);
+        l2tp_log (LOG_WARNING, "%s: Exec of %s failed!\n", __FUNCTION__, PPPD);
         _exit (1);
     }
     close (fd2);
@@ -496,14 +496,14 @@ void destroy_tunnel (struct tunnel *t)
             }
             else
             {
-                l2tp_log (LOG_WARN,
+                l2tp_log (LOG_WARNING,
                      "%s: unable to locate tunnel in tunnel list\n",
                      __FUNCTION__);
             }
         }
         else
         {
-            l2tp_log (LOG_WARN, "%s: tunnel list is empty!\n", __FUNCTION__);
+            l2tp_log (LOG_WARNING, "%s: tunnel list is empty!\n", __FUNCTION__);
         }
     }
     if (t->lac)
@@ -512,7 +512,7 @@ void destroy_tunnel (struct tunnel *t)
         if (t->lac->redial && (t->lac->rtimeout > 0) && !t->lac->rsched &&
             t->lac->active)
         {
-            l2tp_log (LOG_LOG, "Will redial in %d seconds\n",
+            l2tp_log (LOG_INFO, "Will redial in %d seconds\n",
                  t->lac->rtimeout);
             tv.tv_sec = t->lac->rtimeout;
             tv.tv_usec = 0;
@@ -550,7 +550,7 @@ struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
     hp = gethostbyname (host);
     if (!hp)
     {
-        l2tp_log (LOG_WARN, "Host name lookup failed for %s.\n",
+        l2tp_log (LOG_WARNING, "Host name lookup failed for %s.\n",
              host);
         return NULL;
     }
@@ -558,12 +558,14 @@ struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
     /* Force creation of a new tunnel
        and set it's tid to 0 to cause
        negotiation to occur */
-    /* XXX L2TP/IPSec: Set up SA to addr:port here?  NTB 20011010
+    /*
+     * to do IPsec properly here, we need to set a socket policy,
+     * and/or communicate with pluto.
      */
-    tmp = get_call (0, 0, addr, port);
+    tmp = get_call (0, 0, addr, port, IPSEC_SAREF_NULL, IPSEC_SAREF_NULL);
     if (!tmp)
     {
-        l2tp_log (LOG_WARN, "%s: Unable to create tunnel to %s.\n", __FUNCTION__,
+        l2tp_log (LOG_WARNING, "%s: Unable to create tunnel to %s.\n", __FUNCTION__,
              host);
         return NULL;
     }
@@ -591,7 +593,7 @@ void magic_lac_tunnel (void *data)
     lac = (struct lac *) data;
     if (!lac)
     {
-        l2tp_log (LOG_WARN, "%s: magic_lac_tunnel: called on NULL lac!\n",
+        l2tp_log (LOG_WARNING, "%s: magic_lac_tunnel: called on NULL lac!\n",
              __FUNCTION__);
         return;
     }
@@ -608,7 +610,7 @@ void magic_lac_tunnel (void *data)
     }
     else
     {
-        l2tp_log (LOG_WARN, "%s: Unable to find hostname to dial for '%s'\n",
+        l2tp_log (LOG_WARNING, "%s: Unable to find hostname to dial for '%s'\n",
              __FUNCTION__, lac->entname);
         return;
     }
@@ -625,7 +627,7 @@ struct call *lac_call (int tid, struct lac *lac, struct lns *lns)
             tmp = new_call (t);
             if (!tmp)
             {
-                l2tp_log (LOG_WARN, "%s: unable to create new call\n",
+                l2tp_log (LOG_WARNING, "%s: unable to create new call\n",
                      __FUNCTION__);
                 return NULL;
             }
@@ -662,12 +664,12 @@ void magic_lac_dial (void *data)
     lac->rtries++;
     if (lac->rmax && (lac->rtries > lac->rmax))
     {
-        l2tp_log (LOG_LOG, "%s: maximum retries exceeded.\n", __FUNCTION__);
+        l2tp_log (LOG_INFO, "%s: maximum retries exceeded.\n", __FUNCTION__);
         return;
     }
     if (!lac)
     {
-        l2tp_log (LOG_WARN, "%s : called on NULL lac!\n", __FUNCTION__);
+        l2tp_log (LOG_WARNING, "%s : called on NULL lac!\n", __FUNCTION__);
         return;
     }
     if (!lac->t)
@@ -692,7 +694,7 @@ void lac_hangup (int cid)
         {
             if (tmp->ourcid == cid)
             {
-                l2tp_log (LOG_LOG,
+                l2tp_log (LOG_INFO,
                      "%s :Hanging up call %d, Local: %d, Remote: %d\n",
                      __FUNCTION__, tmp->serno, tmp->ourcid, tmp->cid);
                 strcpy (tmp->errormsg, "Goodbye!");
@@ -715,7 +717,7 @@ void lac_disconnect (int tid)
     {
         if (t->ourtid == tid)
         {
-            l2tp_log (LOG_LOG,
+            l2tp_log (LOG_INFO,
                  "Disconnecting from %s, Local: %d, Remote: %d\n",
                  IPADDY (t->peer.sin_addr), t->ourtid, t->tid);
             t->self->needclose = -1;
@@ -1057,7 +1059,7 @@ void daemonize() {
 
 #ifndef CONFIG_SNAPGEAR
     if((pid = fork()) < 0) {
-        l2tp_log(LOG_LOG, "%s: Unable to fork ()\n",__FUNCTION__);
+        l2tp_log(LOG_INFO, "%s: Unable to fork ()\n",__FUNCTION__);
         close(server_socket);
         exit(1);
     }
@@ -1067,12 +1069,12 @@ void daemonize() {
     close(0);
     i = open("/dev/null", O_RDWR);
     if (i != 0) {
-        l2tp_log(LOG_LOG, "Redirect of stdin to /dev/null failed\n");
+        l2tp_log(LOG_INFO, "Redirect of stdin to /dev/null failed\n");
     } else {
         if (dup2(0, 1) == -1)
-            l2tp_log(LOG_LOG, "Redirect of stdout to /dev/null failed\n");
+            l2tp_log(LOG_INFO, "Redirect of stdout to /dev/null failed\n");
         if (dup2(0, 2) == -1)
-            l2tp_log(LOG_LOG, "Redirect of stderr to /dev/null failed\n");
+            l2tp_log(LOG_INFO, "Redirect of stderr to /dev/null failed\n");
     }
 #endif
 }
@@ -1102,7 +1104,7 @@ void consider_pidfile() {
            complain and exit immediately. */
         if (pid && pid != getpid () && kill (pid, 0) == 0)
         {
-            l2tp_log(LOG_LOG, "%s: There's already a l2tpd server running.\n",
+            l2tp_log(LOG_INFO, "%s: There's already a l2tpd server running.\n",
                     __FUNCTION__);
             close(server_socket);
             exit(1);
@@ -1179,14 +1181,14 @@ void init (int argc,char *argv[])
 
     open_controlfd();
 
-    l2tp_log (LOG_LOG, "l2tpd version " SERVER_VERSION " started on %s PID:%d\n",
+    l2tp_log (LOG_INFO, "l2tpd version " SERVER_VERSION " started on %s PID:%d\n",
          hostname, getpid ());
-    l2tp_log (LOG_LOG,
+    l2tp_log (LOG_INFO,
          "Written by Mark Spencer, Copyright (C) 1998, Adtran, Inc.\n");
-    l2tp_log (LOG_LOG, "Forked by Scott Balmos and David Stipp, (C) 2001\n");
-    l2tp_log (LOG_LOG, "Inherited by Jeff McAdams, (C) 2002\n");
+    l2tp_log (LOG_INFO, "Forked by Scott Balmos and David Stipp, (C) 2001\n");
+    l2tp_log (LOG_INFO, "Inherited by Jeff McAdams, (C) 2002\n");
     listenaddr.s_addr = gconfig.listenaddr;
-    l2tp_log (LOG_LOG, "Listening on IP address %s, port %d\n",
+    l2tp_log (LOG_INFO, "Listening on IP address %s, port %d\n",
 	 inet_ntoa(listenaddr), gconfig.port);
     lac = laclist;
     while (lac)

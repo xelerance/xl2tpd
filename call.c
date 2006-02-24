@@ -212,7 +212,7 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 buf->len++;
                 break;
             };
-            l2tp_log (LOG_WARN, "%s: read overrun\n", __FUNCTION__);
+            l2tp_log (LOG_WARNING, "%s: read overrun\n", __FUNCTION__);
 	    pos=0;
 	    max=0;
             return -EINVAL;
@@ -220,7 +220,7 @@ int read_packet (struct buffer *buf, int fd, int convert)
     }
 
     /* I should never get here */
-    l2tp_log (LOG_WARN, "%s: You should not see this message.  If you do, please enter "
+    l2tp_log (LOG_WARNING, "%s: You should not see this message.  If you do, please enter "
 			"a bug report at http://sourceforge.net/projects/l2tpd", __FUNCTION__);
     return -EINVAL;
 }
@@ -340,7 +340,7 @@ void call_close (struct call *c)
             call_close (tmp);
             tmp = tmp2;
         }
-        l2tp_log (LOG_LOG,
+        l2tp_log (LOG_INFO,
              "Connection %d closed to %s, port %d (%s)\n", 
              c->container->tid,
              IPADDY (c->container->peer.sin_addr),
@@ -404,7 +404,7 @@ void call_close (struct call *c)
              __FUNCTION__, c->ourcid);
 #endif
         control_xmit (buf);
-        l2tp_log (LOG_LOG, "%s: Call %d to %s disconnected\n", __FUNCTION__,
+        l2tp_log (LOG_INFO, "%s: Call %d to %s disconnected\n", __FUNCTION__,
              c->ourcid, IPADDY (c->container->peer.sin_addr));
     }
     /*
@@ -658,7 +658,7 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port)
 
         if (call)
         {
-            l2tp_log (LOG_WARN,
+            l2tp_log (LOG_WARNING,
                  "%s: call ID specified, but no tunnel ID specified.  tossing.\n",
                  __FUNCTION__);
             return NULL;

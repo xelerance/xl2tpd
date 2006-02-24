@@ -108,8 +108,9 @@ void bufferDump (unsigned char *buf, int buflen)
             c++;                /* again two characters to display ONE byte */
         }
         *c = '\0';
-        l2tp_log (LOG_WARN, "%s: buflen=%d, buffer[%d]: *%s*\n", __FUNCTION__,
-             buflen, i, line);
+        l2tp_log (LOG_WARNING,
+		  "%s: buflen=%d, buffer[%d]: *%s*\n", __FUNCTION__,
+		  buflen, i, line);
     }
 
     c = line;
@@ -124,8 +125,9 @@ void bufferDump (unsigned char *buf, int buflen)
     if (c != line)
     {
         *c = '\0';
-        l2tp_log (LOG_WARN, "%s:             buffer[%d]: *%s*\n", __FUNCTION__, i,
-             line);
+        l2tp_log (LOG_WARNING,
+		  "%s:             buffer[%d]: *%s*\n", __FUNCTION__, i,
+		  line);
     }
 }
 
@@ -208,9 +210,9 @@ struct ppp_opts *add_opt (struct ppp_opts *option, char *fmt, ...)
     new = (struct ppp_opts *) malloc (sizeof (struct ppp_opts));
     if (!new)
     {
-        l2tp_log (LOG_WARN,
-             "%s : Unable to allocate ppp option memory.  Expect a crash\n",
-             __FUNCTION__);
+        l2tp_log (LOG_WARNING,
+		  "%s : Unable to allocate ppp option memory.  Expect a crash\n",
+		  __FUNCTION__);
         return NULL;
     }
     new->next = NULL;
@@ -297,14 +299,16 @@ int get_entropy (unsigned char *buf, int count)
     }
     else if (rand_source == RAND_EGD)
     {
-        l2tp_log(LOG_WARN, "%s: EGD Randomness source not yet implemented\n",
+        l2tp_log(LOG_WARNING,
+		 "%s: EGD Randomness source not yet implemented\n",
                 __FUNCTION__);
         return -1;
     }
     else
     {
-        l2tp_log(LOG_WARN, "%s: Invalid Randomness source specified (%d)\n",
-                __FUNCTION__, rand_source);
-        return -1;
+	    l2tp_log(LOG_WARNING,
+		     "%s: Invalid Randomness source specified (%d)\n",
+		     __FUNCTION__, rand_source);
+	    return -1;
     }
 }

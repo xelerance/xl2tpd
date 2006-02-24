@@ -243,7 +243,7 @@ int control_finish (struct tunnel *t, struct call *c)
                 t->chal_them.challenge = malloc(MD_SIG_SIZE);
                 if (!(t->chal_them.challenge))
                 {
-                    l2tp_log (LOG_WARN, "%s: malloc failed for challenge\n",
+                    l2tp_log (LOG_WARNING, "%s: malloc failed for challenge\n",
 			 __FUNCTION__);
 		    toss (buf);
                     return -EINVAL;
@@ -465,7 +465,7 @@ int control_finish (struct tunnel *t, struct call *c)
             t->chal_them.challenge = malloc(MD_SIG_SIZE);
             if (!(t->chal_them.challenge))
             {
-                l2tp_log (LOG_WARN, "%s: malloc failed\n", __FUNCTION__);
+                l2tp_log (LOG_WARNING, "%s: malloc failed\n", __FUNCTION__);
                 set_error (c, VENDOR_ERROR, "malloc failed");
                 toss (buf);
                 return -EINVAL;
@@ -476,7 +476,7 @@ int control_finish (struct tunnel *t, struct call *c)
             if (handle_challenge (t, &t->chal_them))
             {
                 /* We already know what to expect back */
-                l2tp_log (LOG_WARN, "%s: No secret for '%s'\n", __FUNCTION__,
+                l2tp_log (LOG_WARNING, "%s: No secret for '%s'\n", __FUNCTION__,
                      t->hostname);
                 set_error (c, VENDOR_ERROR, "No secret on our side");
                 toss (buf);
@@ -547,7 +547,7 @@ int control_finish (struct tunnel *t, struct call *c)
             if (handle_challenge (t, &t->chal_them))
             {
                 set_error (c, VENDOR_ERROR, "No secret key on our side");
-                l2tp_log (LOG_WARN, "%s: No secret key for authenticating '%s'\n",
+                l2tp_log (LOG_WARNING, "%s: No secret key for authenticating '%s'\n",
                      __FUNCTION__, t->hostname);
                 c->needclose = -1;
                 return -EINVAL;
@@ -568,7 +568,7 @@ int control_finish (struct tunnel *t, struct call *c)
             t->chal_us.ss = SCCCN;
             if (handle_challenge (t, &t->chal_us))
             {
-                l2tp_log (LOG_WARN, "%s: No secret for authenticating to '%s'\n",
+                l2tp_log (LOG_WARNING, "%s: No secret for authenticating to '%s'\n",
                      __FUNCTION__, t->hostname);
                 set_error (c, VENDOR_ERROR, "No secret key on our end");
                 c->needclose = -1;
@@ -688,7 +688,7 @@ int control_finish (struct tunnel *t, struct call *c)
                      __FUNCTION__);
             return -EINVAL;
         }
-        l2tp_log (LOG_LOG,
+        l2tp_log (LOG_INFO,
              "%s: Connection closed to %s, port %d (%s), Local: %d, Remote: %d\n",
              __FUNCTION__, IPADDY (t->peer.sin_addr),
              ntohs (t->peer.sin_port), t->self->errormsg, t->ourtid, t->tid);
@@ -1039,8 +1039,11 @@ int control_finish (struct tunnel *t, struct call *c)
         };
         start_pppd (c, po);
 
-        l2tp_log (LOG_LOG, "parameters: Local: %d , Remote: %d , Serial: %d , Pid: %d , Tunnelid: %d , Phoneid: %s\n", c->ourcid, c->cid, c->serno, c->pppd, t->ourtid, c->dial_no); /*  jz: just show some information */
-
+        /*  jz: just show some information */
+        l2tp_log (LOG_INFO,
+		  "parameters: Local: %d , Remote: %d , Serial: %d , Pid: %d , Tunnelid: %d , Phoneid: %s\n",
+		  c->ourcid, c->cid, c->serno, c->pppd, t->ourtid, c->dial_no); 
+	
         opt_destroy (po);
         if (c->lac)
             c->lac->rtries = 0;
@@ -1091,7 +1094,7 @@ int control_finish (struct tunnel *t, struct call *c)
                      __FUNCTION__);
             return -EINVAL;
         }
-        l2tp_log (LOG_LOG,
+        l2tp_log (LOG_INFO,
              "%s: Connection closed to %s, serial %d (%s)\n", __FUNCTION__,
              IPADDY (t->peer.sin_addr), c->serno, c->errormsg);
         c->needclose = 0;
@@ -1381,7 +1384,7 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
         new_hdr = (struct payload_hdr *) (buf->start - ehlen);
         if ((void *) new_hdr < (void *) buf->rstart)
         {
-            l2tp_log (LOG_WARN, "%s: not enough space to decompress frame\n",
+            l2tp_log (LOG_WARNING, "%s: not enough space to decompress frame\n",
                  __FUNCTION__);
             return -EINVAL;
 
@@ -1509,13 +1512,13 @@ void send_zlb (void *data)
     c = (struct call *) data;
     if (!c)
     {
-        l2tp_log (LOG_WARN, "%s: called on NULL call\n", __FUNCTION__);
+        l2tp_log (LOG_WARNING, "%s: called on NULL call\n", __FUNCTION__);
         return;
     }
     t = c->container;
     if (!t)
     {
-        l2tp_log (LOG_WARN, "%s: called on call with NULL container\n",
+        l2tp_log (LOG_WARNING, "%s: called on call with NULL container\n",
              __FUNCTION__);
         return;
     }
@@ -1574,7 +1577,7 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
         }
         else if (err == 0)
         {
-            l2tp_log (LOG_WARN, "%s: wrote no bytes of async packet\n",
+            l2tp_log (LOG_WARNING, "%s: wrote no bytes of async packet\n",
                  __FUNCTION__);
             return -EINVAL;
         }
@@ -1586,19 +1589,19 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
             }
             else
             {
-                l2tp_log (LOG_WARN, "%s: async write failed: %s\n", __FUNCTION__,
+                l2tp_log (LOG_WARNING, "%s: async write failed: %s\n", __FUNCTION__,
                      strerror (errno));
             }
         }
         else if (err < buf->len)
         {
-            l2tp_log (LOG_WARN, "%s: short write (%d of %d bytes)\n", __FUNCTION__,
+            l2tp_log (LOG_WARNING, "%s: short write (%d of %d bytes)\n", __FUNCTION__,
                  err, buf->len);
             return -EINVAL;
         }
         else if (err > buf->len)
         {
-            l2tp_log (LOG_WARN, "%s: write returned LONGER than buffer length?\n",
+            l2tp_log (LOG_WARNING, "%s: write returned LONGER than buffer length?\n",
                  __FUNCTION__);
             return -EINVAL;
         }
@@ -1646,7 +1649,7 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
     if (x < pos)
     {
       if (DEBUG)
-	l2tp_log (LOG_WARN, "%s: %s(%d)\n", __FUNCTION__, strerror (errno),
+	l2tp_log (LOG_WARNING, "%s: %s(%d)\n", __FUNCTION__, strerror (errno),
 		  errno);
 
         if (!(errno == EINTR) && !(errno == EAGAIN))

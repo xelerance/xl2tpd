@@ -142,7 +142,7 @@ int get_secret (char *us, char *them, unsigned char *secret, int size)
     f = fopen (gconfig.authfile, "r");
     if (!f)
     {
-        l2tp_log (LOG_WARN, "%s : Unable to open '%s' for authentication\n",
+        l2tp_log (LOG_WARNING, "%s : Unable to open '%s' for authentication\n",
              __FUNCTION__, gconfig.authfile);
         return 0;
     }
@@ -166,7 +166,7 @@ int get_secret (char *us, char *them, unsigned char *secret, int size)
         /* us */
         if (!*u)
         {
-            l2tp_log (LOG_WARN,
+            l2tp_log (LOG_WARNING,
                  "%s: Invalid authentication info (no us), line %d\n",
                  __FUNCTION__, num);
             continue;
@@ -180,7 +180,7 @@ int get_secret (char *us, char *them, unsigned char *secret, int size)
         /* them */
         if (!*t)
         {
-            l2tp_log (LOG_WARN,
+            l2tp_log (LOG_WARNING,
                  "%s: Invalid authentication info (nothem), line %d\n",
                  __FUNCTION__, num);
             continue;
@@ -193,7 +193,7 @@ int get_secret (char *us, char *them, unsigned char *secret, int size)
             s++;
         if (!*s)
         {
-            l2tp_log (LOG_WARN,
+            l2tp_log (LOG_WARNING,
                  "%s: Invalid authentication info (no secret), line %d\n",
                  __FUNCTION__, num);
             continue;

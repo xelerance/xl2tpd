@@ -15,6 +15,8 @@
 #ifndef _MISC_H
 #define _MISC_H
 
+#include <syslog.h>
+
 struct tunnel;
 struct buffer
 {
@@ -55,12 +57,6 @@ struct ppp_opts
 #define htons(a) SWAPS(a)
 #define ntohs(a) SWAPS(a)
 #endif
-
-#define LOG_DEBUG 7
-#define LOG_LOG   6
-#define LOG_NOTICE 5
-#define LOG_WARN  4
-#define LOG_CRIT  2
 
 #define halt() printf("Halted.\n") ; for(;;)
 

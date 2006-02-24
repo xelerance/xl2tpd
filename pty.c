@@ -81,7 +81,7 @@ int getPtyMaster_ptmx(char *ttybuf, int ttybuflen)
     fd = open("/dev/ptmx", O_RDWR);
     if (fd == -1)
     {
-	l2tp_log (LOG_WARN, "%s: unable to open /dev/ptmx to allocate pty\n",
+	l2tp_log (LOG_WARNING, "%s: unable to open /dev/ptmx to allocate pty\n",
 		  __FUNCTION__);
 	return -EINVAL;
     }
@@ -89,7 +89,7 @@ int getPtyMaster_ptmx(char *ttybuf, int ttybuflen)
     /* change the onwership */
     if (grantpt(fd))
     {
-	l2tp_log (LOG_WARN, "%s: unable to grantpt() on pty\n",
+	l2tp_log (LOG_WARNING, "%s: unable to grantpt() on pty\n",
 		  __FUNCTION__);
 	close(fd);
 	return -EINVAL;
@@ -97,7 +97,7 @@ int getPtyMaster_ptmx(char *ttybuf, int ttybuflen)
 
     if (unlockpt(fd))
     {
-	l2tp_log (LOG_WARN, "%s: unable to unlockpt() on pty\n",
+	l2tp_log (LOG_WARNING, "%s: unable to unlockpt() on pty\n",
 		  __FUNCTION__);
 	close(fd);
 	return -EINVAL;
@@ -106,7 +106,7 @@ int getPtyMaster_ptmx(char *ttybuf, int ttybuflen)
     tty = ptsname(fd);
     if (tty == NULL)
     {
-	l2tp_log (LOG_WARN, "%s: unable to obtain name of slave tty\n",
+	l2tp_log (LOG_WARNING, "%s: unable to obtain name of slave tty\n",
 		  __FUNCTION__);
 	close(fd);
 	return -EINVAL;
@@ -126,7 +126,7 @@ int getPtyMaster(char *ttybuf, int ttybuflen)
 	return fd;
     }
 
-    l2tp_log (LOG_WARN, "%s: failed to use pts -- using legacy ptys\n", __FUNCTION__);
+    l2tp_log (LOG_WARNING, "%s: failed to use pts -- using legacy ptys\n", __FUNCTION__);
     fd = getPtyMaster_pty(&a,&b);
     
     if(fd >= 0) {

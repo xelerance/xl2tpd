@@ -301,7 +301,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
         case Hello:
             break;
         default:
-            l2tp_log (LOG_WARN, "%s: i don't know how to handle %s messages\n",
+            l2tp_log (LOG_WARNING, "%s: i don't know how to handle %s messages\n",
                  __FUNCTION__, msgtypes[c->msgtype]);
             return -EINVAL;
         }
@@ -318,7 +318,7 @@ int message_type_avp (struct tunnel *t, struct call *c, void *data,
         tmp = new_call (t);
         if (!tmp)
         {
-            l2tp_log (LOG_WARN, "%s: unable to create new call\n", __FUNCTION__);
+            l2tp_log (LOG_WARNING, "%s: unable to create new call\n", __FUNCTION__);
             return -EINVAL;
         }
         tmp->next = t->call_head;
@@ -1615,7 +1615,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         {
             if (AMBIT (avp->length))
             {
-                l2tp_log (LOG_WARN,
+                l2tp_log (LOG_WARNING,
                      "%s:  dont know how to handle mandatory attribute %d.  Closing %s.\n",
                      __FUNCTION__, avp->attr,
                      (c != t->self) ? "call" : "tunnel");
@@ -1628,7 +1628,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             else
             {
                 if (DEBUG)
-                    l2tp_log (LOG_WARN,
+                    l2tp_log (LOG_WARNING,
                          "%s:  dont know how to handle atribute %d.\n",
                          __FUNCTION__, avp->attr);
                 goto next;
@@ -1636,7 +1636,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (ALENGTH (avp->length) > len)
         {
-            l2tp_log (LOG_WARN,
+            l2tp_log (LOG_WARNING,
                  "%s: AVP received with length > remaining packet length!\n",
                  __FUNCTION__);
             set_error (c, ERROR_LENGTH, "Invalid AVP length");
@@ -1645,7 +1645,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (avp->attr && firstavp)
         {
-            l2tp_log (LOG_WARN, "%s: First AVP was not message type.\n",
+            l2tp_log (LOG_WARNING, "%s: First AVP was not message type.\n",
                  __FUNCTION__);
             set_error (c, VENDOR_ERROR, "First AVP must be message type");
             c->needclose = -1;
@@ -1653,7 +1653,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (ALENGTH (avp->length) < sizeof (struct avp_hdr))
         {
-            l2tp_log (LOG_WARN, "%s: AVP with too small of size (%d).\n",
+            l2tp_log (LOG_WARNING, "%s: AVP with too small of size (%d).\n",
                  __FUNCTION__, ALENGTH (avp->length));
             set_error (c, ERROR_LENGTH, "AVP too small");
             c->needclose = -1;
@@ -1661,7 +1661,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         if (AZBITS (avp->length))
         {
-            l2tp_log (LOG_WARN, "%s: %sAVP has reserved bits set.\n", __FUNCTION__,
+            l2tp_log (LOG_WARNING, "%s: %sAVP has reserved bits set.\n", __FUNCTION__,
                  AMBIT (avp->length) ? "Mandatory " : "");
             if (AMBIT (avp->length))
             {
@@ -1683,7 +1683,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             if (decrypt_avp (data, t))
             {
                 if (gconfig.debug_avp)
-                    l2tp_log (LOG_WARN, "%s: Unable to handle hidden %sAVP\n:",
+                    l2tp_log (LOG_WARNING, "%s: Unable to handle hidden %sAVP\n:",
                          __FUNCTION__,
                          (AMBIT (avp->length) ? "mandatory " : ""));
                 if (AMBIT (avp->length))
@@ -1708,7 +1708,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             {
                 if (AMBIT (avp->length))
                 {
-                    l2tp_log (LOG_WARN,
+                    l2tp_log (LOG_WARNING,
                          "%s: Bad exit status handling attribute %d (%s) on mandatory packet.\n",
                          __FUNCTION__, avp->attr,
                          avps[avp->attr].description);
@@ -1729,7 +1729,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         {
             if (AMBIT (avp->length))
             {
-                l2tp_log (LOG_WARN,
+                l2tp_log (LOG_WARNING,
                      "%s:  No handler for mandatory attribute %d (%s).  Closing %s.\n",
                      __FUNCTION__, avp->attr, avps[avp->attr].description,
                      (c != t->self) ? "call" : "tunnel");
@@ -1740,7 +1740,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             else
             {
                 if (DEBUG)
-                    l2tp_log (LOG_WARN, "%s:  no handler for atribute %d (%s).\n",
+                    l2tp_log (LOG_WARNING, "%s:  no handler for atribute %d (%s).\n",
                          __FUNCTION__, avp->attr,
                          avps[avp->attr].description);
             }
@@ -1762,7 +1762,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
     }
     if (len != 0)
     {
-        l2tp_log (LOG_WARN, "%s: negative overall packet length\n", __FUNCTION__);
+        l2tp_log (LOG_WARNING, "%s: negative overall packet length\n", __FUNCTION__);
         return -EINVAL;
     }
     return 0;

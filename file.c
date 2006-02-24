@@ -1059,7 +1059,7 @@ int set_lns (char *word, char *value, int context, void *item)
 
 int set_rand_sys ()
 {
-    l2tp_log(LOG_WARN, "The \"rand()\" function call is not a very good source"
+    l2tp_log(LOG_WARNING, "The \"rand()\" function call is not a very good source"
             "of randomness\n");
     rand_source = RAND_SYS;
     return 0;
@@ -1073,7 +1073,7 @@ int set_rand_dev ()
 
 int set_rand_egd (char *value)
 {
-    l2tp_log(LOG_WARN, "%s: not yet implemented!\n", __FUNCTION__);
+    l2tp_log(LOG_WARNING, "%s: not yet implemented!\n", __FUNCTION__);
     rand_source = RAND_EGD;
     return -1;
 }
@@ -1101,7 +1101,7 @@ int set_rand_source (char *word, char *value, int context, void *item)
  
     if (context != CONTEXT_GLOBAL)
     {
-        l2tp_log(LOG_WARN, "%s: %s not valid in context %d\n",
+        l2tp_log(LOG_WARNING, "%s: %s not valid in context %d\n",
                 __FUNCTION__, word, context);
         return -1;
     }
@@ -1125,7 +1125,7 @@ int set_rand_source (char *word, char *value, int context, void *item)
     }
     else
     {
-        l2tp_log(LOG_WARN, "%s: %s is not a valid randomness source\n",
+        l2tp_log(LOG_WARNING, "%s: %s is not a valid randomness source\n",
                 __FUNCTION__, value);
         return -1;
 
@@ -1285,7 +1285,7 @@ int parse_config (FILE * f)
             }
             else
             {
-                l2tp_log (LOG_WARN,
+                l2tp_log (LOG_WARNING,
                      "parse_config: line %d: unknown context '%s'\n", linenum,
                      s);
                 return -1;
@@ -1295,14 +1295,14 @@ int parse_config (FILE * f)
         {
             if (!context)
             {
-                l2tp_log (LOG_WARN,
+                l2tp_log (LOG_WARNING,
                      "parse_config: line %d: data '%s' occurs with no context\n",
                      linenum, s);
                 return -1;
             }
             if (!(t = strchr (s, '=')))
             {
-                l2tp_log (LOG_WARN, "parse_config: line %d: no '=' in data\n",
+                l2tp_log (LOG_WARNING, "parse_config: line %d: no '=' in data\n",
                      linenum);
                 return -1;
             }
@@ -1325,7 +1325,7 @@ int parse_config (FILE * f)
                 {
                     if (kw->handler (s, t, context | def, data))
                     {
-                        l2tp_log (LOG_WARN, "parse_config: line %d: %s", linenum,
+                        l2tp_log (LOG_WARNING, "parse_config: line %d: %s", linenum,
                              filerr);
                         return -1;
                     }
