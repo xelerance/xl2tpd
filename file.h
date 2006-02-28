@@ -151,6 +151,7 @@ struct global
     int debug_network;		/* Print network debugging info? */
     int debug_tunnel;		/* Print tunnel debugging info? */
     int debug_state;		/* Print FSM debugging info? */
+    int ipsecsaref;
 };
 
 extern struct global gconfig;   /* Global configuration options */

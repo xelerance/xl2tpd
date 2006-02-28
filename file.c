@@ -1065,6 +1065,27 @@ int set_rand_sys ()
     return 0;
 }
 
+int set_ipsec_saref (char *word, char *value, int context, void *item)
+{
+	struct global *g = ((struct global *) item);
+    switch (context & ~CONTEXT_DEFAULT)
+    {
+    case CONTEXT_GLOBAL:
+	    if (set_boolean
+		(word, value, &(g->ipsecsaref)))
+		    return -1;
+	    if(g->ipsecsaref) {
+		    l2tp_log(LOG_WARNING, "Enabling IPsec SAref processing for L2TP transport mode SAs\n");
+	    }
+	    break;
+    default:
+	    snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
+		      word);
+	    return -1;
+    }
+    return 0;
+}
+
 int set_rand_dev ()
 {
     rand_source = RAND_DEV;
@@ -1363,6 +1384,7 @@ struct keyword words[] = {
     {"debug packet", &set_debugpacket},
     {"debug tunnel", &set_debugtunnel},
     {"debug state", &set_debugstate},
+    {"ipsec saref", &set_ipsec_saref},
     {"lac", &set_lac},
     {"no lac", &set_lac},
     {"assign ip", &set_assignip},

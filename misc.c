@@ -70,6 +70,7 @@ void set_error (struct call *c, int error, const char *fmt, ...)
 struct buffer *new_buf (int size)
 {
     struct buffer *b = malloc (sizeof (struct buffer));
+
     if (!b || !size || size < 0)
         return NULL;
     b->rstart = malloc (size);

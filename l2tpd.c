@@ -993,8 +993,10 @@ void usage(void) {
     exit(1);
 }
 
-void init_args(int argc, char *argv[]) {
+void init_args(int argc, char *argv[])
+{
     int i=0;
+
     gconfig.daemon=1;
     memset(gconfig.altauthfile,0,STRLEN);
     memset(gconfig.altconfigfile,0,STRLEN);
@@ -1014,6 +1016,8 @@ void init_args(int argc, char *argv[]) {
             sizeof(gconfig.pidfile) - 1);
     strncpy(gconfig.controlfile,CONTROL_PIPE,
             sizeof(gconfig.controlfile) - 1);
+    gconfig.ipsecsaref = 0;
+
     for (i = 1; i < argc; i++) {
         if(! strncmp(argv[i],"-c",2)) {
             if(++i == argc)

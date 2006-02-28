@@ -180,8 +180,12 @@ void control_xmit (void *b)
         return;
     }
 
-    buf->retries++;
     t = buf->tunnel;
+    l2tp_log (LOG_DEBUG,
+	      "trying to send control packet\n",
+	      t->ourtid);
+
+    buf->retries++;
     ns = ntohs (((struct control_hdr *) (buf->start))->Ns);
     if (t)
     {
@@ -253,17 +257,24 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
      */
     memset(&msgh, 0, sizeof(struct msghdr));
 
-    if(t->refhim != IPSEC_SAREF_NULL) {
-	msgh.msg_control = cbuf;
+    msgh.msg_control = cbuf;
+    msgh.msg_controllen = 0;
+
+    if(gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
 	msgh.msg_controllen = sizeof(cbuf);
 
 	cmsg = CMSG_FIRSTHDR(&msgh);
 	cmsg->cmsg_level = SOL_IP;
 	cmsg->cmsg_type  = IP_IPSEC_REFINFO;
 	cmsg->cmsg_len   = CMSG_LEN(sizeof(unsigned int));
-	l2tp_log(LOG_DEBUG,"sending with saref=%d\n", t->refhim);
+
+	if(gconfig.debug_network) {
+		l2tp_log(LOG_DEBUG,"sending with saref=%d\n", t->refhim);
+	}
 	refp = (unsigned int *)CMSG_DATA(cmsg);
 	*refp = t->refhim;
+
+	msgh.msg_controllen = cmsg->cmsg_len;
     }
     
     iov.iov_base = buf->start;
@@ -433,23 +444,24 @@ void network_thread ()
             }
 
 
-	    refme=refhim=0xffffffff;
+	    refme=refhim=0;
+
 	    /* extract IPsec info out */
-	    {
-		struct cmsghdr *cmsg;
-		/* Process auxiliary received data in msgh */
-		for (cmsg = CMSG_FIRSTHDR(&msgh);
-		     cmsg != NULL;
-		     cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
-		    if (cmsg->cmsg_level == IPPROTO_IP
-			&& cmsg->cmsg_type == IP_IPSEC_REFINFO) {
-			unsigned int *refp;
-			
-			refp = (unsigned int *)CMSG_DATA(cmsg);
-			refme =refp[0];
-			refhim=refp[1];
+	    if(gconfig.ipsecsaref) {
+		    struct cmsghdr *cmsg;
+		    /* Process auxiliary received data in msgh */
+		    for (cmsg = CMSG_FIRSTHDR(&msgh);
+			 cmsg != NULL;
+			 cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
+			    if (cmsg->cmsg_level == IPPROTO_IP
+				&& cmsg->cmsg_type == IP_IPSEC_REFINFO) {
+				    unsigned int *refp;
+				    
+				    refp = (unsigned int *)CMSG_DATA(cmsg);
+				    refme =refp[0];
+				    refhim=refp[1];
+			    }
 		    }
-		}
 	    }
 
 	    /*

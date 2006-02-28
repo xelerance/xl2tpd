@@ -611,9 +611,9 @@ int control_finish (struct tunnel *t, struct call *c)
 #endif
         t->hello = schedule (tv, hello, (void *) t);
         l2tp_log (LOG_NOTICE,
-             "Connection established to %s, %d.  Local: %d, Remote: %d.\n",
-             IPADDY (t->peer.sin_addr),
-             ntohs (t->peer.sin_port), t->ourtid, t->tid);
+		  "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).\n",
+		  IPADDY (t->peer.sin_addr),
+		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim);
         if (t->lac)
         {
             /* This is part of a LAC, so we want to go ahead
@@ -647,9 +647,10 @@ int control_finish (struct tunnel *t, struct call *c)
 #endif
         t->state = SCCCN;
         l2tp_log (LOG_NOTICE,
-             "Connection established to %s, %d.  Local: %d, Remote: %d.  LNS session is '%s'\n",
-             IPADDY (t->peer.sin_addr),
-             ntohs (t->peer.sin_port), t->ourtid, t->tid, t->lns->entname);
+             "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).  LNS session is '%s'\n",
+		  IPADDY (t->peer.sin_addr),
+		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim,
+		  t->lns->entname);
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;
         tv.tv_usec = 0;
@@ -845,9 +846,9 @@ int control_finish (struct tunnel *t, struct call *c)
         if (gconfig.debug_state)
             l2tp_log (LOG_DEBUG, "%s: Sending ICCN\n", __FUNCTION__);
         l2tp_log (LOG_NOTICE,
-             "Call established with %s, Local: %d, Remote: %d, Serial: %d\n",
-             IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
-             c->serno);
+		  "Call established with %s, Local: %d, Remote: %d, Serial: %d (ref=%u/%u)\n",
+		  IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
+		  c->serno, t->refme, t->refhim);
         control_xmit (buf);
         po = NULL;
         po = add_opt (po, "passive");
