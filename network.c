@@ -70,11 +70,7 @@ int init_network (void)
 		  &arg, sizeof(arg)) != 0) {
 	    l2tp_log(LOG_CRIT, "setsockopt recvref: %s\n", strerror(errno));
 
-	    /*
-	     * COULD just set a flag saying we can't cope with multiple hosts
-	     * behind a NAT, but we won't do that yet.
-	     */
-	    return -EINVAL;
+	    gconfig.ipsecsaref=0;
     }
     
 #ifdef USE_KERNEL
