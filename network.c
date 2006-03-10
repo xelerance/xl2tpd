@@ -170,6 +170,7 @@ void control_xmit (void *b)
     struct tunnel *t;
     struct timeval tv;
     int ns;
+
     if (!buf)
     {
         l2tp_log (LOG_WARNING, "%s: called on NULL buffer!\n", __FUNCTION__);
@@ -177,9 +178,11 @@ void control_xmit (void *b)
     }
 
     t = buf->tunnel;
-    l2tp_log (LOG_DEBUG,
-	      "trying to send control packet\n",
-	      t->ourtid);
+    if(t) {
+	    l2tp_log (LOG_DEBUG,
+		      "trying to send control packet to %d\n",
+		      t->ourtid);
+    }
 
     buf->retries++;
     ns = ntohs (((struct control_hdr *) (buf->start))->Ns);
@@ -501,6 +504,9 @@ void network_thread ()
 				  "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
 				  __FUNCTION__);
 		    handle_special (buf, c, call);
+
+		    /* get a new buffer */
+		    buf = new_buf (MAX_RECV_SIZE);
 		}
 		else
 		    l2tp_log (LOG_DEBUG,
