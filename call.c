@@ -628,8 +628,7 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port,
         {
 	    if (st->ourtid == tunnel &&
 		(gconfig.ipsecsaref==0 ||
-		 ((st->refme  == refme || st->refme == IPSEC_SAREF_NULL) &&
-		  (st->refhim == refhim|| st->refhim== IPSEC_SAREF_NULL))))
+		 (st->refhim == refhim|| st->refhim== IPSEC_SAREF_NULL)))
             {
                 if (call)
                 {
