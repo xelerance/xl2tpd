@@ -119,11 +119,12 @@ void show_status (void)
     {
         l2tp_log (LOG_WARNING, "Tunnel %s, ID = %d (local), %d (remote) to %s:%d,"
                  " control_seq_num = %d, control_rec_seq_num = %d,"
-                 " cLr = %d, call count = %d",
+                 " cLr = %d, call count = %d ref=%u/refhim=%u",
                  (t->lac ? t->lac->entname : (t->lns ? t->lns->entname : "")),
                  t->ourtid, t->tid, IPADDY (t->peer.sin_addr),
                  ntohs (t->peer.sin_port), t->control_seq_num,
-                 t->control_rec_seq_num, t->cLr, t->count);
+		  t->control_rec_seq_num, t->cLr, t->count,
+		  t->refme, t->refhim);
         c = t->call_head;
         while (c)
         {
