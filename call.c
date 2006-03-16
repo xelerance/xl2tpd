@@ -628,7 +628,9 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port,
         {
 	    if (st->ourtid == tunnel &&
 		(gconfig.ipsecsaref==0 ||
-		 (st->refhim == refhim|| st->refhim== IPSEC_SAREF_NULL)))
+		 (st->refhim == refhim
+		  || refhim==IPSEC_SAREF_NULL
+		  || st->refhim==IPSEC_SAREF_NULL)))
             {
                 if (call)
                 {
@@ -650,7 +652,9 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port,
             }
             st = st->next;
         }
-        l2tp_log (LOG_DEBUG, "%s:can't find tunnel %d\n", __FUNCTION__, tunnel);
+
+        l2tp_log (LOG_INFO, "Can not find tunnel %u (refhim=%u)\n",
+		  tunnel, refhim);
         return NULL;
     }
     else
