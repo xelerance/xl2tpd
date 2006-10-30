@@ -681,8 +681,8 @@ int control_finish (struct tunnel *t, struct call *c)
         {
             if (DEBUG)
                 l2tp_log (LOG_DEBUG,
-                     "%s: Peer tried to disconnect with invalid TID (%d != %d)\n",
-                     __FUNCTION__, t->qtid, tmptid);
+                     "%s: Peer (%s - %s) tried to disconnect with invalid TID (%d != %d)\n",
+                     __FUNCTION__, t->vendor, t->firmware, t->qtid, tmptid);
             return -EINVAL;
         }
         /* In case they're disconnecting immediately after SCCN */
