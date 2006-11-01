@@ -178,11 +178,13 @@ void control_xmit (void *b)
     }
 
     t = buf->tunnel;
+#ifdef DEBUG_CONTROL_XMIT
     if(t) {
 	    l2tp_log (LOG_DEBUG,
 		      "trying to send control packet to %d\n",
 		      t->ourtid);
     }
+#endif
 
     buf->retries++;
     ns = ntohs (((struct control_hdr *) (buf->start))->Ns);
