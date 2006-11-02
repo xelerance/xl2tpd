@@ -34,7 +34,7 @@ make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 
 %install
 rm -rf %{buildroot}
-make install
+make DESTDIR=%{buildroot} install
 install -D -m644 examples/l2tpd.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
 install -D -m644 examples/ppp-options.l2tpd %{buildroot}%{_sysconfdir}/ppp/options.l2tpd
 install -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/%{name}/l2tp-secrets
