@@ -35,27 +35,27 @@ make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 %install
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
-install -D -m644 examples/l2tpd.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+install -D -m644 examples/l2tpd.conf %{buildroot}%{_sysconfdir}/l2tpd/l2tpd.conf
 install -D -m644 examples/ppp-options.l2tpd %{buildroot}%{_sysconfdir}/ppp/options.l2tpd
-install -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/%{name}/l2tp-secrets
+install -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/l2tpd/l2tp-secrets
 install -D -m600 examples/chapsecrets.sample %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
-install -D -m755 packaging/fedora/l2tpd.init %{buildroot}%{_initrddir}/%{name}
+install -D -m755 packaging/fedora/l2tpd.init %{buildroot}%{_initrddir}/l2tpd
 
 %clean
 rm -rf %{buildroot}
 
 %post
-/sbin/chkconfig --add %{name}
+/sbin/chkconfig --add l2tpd
 
 %preun
 if [ $1 -eq 0 ]; then
-        /sbin/service %{name} stop > /dev/null 2>&1
-        /sbin/chkconfig --del %{name}
+        /sbin/service l2tpd stop > /dev/null 2>&1
+        /sbin/chkconfig --del l2tpd
 fi
 
 %postun
 if [ $1 -ge 1 ]; then
-  /sbin/service %{name} condrestart 2>&1 >/dev/null
+  /sbin/service l2tpd condrestart 2>&1 >/dev/null
 fi
 
 %files
@@ -64,15 +64,15 @@ fi
 %doc doc/README.patents examples/chapsecrets.sample
 %{_sbindir}/l2tpd
 %{_mandir}/*/*
-%dir %{_sysconfdir}/%{name}
-%config(noreplace) %{_sysconfdir}/%{name}/*
+%dir %{_sysconfdir}/l2tpd
+%config(noreplace) %{_sysconfdir}/l2tpd/*
 %config(noreplace) %{_sysconfdir}/ppp/*
-%attr(0755,root,root)  %{_initrddir}/%{name}
+%attr(0755,root,root)  %{_initrddir}/l2tpd
 
 
 %changelog
 * Wed Nov  1 2006 Paul Wouters <paul@xelerance.com> 1.1.05-1
-- Rebased spec file on Fedora Extras copy
+- Rebased spec file on Fedora Extras copy, but using xl2tpd as package name
 - Upgraded for additional make install targets
 
 * Sun Nov 27 2005 Paul Wouters <paul@xelerance.com> 0.69.20051030
@@ -219,7 +219,7 @@ fi
   the sysadmin has to edit the config file and start l2tpd explicitly.
 - Renamed patches to start with l2tpd-
 - Added dependencies for pppd, glibc-devel.
-- Use %{name} as much as possible.
+- Use %%{name} as much as possible.
 - l2tp-secrets contains passwords, thus should not be world readable.
 - Removed dependency on rpm-helper.
 
