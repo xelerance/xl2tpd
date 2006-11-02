@@ -62,7 +62,7 @@ fi
 %defattr(-,root,root)
 %doc BUGS CHANGES CREDITS LICENSE README TODO doc/rfc2661.txt 
 %doc doc/README.patents examples/chapsecrets.sample
-%{_sbindir}/%{name}
+%{_sbindir}/l2tpd
 %{_mandir}/*/*
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/*
