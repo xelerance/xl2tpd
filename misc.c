@@ -277,7 +277,7 @@ int get_dev_entropy(unsigned char *buf, int count)
     if (devrandom == -1)
     {
 #ifdef DEBUG_ENTROPY
-        l2tp_log(LOG_WARN, "%s: couldn't open /dev/urandom,"
+        l2tp_log(LOG_WARNING, "%s: couldn't open /dev/urandom,"
                       "falling back to rand()\n",
                       __FUNCTION__);
 #endif
