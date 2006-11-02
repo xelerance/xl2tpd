@@ -5,12 +5,11 @@ Release: 1
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
-
 Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-1.1.05.tar.gz
-
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
 #BuildRequires:
+Obsoletes: l2tpd
 
 %description
 l2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
