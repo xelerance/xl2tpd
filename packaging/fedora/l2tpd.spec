@@ -1,14 +1,12 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: l2tpd
-Version: 0.69.20051030
-Release: 14
+Version: 1.1.05
+Release: 1
 License: GPL
-Url: http://sourceforge.net/projects/%{name}/
+Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
 
-# cvs is not available as tar ball on sourceforge.
-#Source0: http://prdownloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
-Source0: %{name}-0.69.20051030.tar.gz
+Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-1.1.05.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
@@ -33,49 +31,37 @@ It runs completely in userspace.
 %setup -q
 
 %build
-# %make is not available on all distributions?
 make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 
 %install
-# There's no 'install' rule in the Makefile, so let's do it manually
-install -d %{buildroot}%{_sbindir}
-install -m755 %{name} %{buildroot}%{_sbindir}
-install -d %{buildroot}%{_mandir}/{man5,man8}
-install -m644 doc/%{name}.conf.5 %{buildroot}%{_mandir}/man5
-install -m644 doc/l2tp-secrets.5 %{buildroot}%{_mandir}/man5/
-install -m644 doc/%{name}.8 %{buildroot}%{_mandir}/man8
-install -d %{buildroot}%{_sysconfdir}/{%{name},ppp,ipsec.d}
-install -m644 doc/%{name}.conf.sample %{buildroot}%{_sysconfdir}/%{name}/
-install -m644 examples/l2tpd.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
-install -m644 examples/ppp-options.l2tpd %{buildroot}%{_sysconfdir}/ppp/options.l2tpd
-install -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/%{name}/l2tp-secrets
-install -m600 examples/chapsecrets.sample %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
-install -d %{buildroot}%{_initrddir}
-install -m755 packaging/fedora/l2tpd.init %{buildroot}%{_initrddir}/%{name}
+rm -rf %{buildroot}
+make install
+install -D -m644 examples/l2tpd.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+install -D -m644 examples/ppp-options.l2tpd %{buildroot}%{_sysconfdir}/ppp/options.l2tpd
+install -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/%{name}/l2tp-secrets
+install -D -m600 examples/chapsecrets.sample %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
+install -D -m755 packaging/fedora/l2tpd.init %{buildroot}%{_initrddir}/%{name}
+
+%clean
+rm -rf %{buildroot}
 
 %post
-# do not activate daemon upon request. Fedora Extra policy
+/sbin/chkconfig --add %{name}
 
 %preun
-if [ -f /var/run/%{name}.pid ]
-then
+if [ $1 -eq 0 ]; then
         /sbin/service %{name} stop > /dev/null 2>&1
-fi
-if [ $1 -eq 0 ]
-then
-        /sbin/chkconfig --del %{name} > /dev/null 2>&1
+        /sbin/chkconfig --del %{name}
 fi
 
 %postun
-if [ "$1" -ge "1" ]; then
+if [ $1 -ge 1 ]; then
   /sbin/service %{name} condrestart 2>&1 >/dev/null
 fi
 
-%clean
-
 %files
 %defattr(-,root,root)
-%doc BUGS CHANGELOG CREDITS LICENSE README TODO doc/rfc2661.txt 
+%doc BUGS CHANGES CREDITS LICENSE README TODO doc/rfc2661.txt 
 %doc doc/README.patents examples/chapsecrets.sample
 %{_sbindir}/%{name}
 %{_mandir}/*/*
@@ -86,6 +72,10 @@ fi
 
 
 %changelog
+* Wed Nov  1 2006 Paul Wouters <paul@xelerance.com> 1.1.05-1
+- Rebased spec file on Fedora Extras copy
+- Upgraded for additional make install targets
+
 * Sun Nov 27 2005 Paul Wouters <paul@xelerance.com> 0.69.20051030
 - Pulled up sourceforget.net CVS fixes.
 - various debugging added, but debugging should not be on by default.
