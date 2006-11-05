@@ -178,11 +178,13 @@ void control_xmit (void *b)
     }
 
     t = buf->tunnel;
+#ifdef DEBUG_CONTROL_XMIT
     if(t) {
 	    l2tp_log (LOG_DEBUG,
 		      "trying to send control packet to %d\n",
 		      t->ourtid);
     }
+#endif
 
     buf->retries++;
     ns = ntohs (((struct control_hdr *) (buf->start))->Ns);
@@ -469,6 +471,9 @@ void network_thread ()
 	     * classes of service to packets not inside of IPsec.
 	     */
 	    buf->len = recvsize;
+	    fix_hdr (buf->start);
+	    extract (buf->start, &tunnel, &call);
+
 	    if (gconfig.debug_network)
 	    {
 		l2tp_log(LOG_DEBUG, "%s: recv packet from %s, size = %d, "
@@ -481,8 +486,6 @@ void network_thread ()
 	    {
 		do_packet_dump (buf);
 	    }
-	    fix_hdr (buf->start);
-	    extract (buf->start, &tunnel, &call);
 	    if (!
 		(c = get_call (tunnel, call, from.sin_addr.s_addr,
 			       from.sin_port, refme, refhim)))

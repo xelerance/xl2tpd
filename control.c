@@ -183,6 +183,8 @@ int control_finish (struct tunnel *t, struct call *c)
     char ip1[STRLEN];
     char ip2[STRLEN];
     char dummy_buf[128] = "/var/l2tp/"; /* jz: needed to read /etc/ppp/var.options - just kick it if you dont like */
+    int tmptid,tmpcid;
+
     if (c->msgtype < 0)
     {
         l2tp_log (LOG_DEBUG, "%s: Whoa...  non-ZLB with no message type!\n",
@@ -670,12 +672,17 @@ int control_finish (struct tunnel *t, struct call *c)
             return -EINVAL;
         }
 
-        if ((t->qtid != t->ourtid) && (t->ourtid > 0))
+       /* Work around bug in MSL2TP client */
+        if ((t->firmware == 0xff00) && (!(strncmp(t->vendor, "Deterministic Networks Inc.", 27))))
+            tmptid = t->ourtid;
+        else
+            tmptid = t->tid;
+        if ((t->qtid != tmptid) && (tmptid > 0))
         {
             if (DEBUG)
                 l2tp_log (LOG_DEBUG,
-                     "%s: Peer tried to disconnect with invalid TID (%d != %d)\n",
-                     __FUNCTION__, t->qtid, t->ourtid);
+                     "%s: Peer [Vendor:%s] [Firmware:%d (0x%.4x)] tried to disconnect with invalid TID (%d != %d)\n",
+                     __FUNCTION__, t->vendor, t->firmware, t->firmware, t->qtid, tmptid);
             return -EINVAL;
         }
         /* In case they're disconnecting immediately after SCCN */
@@ -1078,7 +1085,13 @@ int control_finish (struct tunnel *t, struct call *c)
             p = c;
 	}
 
-        if ((c->qcid != p->cid) && p->ourcid > 0)
+       /* Work around bug in MSL2TP client */
+        if ((t->firmware == 0xff00) && (!(strncmp(t->vendor, "Deterministic Networks Inc.", 27))))
+            tmpcid = p->ourcid;
+        else
+            tmpcid = p->cid;
+
+        if ((c->qcid != tmpcid) && tmpcid > 0)
         {
             if (DEBUG)
                 l2tp_log (LOG_DEBUG,

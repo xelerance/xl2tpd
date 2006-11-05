@@ -1,31 +1,33 @@
-$Id: CHANGELOG,v 1.10 2005/09/29 13:37:51 vogel Exp $
+v1.1.05
+* Changed versioning scheme to match Xelerance standards
+* IPsec SA reference tracking added (used with Openswan's IPsec transport mode)
+  This adds support for multiple clients behind the same NAT router, and
+  multiple clients on the same internal IP behind different NAT routers.
+* Fix for Windows clients that send the wrong tunnel ID for closing tunnels
 
-1.04
---
-actually, 1.03 tag in GIT was in the wrong place. This is the right release.
+v1.04
+* actually, 1.03 tag in GIT was in the wrong place. This is the right release.
 
-1.03
---
-fixes for gcc 4.xx compilation
+v1.03
+* fixes for gcc 4.xx compilation
 
-1.02
---
-udpated CHNANGELOG
+v1.02
+* udpated CHNANGELOG
 
-1.01
---
-various debugging added, but debugging should not be on by default
-async/sync conversion routines must be ready for possibility that the read will block due to routing loops
-refactor control socket handling.
-use man page in doc/
-move all logic about pty usage to pty.c try ptmx first. if it fails try legacy ptys
-rename log() to l2tp_log(), as "log" is a math function.
+v1.01
+* various debugging added, but debugging should not be on by default
+* async/sync conversion routines must be ready for possibility that the read
+  will block due to routing loops
+* refactored control socket handling.
+* use man page in doc/
+* move all logic about pty usage to pty.c try ptmx first. if it fails try
+  legacy ptys
+* rename log() to l2tp_log(), as "log" is a math function.
 
-1.00
---
-First version managed by Xelerance, called xl2tpd.
-if we aren't deamonized, then log to stderr.
-added install: and DESTDIR support 
+v1.00
+* First version managed by Xelerance, called xl2tpd.
+* If we aren't deamonized, then log to stderr.
+* added install: and DESTDIR support 
 
 0.70
 --
