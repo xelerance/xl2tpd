@@ -25,9 +25,7 @@
 #include <signal.h>
 #include <termios.h>
 #include "l2tp.h"
-#ifdef USE_KERNEL
-#include <sys/ioctl.h>
-#endif
+
 #include "ipsecmast.h"
 
 struct buffer *new_payload (struct sockaddr_in peer)
@@ -291,10 +289,6 @@ void call_close (struct call *c)
             l2tp_log (LOG_DEBUG, "%s: Actually closing tunnel %d\n", __FUNCTION__,
                  c->container->ourtid);
 #endif
-#ifdef USE_KERNEL
-            if (kernel_support)
-                ioctl (server_socket, L2TPIOCDELTUNNEL, c->container->ourtid);
-#endif
             destroy_tunnel (c->container);
             return;
         }
@@ -352,9 +346,6 @@ void call_close (struct call *c)
         /*
            * Just close a call
          */
-#ifdef USE_KERNEL
-        struct l2tp_call_opts co;
-#endif
         if (c->zlb_xmit)
             deschedule (c->zlb_xmit);
 /*		if (c->dethrottle) deschedule(c->dethrottle); */
@@ -367,16 +358,6 @@ void call_close (struct call *c)
             destroy_call (c);
             return;
         }
-#ifdef USE_KERNEL
-        if (kernel_support)
-        {
-            co.ourtid = c->container->ourtid;
-            co.ourcid = c->ourcid;
-            ioctl (server_socket, L2TPIOCGETCALLOPTS, &co);
-            co.flags = co.flags & ~L2TP_FLAG_CALL_UP;
-            ioctl (server_socket, L2TPIOCSETCALLOPTS, &co);
-        }
-#endif
         c->closeSs = c->container->control_seq_num;
         buf = new_outgoing (c->container);
         add_message_type_avp (buf, CDN);
@@ -453,11 +434,6 @@ void destroy_call (struct call *c)
     }
     if (c->container)
     {
-#ifdef USE_KERNEL
-        if (kernel_support)
-            ioctl (server_socket, L2TPIOCDELCALL,
-                   (c->container->ourtid << 16) | (c->ourcid));
-#endif
         p = c->container->call_head;
         /*
          * Remove us from the call list, although
@@ -531,12 +507,6 @@ struct call *new_call (struct tunnel *parent)
     if (parent->self)
     {
 #ifndef TESTING
-#ifdef USE_KERNEL
-        if (kernel_support)
-            tmp->ourcid =
-                ioctl (server_socket, L2TPIOCADDCALL, parent->ourtid << 16);
-        else
-#endif
 /*	while(get_call(parent->ourtid, (tmp->ourcid = (rand() && 0xFFFF)),0,0)); */
             /* FIXME: What about possibility of multiple random #'s??? */
             /* tmp->ourcid = (rand () & 0xFFFF); */
@@ -659,9 +629,6 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port,
     }
     else
     {
-#ifdef USE_KERNEL
-        struct l2tp_tunnel_opts to;
-#endif
         /* You can't specify a call number if you haven't specified
            a tunnel silly! */
 
@@ -694,17 +661,6 @@ struct call *get_call (int tunnel, int call, unsigned int addr, int port,
 	st->refme  = refme;
 	st->refhim = refhim;
         bcopy (&addr, &st->peer.sin_addr, sizeof (addr));
-#ifdef USE_KERNEL
-        if (kernel_support)
-        {
-            /* Update kernel as to peer's location */
-            to.ourtid = st->ourtid;
-            ioctl (server_socket, L2TPIOCGETTUNOPTS, &to);
-            bcopy (&st->peer, &to.peer, sizeof (st->peer));
-            to.addrlen = sizeof (st->peer);
-            ioctl (server_socket, L2TPIOCSETTUNOPTS, &to);
-        }
-#endif
         st->next = tunnels.head;
         tunnels.head = st;
         tunnels.count++;

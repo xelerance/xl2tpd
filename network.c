@@ -76,19 +76,21 @@ int init_network (void)
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
     {
-        l2tp_log (LOG_LOG, "Not looking for kernel support.\n");
+        l2tp_log (LOG_INFO, "Not looking for kernel support.\n");
         kernel_support = 0;
     }
     else
     {
-        if (ioctl (server_socket, SIOCSETL2TP, NULL) < 0)
+        int kernel_fd = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
+        if (kernel_fd < 0)
         {
-            l2tp_log (LOG_LOG, "L2TP kernel support not detected.\n");
+            l2tp_log (LOG_INFO, "L2TP kernel support not detected.\n");
             kernel_support = 0;
         }
         else
         {
-            l2tp_log (LOG_LOG, "Using l2tp kernel support.\n");
+            close(kernel_fd);
+            l2tp_log (LOG_INFO, "Using l2tp kernel support.\n");
             kernel_support = -1;
         }
     }
