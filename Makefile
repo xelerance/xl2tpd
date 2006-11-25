@@ -51,17 +51,17 @@ OSFLAGS= -DLINUX
 #
 # Feature flags
 #
-# Comment the following line to disable l2tpd maintaining IP address
+# Comment the following line to disable xl2tpd maintaining IP address
 # pools to pass to pppd to control IP address allocation
 
 FFLAGS= -DIP_ALLOCATION
 
 CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(FFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
-OBJS=l2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
+OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
 SRCS=${OBJS:.o=.c} ${HDRS}
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
-EXEC=l2tpd
+EXEC=xl2tpd
 BINDIR=/usr/sbin
 MANDIR=/usr/share/man
 all: $(EXEC)
@@ -78,8 +78,8 @@ romfs:
 install: ${EXEC}
 	install -D --mode=0755 ${EXEC} ${DESTDIR}/${BINDIR}/${EXEC}
 	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man{5,8}
-	install --mode=0644 doc/l2tpd.8 ${DESTDIR}/${MANDIR}/man8/
-	install --mode=0644 doc/l2tpd.conf.5 doc/l2tp-secrets.5 \
+	install --mode=0644 doc/xl2tpd.8 ${DESTDIR}/${MANDIR}/man8/
+	install --mode=0644 doc/xl2tpd.conf.5 doc/l2tp-secrets.5 \
 		${DESTDIR}${MANDIR}/man5/
 
 TAGS:	${SRCS}
