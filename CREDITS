@@ -1,7 +1,11 @@
 * Xelerance has forked l2tpd into xl2tpd.
 
+* Michael Richardson <mcr@xelerance.com>, for adding IPsec SAref tracking
+* Paul Wouters <paul@xelerance.com>, for packaging, debugging and support.
+
 Thanks to Jacco de Leeuw for his maintenaince of the 0.69 version of l2tpd.
 
+Original credits follow.
 
 Mark Spencer was the primary author of this work.  He would like to thank the
 following people for their contributions:
