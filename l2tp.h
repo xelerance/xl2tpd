@@ -233,12 +233,8 @@ extern int get_entropy (unsigned char *, int);
  */
 
 #ifdef USE_KERNEL
-#include <linux/sockios.h>
-#ifndef SIOCSETL2TP
-#warning This kernel source does not have l2tp support
-#undef USE_KERNEL
-#else
-#include <asm/types.h>
-#include <linux/l2tp.h>
-#endif
+#include <net/if.h>
+#include <linux/if_ether.h>
+#include <linux/if_pppox.h>
+#include <linux/if_pppol2tp.h>
 #endif

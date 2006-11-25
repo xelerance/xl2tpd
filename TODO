@@ -16,6 +16,7 @@ Other:
 
 Niceties:
 * Command-line tunnel control program, instead of using echo commands
+* --version and/or -V argument to display version number
 
 Way-down-the-line:
 * GUI configuration

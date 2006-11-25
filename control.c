@@ -21,9 +21,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "l2tp.h"
-#ifdef USE_KERNEL
-#include <sys/ioctl.h>
-#endif
 
 _u16 ppp_crc16_table[256] = {
     0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
@@ -177,9 +174,6 @@ int control_finish (struct tunnel *t, struct call *c)
     struct tunnel *y;
     struct timeval tv;
     struct ppp_opts *po;
-#ifdef USE_KERNEL
-    struct l2tp_call_opts co;
-#endif
     char ip1[STRLEN];
     char ip2[STRLEN];
     char dummy_buf[128] = "/var/l2tp/"; /* jz: needed to read /etc/ppp/var.options - just kick it if you dont like */
@@ -577,16 +571,6 @@ int control_finish (struct tunnel *t, struct call *c)
                 return -EINVAL;
             };
         }
-#ifdef USE_KERNEL
-        if (kernel_support)
-        {
-            struct l2tp_tunnel_opts to;
-            to.ourtid = t->ourtid;
-            ioctl (server_socket, L2TPIOCGETTUNOPTS, &to);
-            to.tid = t->tid;
-            ioctl (server_socket, L2TPIOCSETTUNOPTS, &to);
-        }
-#endif
         t->state = SCCCN;
         buf = new_outgoing (t);
         add_message_type_avp (buf, SCCCN);
@@ -637,16 +621,6 @@ int control_finish (struct tunnel *t, struct call *c)
                 return -EINVAL;
             }
         }
-#ifdef USE_KERNEL
-        if (kernel_support)
-        {
-            struct l2tp_tunnel_opts to;
-            to.ourtid = t->ourtid;
-            ioctl (server_socket, L2TPIOCGETTUNOPTS, &to);
-            to.tid = t->tid;
-            ioctl (server_socket, L2TPIOCSETTUNOPTS, &to);
-        }
-#endif
         t->state = SCCCN;
         l2tp_log (LOG_NOTICE,
              "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).  LNS session is '%s'\n",
@@ -836,20 +810,6 @@ int control_finish (struct tunnel *t, struct call *c)
         if (gconfig.packet_dump)
             do_packet_dump (buf);
         c->cnu = 0;
-#ifdef USE_KERNEL
-        if (kernel_support)
-        {
-            co.ourtid = c->container->ourtid;
-            co.ourcid = c->ourcid;
-            ioctl (server_socket, L2TPIOCGETCALLOPTS, &co);
-            co.cid = c->cid;
-            co.flags = co.flags | L2TP_FLAG_CALL_UP;
-            co.rws = c->rws;
-            co.ourrws = c->ourrws;
-            co.flags |= c->lbit;
-            ioctl (server_socket, L2TPIOCSETCALLOPTS, &co);
-        }
-#endif
         if (gconfig.debug_state)
             l2tp_log (LOG_DEBUG, "%s: Sending ICCN\n", __FUNCTION__);
         l2tp_log (LOG_NOTICE,
@@ -931,22 +891,6 @@ int control_finish (struct tunnel *t, struct call *c)
             return -EINVAL;
         }
         c->state = ICCN;
-#ifdef USE_KERNEL
-        if (kernel_support)
-        {
-            co.ourtid = c->container->ourtid;
-            co.ourcid = c->ourcid;
-            if (ioctl (server_socket, L2TPIOCGETCALLOPTS, &co))
-                perror ("ioctl(get)");
-            co.cid = c->cid;
-            co.flags = co.flags | L2TP_FLAG_CALL_UP;
-            co.rws = c->rws;
-            co.ourrws = c->ourrws;
-            co.flags |= c->lbit;
-            if (ioctl (server_socket, L2TPIOCSETCALLOPTS, &co))
-                perror ("ioctl(set)");
-        }
-#endif
         strncpy (ip1, IPADDY (c->lns->localaddr), sizeof (ip1));
         strncpy (ip2, IPADDY (c->addr), sizeof (ip2));
         po = NULL;
