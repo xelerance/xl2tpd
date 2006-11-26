@@ -2,11 +2,11 @@
 .SH "NAME"
 xl2tpd.conf \- L2TPD configuration file
 .SH "DESCRIPTION"
-The xl2tpd.conf file contains configuration information for l2tpd, the implementation of l2tp protocol.
+The xl2tpd.conf file contains configuration information for xl2tpd, the implementation of l2tp protocol.
 
 The configuration file is composed of sections and parameters. Each section
 has a given name which will be used when using the configuration FIFO 
-(normaly /var/run/l2tp\-control). See l2tpd.8  for more details.
+(normaly /var/run/l2tp\-control). See xl2tpd.8  for more details.
 
 The specific given name 
 .B default
@@ -18,17 +18,28 @@ Specify where to find the authentication file used to authenticate
 l2tp tunnels. The default is /etc/l2tpd/l2tp\-secrets.
 
 .TP 
+.B ipsec saref
+Use ipsec Security Association trackinng. When this is enabled, packets
+received by xl2tpd should have to extra fields (refme and refhim) which
+allows tracking of multiple clients using the same internal NATed IP
+address, and allows tracking of multiple clients behind the same
+NAT router. This neds to be supported by the kernel. Currently, this
+only works with KLIPS, the IPsec stack of Openswan (www.openswan.org)
+
+Values can be yes or no. The default is no.
+
+.TP 
 .B listen-addr
 The IP address of the interface on which the daemon listens.  By default,
 it listens on INADDR_ANY (0.0.0.0), meaning it listens on all interfaces.
 
 .TP 
 .B port
-Specify which UDP port l2tpd should use. The default is 1701.
+Specify which UDP port xl2tpd should use. The default is 1701.
 
 .TP 
 .B access control
-If set to yes, the l2tpd process will only accept connections from
+If set to yes, the xl2tpd process will only accept connections from
 peers addresses specified in the following sections. The default is no.
 
 .TP
@@ -79,7 +90,7 @@ to no.
 
 .TP
 .B assign ip
-Set this to no if l2tpd should not assign IP addresses out of the pool
+Set this to no if xl2tpd should not assign IP addresses out of the pool
 defined with the
 .B ip range 
 option.  This can be useful if you have some other means to assign IP
@@ -88,20 +99,20 @@ addresses, e. g. a pppd that supports RADIUS AAA.
 
 .TP 
 .B (no) lac
-Specify the ip addresses of LAC's which are allowed to connect to l2tpd
+Specify the ip addresses of LAC's which are allowed to connect to xl2tpd
 acting as a LNS. The format is the same as the 
 .B ip range 
 option.
 
 .TP 
 .B hidden bit
-If set to yes, l2tpd will use the AVP hiding feature of L2TP. To get
+If set to yes, xl2tpd will use the AVP hiding feature of L2TP. To get
 more information about hidden AVP's and AVP in general, refer to rfc2661
 (add URL?)
 
 .TP 
 .B local ip
-Use the following IP as l2tpd's own ip address.
+Use the following IP as xl2tpd's own ip address.
 
 .TP 
 .B length bit
@@ -128,7 +139,7 @@ If set to yes, /etc/passwd will be used for remote peer ppp authentication.
 
 .TP 
 .B hostname
-Will report this as the l2tpd hostname in negociation.
+Will report this as the xl2tpd hostname in negociation.
 
 .TP 
 .B ppp debug
@@ -175,7 +186,7 @@ Set the dns name or ip address of the LNS to connect to.
 
 .TP 
 .B redial
-If set to yes, l2tpd will attemps to redial if the call get disconected.
+If set to yes, xl2tpd will attemps to redial if the call get disconected.
 
 .TP 
 .B redial timeout
@@ -188,16 +199,16 @@ Will give up redial tries after X attempts.
 
 .SH "FILES"
 
-\fB\fR/etc/l2tpd/xl2tpd.conf \fB\fR/etc/l2tpd/l2tp\-secrets 
-\fB\fR/var/run/l2tp\-control
+\fB\fR/etc/xl2tpd/xl2tpd.conf \fB\fR/etc/xl2tpd/l2tp\-secrets 
+\fB\fR/var/run/xl2tpd/l2tp\-control
 .SH "BUGS"
 
 Please address bugs and comment to xl2tpd\-dev@xelerance.com
 .SH "SEE ALSO"
 
-\fB\fRl2tpd(8)
+\fB\fRxl2tpd(8)
 .SH "AUTHORS"
-Forked from l2tpd by Xelerance (http://www.xelerance.com/software/xl2tpd/
+Forked from xl2tpd by Xelerance (http://www.xelerance.com/software/xl2tpd/
 
 Michael Richardson <mcr@xelerance.com>
 Paul Wouters <paul@xelerance.com>
