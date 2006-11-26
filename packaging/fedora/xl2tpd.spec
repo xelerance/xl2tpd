@@ -5,24 +5,24 @@ Release: 1
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
-Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-1.1.05.tar.gz
+Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-1.1.06.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
 #BuildRequires:
 Obsoletes: l2tpd
 
 %description
-l2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
+xl2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
 L2TP allows you to tunnel PPP over UDP. Some ISPs use L2TP to tunnel user
 sessions from dial-in servers (modem banks, ADSL DSLAMs) to back-end PPP
 servers. Another important application is Virtual Private Networks where
 the IPsec protocol is used to secure the L2TP connection (L2TP/IPsec,
 RFC 3193). The L2TP/IPsec protocol is mainly used by Windows and 
-Mac OS X clients. On Linux, l2tpd can be used in combination with IPsec
-implementations such as FreeS/WAN, Openswan, Strongswan and KAME.
+Mac OS X clients. On Linux, xl2tpd can be used in combination with IPsec
+implementations such as Openswan.
 Example configuration files for such a setup are included in this RPM.
 
-l2tpd works by opening a pseudo-tty for communicating with pppd.
+xl2tpd works by opening a pseudo-tty for communicating with pppd.
 It runs completely in userspace.
 
 
@@ -35,45 +35,44 @@ make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 %install
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
-install -D -m644 examples/l2tpd.conf %{buildroot}%{_sysconfdir}/l2tpd/l2tpd.conf
-install -D -m644 examples/ppp-options.l2tpd %{buildroot}%{_sysconfdir}/ppp/options.l2tpd
-install -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/l2tpd/l2tp-secrets
+install -D -m644 examples/xl2tpd.conf %{buildroot}%{_sysconfdir}/xl2tpd/xl2tpd.conf
+install -D -m644 examples/ppp-options.xl2tpd %{buildroot}%{_sysconfdir}/ppp/options.xl2tpd
+install -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/xl2tpd/l2tp-secrets
 install -D -m600 examples/chapsecrets.sample %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
-install -D -m755 packaging/fedora/l2tpd.init %{buildroot}%{_initrddir}/l2tpd
+install -D -m755 packaging/fedora/xl2tpd.init %{buildroot}%{_initrddir}/xl2tpd
 
 %clean
 rm -rf %{buildroot}
 
 %post
-/sbin/chkconfig --add l2tpd
+/sbin/chkconfig --add xl2tpd
 
 %preun
 if [ $1 -eq 0 ]; then
-        /sbin/service l2tpd stop > /dev/null 2>&1
-        /sbin/chkconfig --del l2tpd
+        /sbin/service xl2tpd stop > /dev/null 2>&1
+        /sbin/chkconfig --del xl2tpd
 fi
 
 %postun
 if [ $1 -ge 1 ]; then
-  /sbin/service l2tpd condrestart 2>&1 >/dev/null
+  /sbin/service xl2tpd condrestart 2>&1 >/dev/null
 fi
 
 %files
 %defattr(-,root,root)
 %doc BUGS CHANGES CREDITS LICENSE README TODO doc/rfc2661.txt 
 %doc doc/README.patents examples/chapsecrets.sample
-%{_sbindir}/l2tpd
+%{_sbindir}/xl2tpd
 %{_mandir}/*/*
-%dir %{_sysconfdir}/l2tpd
-%config(noreplace) %{_sysconfdir}/l2tpd/*
+%dir %{_sysconfdir}/xl2tpd
+%config(noreplace) %{_sysconfdir}/xl2tpd/*
 %config(noreplace) %{_sysconfdir}/ppp/*
-%attr(0755,root,root)  %{_initrddir}/l2tpd
+%attr(0755,root,root)  %{_initrddir}/xl2tpd
 
 
 %changelog
-* Wed Nov  1 2006 Paul Wouters <paul@xelerance.com> 1.1.05-1
+* Wed Nov  1 2006 Paul Wouters <paul@xelerance.com> 1.1.06-1
 - Rebased spec file on Fedora Extras copy, but using xl2tpd as package name
-- Upgraded for additional make install targets
 
 * Sun Nov 27 2005 Paul Wouters <paul@xelerance.com> 0.69.20051030
 - Pulled up sourceforget.net CVS fixes.

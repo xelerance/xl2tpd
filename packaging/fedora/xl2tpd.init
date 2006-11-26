@@ -1,16 +1,16 @@
 #!/bin/sh
 #
-# l2tpd			This shell script takes care of starting and stopping l2tpd.
+# xl2tpd			This shell script takes care of starting and stopping l2tpd.
 #
 # chkconfig:	- 80 30
 # description:	Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 #
-# processname:	l2tpd
-# config:	/etc/l2tpd/l2tpd.conf
-# pidfile:	/var/run/l2tpd.pid
+# processname:	xl2tpd
+# config:	/etc/xl2tpd/l2tpd.conf
+# pidfile:	/var/run/xl2tpd/xl2tpd.pid
 
 #Servicename
-SERVICE=l2tpd
+SERVICE=xl2tpd
 
 # Source function library.
 . /etc/rc.d/init.d/functions
