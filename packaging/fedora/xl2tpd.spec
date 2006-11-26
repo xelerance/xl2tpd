@@ -46,6 +46,19 @@ rm -rf %{buildroot}
 
 %post
 /sbin/chkconfig --add xl2tpd
+# if we migrate from l2tpd to xl2tpd, copy the configs
+if [ -f /etc/l2tpd/l2tpd.conf ]
+then
+	echo "Old /etc/l2tpd configuration found, migrating to /etc/xl2tpd"
+	mv /etc/xl2tpd/xl2tpd.conf /etc/xl2tpd/xl2tpd.conf.rpmsave
+	cat /etc/l2tpd/l2tpd.conf | sed "s/options.l2tpd/options.xl2tpd/" > /etc/xl2tpd/xl2tpd.conf
+	mv /etc/ppp/options.xl2tpd /etc/ppp/options.xl2tpd.rpmsave
+	mv /etc/ppp/options.l2tpd /etc/ppp/options.xl2tpd
+	mv /etc/xl2tpd/l2tp-secrets /etc/xl2tpd/l2tpd-secrets.rpmsave
+	cp -a /etc/l2tpd/l2tp-secrets /etc/xl2tpd/l2tp-secrets
+	
+fi
+
 
 %preun
 if [ $1 -eq 0 ]; then
