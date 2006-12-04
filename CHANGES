@@ -3,10 +3,9 @@ v1.1.06
   to /etc/l2tpd/l2tpd.* configuration files.
 * Support for pppol2tp's kernel mode L2TP.
   Patch by Cedric Schieli <cschieli@gmail.com>
-* Documented IPsec SA reference tracking for usewith Openswan
+* Documented IPsec SA reference tracking for use with Openswan
 * Added patents documentation.
 * Migration support on xl2tpd.spec for l2tpd -> xl2tpd
-* Moved to use /etc/xl2tpd/ and /usr/sbin/xl2tpd
 
 v1.1.05
 * Changed versioning scheme to match Xelerance standards
