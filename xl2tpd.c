@@ -123,8 +123,8 @@ void show_status (void)
                  (t->lac ? t->lac->entname : (t->lns ? t->lns->entname : "")),
                  t->ourtid, t->tid, IPADDY (t->peer.sin_addr),
                  ntohs (t->peer.sin_port), t->control_seq_num,
-		  t->control_rec_seq_num, t->cLr, t->count,
-		  t->refme, t->refhim);
+                  t->control_rec_seq_num, t->cLr, t->count,
+                  t->refme, t->refhim);
         c = t->call_head;
         while (c)
         {
@@ -176,7 +176,7 @@ void null_handler(int sig)
        /* FIXME 
         * A sighup is received when a call is terminated, unknown origine .. 
         * I catch it and ll looks good, but .. 
-	*/
+        */
 }
 
 void status_handler (int sig)
@@ -264,24 +264,24 @@ void death_handler (int signal)
     struct tunnel *st, *st2;
     int sec;
     l2tp_log (LOG_CRIT, "%s: Fatal signal %d received\n", __FUNCTION__, signal);
-	if (signal != SIGTERM) {
-		st = tunnels.head;
-		while (st)
-		{
-			st2 = st->next;
-			strcpy (st->self->errormsg, "Server closing");
-			sec = st->self->closing;
-			if (st->lac)
-				st->lac->redial = 0;
-			call_close (st->self);
-			if (!sec)
-			{
-				st->self->closing = -1;
-				call_close (st->self);
-			}
-			st = st2;
-		}
-	}
+        if (signal != SIGTERM) {
+                st = tunnels.head;
+                while (st)
+                {
+                        st2 = st->next;
+                        strcpy (st->self->errormsg, "Server closing");
+                        sec = st->self->closing;
+                        if (st->lac)
+                                st->lac->redial = 0;
+                        call_close (st->self);
+                        if (!sec)
+                        {
+                                st->self->closing = -1;
+                                call_close (st->self);
+                        }
+                        st = st2;
+                }
+        }
 
     /* erase pid and control files */
     unlink (gconfig.pidfile);
@@ -345,10 +345,10 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     else
 #endif
     {
-	if ((c->fd = getPtyMaster (tty, sizeof(tty))) < 0)
+        if ((c->fd = getPtyMaster (tty, sizeof(tty))) < 0)
         {
             l2tp_log (LOG_WARNING, "%s: unable to allocate pty, abandoning!\n",
-		      __FUNCTION__);
+                      __FUNCTION__);
             return -EINVAL;
         } 
 
@@ -359,18 +359,18 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         ptyconf.c_cflag &= ~(ICANON | ECHO);
         ptyconf.c_lflag &= ~ECHO;
         tcsetattr (c->fd, TCSANOW, &ptyconf);
-	if(fcntl(c->fd, F_SETFL, O_NONBLOCK)!=0) {
-	    l2tp_log(LOG_WARNING, "failed to set nonblock: %s\n", strerror(errno));
-	    return -EINVAL;
-	}
+        if(fcntl(c->fd, F_SETFL, O_NONBLOCK)!=0) {
+           l2tp_log(LOG_WARNING, "failed to set nonblock: %s\n", strerror(errno));
+            return -EINVAL;
+        }
 
         fd2 = open (tty, O_RDWR);
         if (fd2 < 0) {
             l2tp_log (LOG_WARNING, "unable to open tty %s, cannot start pppd", tty);
             return -EINVAL;
         }
-	stropt[pos++] = strdup(tty);	
-	stropt[pos] = NULL;
+        stropt[pos++] = strdup(tty);
+        stropt[pos] = NULL;
     }
 
 #ifdef DEBUG_PPPD
@@ -388,7 +388,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
 
     if (c->pppd < 0)
     {
-	/* parent */
+        /* parent */
         l2tp_log(LOG_WARNING,"%s: unable to fork(), abandoning!\n", __FUNCTION__);
         return -EINVAL;
     }
@@ -526,13 +526,13 @@ void destroy_tunnel (struct tunnel *t)
     if (t->lns)
         t->lns->t = NULL;
     if (t->chal_us.challenge)
-	free (t->chal_us.challenge);
+        free (t->chal_us.challenge);
     if (t->chal_them.challenge)
-	free (t->chal_them.challenge);
+        free (t->chal_them.challenge);
     /* we need no free(t->chal_us.vector) here because we malloc() and free()
        the memory pointed to by t->chal_us.vector at some other place */
     if (t->chal_them.vector)
-	free (t->chal_them.vector);
+        free (t->chal_them.vector);
     free (t);
     free (me);
 }
@@ -699,7 +699,7 @@ void lac_hangup (int cid)
                      "%s :Hanging up call %d, Local: %d, Remote: %d\n",
                      __FUNCTION__, tmp->serno, tmp->ourcid, tmp->cid);
                 strcpy (tmp->errormsg, "Goodbye!");
-/*				tmp->needclose = -1; */
+/*                                    tmp->needclose = -1; */
                 kill (tmp->pppd, SIGTERM);
                 return;
             }
@@ -747,7 +747,7 @@ struct tunnel *new_tunnel ()
     tmp->tid = -1;
     tmp->hello = NULL;
 #ifndef TESTING
-/*	while(get_call((tmp->ourtid = rand() & 0xFFFF),0,0,0)); */
+/*      while(get_call((tmp->ourtid = rand() & 0xFFFF),0,0,0)); */
 #ifdef USE_KERNEL
     if (kernel_support)
         tmp->ourtid = ioctl (server_socket, L2TPIOCADDTUNNEL, 0);
@@ -828,158 +828,156 @@ void do_control ()
 
     while (!done)
     {
-	cnt = read (control_fd, buf, sizeof (buf));
-	if (cnt <= 0)
-	{
-	    if(cnt < 0 && errno != EINTR) {
-		perror("controlfd");
-	    }
-	    done=1;
-	    break;
-	}
+        cnt = read (control_fd, buf, sizeof (buf));
+        if (cnt <= 0)
+        {
+        if(cnt < 0 && errno != EINTR) {
+                perror("controlfd");
+        }
+        done=1;
+        break;
+        }
 
-	if (buf[cnt - 1] == '\n')
-	    buf[--cnt] = 0;
+        if (buf[cnt - 1] == '\n')
+        buf[--cnt] = 0;
 #ifdef DEBUG_CONTROL
-	l2tp_log (LOG_DEBUG, "%s: Got message %s (%d bytes long)\n",
-		  __FUNCTION__, buf, cnt);
+        l2tp_log (LOG_DEBUG, "%s: Got message %s (%d bytes long)\n",
+                   __FUNCTION__, buf, cnt);
 #endif
-	switch (buf[0])
-	{
-	case 't':
-	    host = strchr (buf, ' ') + 1;
+        switch (buf[0])
+        {
+        case 't':
+            host = strchr (buf, ' ') + 1;
 #ifdef DEBUG_CONTROL
-	    l2tp_log (LOG_DEBUG, "%s: Attempting to tunnel to %s\n",
-		      __FUNCTION__, host);
+            l2tp_log (LOG_DEBUG, "%s: Attempting to tunnel to %s\n",
+                      __FUNCTION__, host);
 #endif
-	    l2tp_call (host, UDP_LISTEN_PORT, NULL, NULL);
-	    break;
-	case 'c':
-	    switch_io = 1;  /* jz: Switch for Incoming - Outgoing Calls */
-	    
-	    tunstr = strchr (buf, ' ') + 1;
-	    lac = laclist;
-	    while (lac && strcasecmp (lac->entname, tunstr)!=0)
-	    {
-		lac = lac->next;
-	    }
+            l2tp_call (host, UDP_LISTEN_PORT, NULL, NULL);
+            break;
+        case 'c':
+            switch_io = 1;  /* jz: Switch for Incoming - Outgoing Calls */
+            
+            tunstr = strchr (buf, ' ') + 1;
+            lac = laclist;
+            while (lac && strcasecmp (lac->entname, tunstr)!=0)
+            {
+               lac = lac->next;
+            }
 
-	    if(lac) {
-		lac->active = -1;
-		lac->rtries = 0;
-		if (!lac->c)
-		    magic_lac_dial (lac);
-		else {
-		    l2tp_log (LOG_DEBUG,
-			      "Session '%s' already active!\n", lac->entname);
-		}
-		break;
-	    }
+            if(lac) {
+                lac->active = -1;
+                lac->rtries = 0;
+                if (!lac->c)
+                magic_lac_dial (lac);
+                else {
+                l2tp_log (LOG_DEBUG,
+                          "Session '%s' already active!\n", lac->entname);
+                }
+                break;
+            }
 
-	    /* did not find a tunnel by name, look by number */
-	    tunl = atoi (tunstr);
-	    if (!tunl)
-	    {
-		l2tp_log (LOG_DEBUG, "No such tunnel '%s'\n", tunstr);
-		break;
-	    }
+            /* did not find a tunnel by name, look by number */
+            tunl = atoi (tunstr);
+            if (!tunl)
+            {
+                l2tp_log (LOG_DEBUG, "No such tunnel '%s'\n", tunstr);
+                break;
+            }
 #ifdef DEBUG_CONTROL
-	    l2tp_log (LOG_DEBUG, "%s: Attempting to call on tunnel %d\n",
-		      __FUNCTION__, tunl);
+            l2tp_log (LOG_DEBUG, "%s: Attempting to call on tunnel %d\n",
+                       __FUNCTION__, tunl);
 #endif
-	    lac_call (tunl, NULL, NULL);
-	    break;
-	    
-	case 'o':          /* jz: option 'o' for doing a outgoing call */
-	    switch_io = 0;  /* jz: Switch for incoming - outgoing Calls */
-	    
-	    sub_str = strchr (buf, ' ') + 1;
-	    tunstr = strtok (sub_str, " "); /* jz: using strtok function to get */
-	    tmp_ptr = strtok (NULL, " ");   /*     params out of the pipe       */
-	    strcpy (dial_no_tmp, tmp_ptr);
-	    
-	    lac = laclist;
-	    while (lac && strcasecmp (lac->entname, tunstr)!=0)
-	    {
-		lac = lac->next;
-	    }
+            lac_call (tunl, NULL, NULL);
+            break;
+            
+       case 'o':          /* jz: option 'o' for doing a outgoing call */
+            switch_io = 0;  /* jz: Switch for incoming - outgoing Calls */
+            
+            sub_str = strchr (buf, ' ') + 1;
+            tunstr = strtok (sub_str, " "); /* jz: using strtok function to get */
+            tmp_ptr = strtok (NULL, " ");   /*     params out of the pipe       */
+            strcpy (dial_no_tmp, tmp_ptr);
+            
+            lac = laclist;
+            while (lac && strcasecmp (lac->entname, tunstr)!=0)
+            {
+                lac = lac->next;
+            }
 
-	    if(lac) {
-		lac->active = -1;
-		lac->rtries = 0;
-		if (!lac->c)
-		    magic_lac_dial (lac);
-		else
-		    l2tp_log (LOG_DEBUG,
-			      "Session '%s' already active!\n",
-			      lac->entname);
-		break;
-	    }
+            if(lac) {
+                lac->active = -1;
+                lac->rtries = 0;
+                if (!lac->c)
+                    magic_lac_dial (lac);
+                else
+                    l2tp_log (LOG_DEBUG, "Session '%s' already active!\n",
+                              lac->entname);
+                break;
+            }
 
-	    /* did not find a tunnel by name, look by number */
-	    tunl = atoi (tunstr);
-	    if (!tunl)
-	    {
-		l2tp_log (LOG_DEBUG, "No such tunnel '%s'\n", tunstr);
-		break;
-	    }
+            /* did not find a tunnel by name, look by number */
+            tunl = atoi (tunstr);
+            if (!tunl)
+            {
+                l2tp_log (LOG_DEBUG, "No such tunnel '%s'\n", tunstr);
+                break;
+            }
 #ifdef DEBUG_CONTROL
-	    l2tp_log (LOG_DEBUG, "%s: Attempting to call on tunnel %d\n",
-		      __FUNCTION__, tunl);
+            l2tp_log (LOG_DEBUG, "%s: Attempting to call on tunnel %d\n",
+                       __FUNCTION__, tunl);
 #endif
-	    lac_call (tunl, NULL, NULL);
-	    break;
-	    
-	case 'h':
-	    callstr = strchr (buf, ' ') + 1;
-	    call = atoi (callstr);
+            lac_call (tunl, NULL, NULL);
+            break;
+            
+        case 'h':
+            callstr = strchr (buf, ' ') + 1;
+            call = atoi (callstr);
 #ifdef DEBUG_CONTROL
-	    l2tp_log (LOG_DEBUG, "%s: Attempting to hangup call %d\n", __FUNCTION__,
-		      call);
+            l2tp_log (LOG_DEBUG, "%s: Attempting to hangup call %d\n", __FUNCTION__,
+                      call);
 #endif
-	    lac_hangup (call);
-	    break;
+            lac_hangup (call);
+            break;
 
-	case 'd':
-	    tunstr = strchr (buf, ' ') + 1;
-	    lac = laclist;
-	    while (lac)
-	    {
-		if (!strcasecmp (lac->entname, tunstr))
-		{
-		    lac->active = 0;
-		    lac->rtries = 0;
-		    if (lac->t)
-			lac_disconnect (lac->t->ourtid);
-		    else
-			l2tp_log (LOG_DEBUG, "Session '%s' not up\n",
-				  lac->entname);
-		    break;
-		}
-		lac = lac->next;
-	    }
-	    if (lac)
-		break;
-	    tunl = atoi (tunstr);
-	    if (!tunl)
-	    {
-		l2tp_log (LOG_DEBUG, "No such tunnel '%s'\n",
-			  tunstr);
-		break;
-	    }
+        case 'd':
+            tunstr = strchr (buf, ' ') + 1;
+            lac = laclist;
+            while (lac)
+            {
+                if (!strcasecmp (lac->entname, tunstr))
+                {
+                    lac->active = 0;
+                    lac->rtries = 0;
+                    if (lac->t)
+                        lac_disconnect (lac->t->ourtid);
+                    else
+                        l2tp_log (LOG_DEBUG, "Session '%s' not up\n",
+                                  lac->entname);
+                    break;
+                }
+                lac = lac->next;
+            }
+            if (lac)
+                break;
+            tunl = atoi (tunstr);
+            if (!tunl)
+            {
+                l2tp_log (LOG_DEBUG, "No such tunnel '%s'\n",
+                          tunstr);
+                break;
+            }
 #ifdef DEBUG_CONTROL
-	    l2tp_log (LOG_DEBUG, "%s: Attempting to disconnect tunnel %d\n",
-		      __FUNCTION__, tunl);
+            l2tp_log (LOG_DEBUG, "%s: Attempting to disconnect tunnel %d\n",
+                      __FUNCTION__, tunl);
 #endif
-	    lac_disconnect (tunl);
-	    break;
-	case 's':
-	    show_status ();
-	    break;
-	default:
-	    l2tp_log (LOG_DEBUG, "Unknown command %c\n",
-		      buf[0]);
-	}
+            lac_disconnect (tunl);
+            break;
+        case 's':
+            show_status ();
+            break;
+        default:
+            l2tp_log (LOG_DEBUG, "Unknown command %c\n", buf[0]);
+        }
     }
 
     /* Otherwise select goes nuts. Yeah, this just seems wrong */
@@ -989,7 +987,8 @@ void do_control ()
 
 
 void usage(void) {
-    printf("Usage: l2tpd -D -c [config file] -s [secret file] -p [pid file] -C [control file]\n");
+    printf("\nxl2tpd version:  %s\n",SERVER_VERSION);
+    printf("Usage: l2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]  \n             [-C <control file>] [-D]\n");
     printf("\n");
     exit(1);
 }
@@ -1020,6 +1019,11 @@ void init_args(int argc, char *argv[])
     gconfig.ipsecsaref = 0;
 
     for (i = 1; i < argc; i++) {
+        if (! strncmp(argv[i],"--version",9)) {
+            printf("\nxl2tpd version:  %s\n",SERVER_VERSION);
+            exit(1);
+        }
+
         if(! strncmp(argv[i],"-c",2)) {
             if(++i == argc)
                 usage();
@@ -1093,8 +1097,8 @@ void consider_pidfile() {
     i = open(gconfig.pidfile,O_RDONLY);
     if (i < 0) {
         /* l2tp_log(LOG_LOG, "%s: Unable to read pid file [%s]\n",
-	    __FUNCTION__, gconfig.pidfile);
-	*/
+           __FUNCTION__, gconfig.pidfile);
+         */
     } else
     {
         l=read(i,buf,sizeof(buf)-1);
@@ -1138,9 +1142,9 @@ static void open_controlfd()
    
     /* turn off O_NONBLOCK */
     if(fcntl(control_fd, F_SETFL, O_RDONLY)==-1) {
-	l2tp_log(LOG_CRIT, "Can not turn off nonblocking mode for controlfd: %s\n",
-		 strerror(errno));
-	exit(1);
+       l2tp_log(LOG_CRIT, "Can not turn off nonblocking mode for controlfd: %s\n",
+                strerror(errno));
+       exit(1);
     }
 }
 
@@ -1170,7 +1174,7 @@ void init (int argc,char *argv[])
         exit (1);
 
     if (gconfig.daemon)
-	daemonize ();
+        daemonize ();
 
     consider_pidfile();
 
@@ -1186,15 +1190,16 @@ void init (int argc,char *argv[])
 
     open_controlfd();
 
-    l2tp_log (LOG_INFO, "l2tpd version " SERVER_VERSION " started on %s PID:%d\n",
+    l2tp_log (LOG_INFO, "xl2tpd version " SERVER_VERSION " started on %s PID:%d\n",
          hostname, getpid ());
     l2tp_log (LOG_INFO,
          "Written by Mark Spencer, Copyright (C) 1998, Adtran, Inc.\n");
     l2tp_log (LOG_INFO, "Forked by Scott Balmos and David Stipp, (C) 2001\n");
     l2tp_log (LOG_INFO, "Inherited by Jeff McAdams, (C) 2002\n");
+    l2tp_log (LOG_INFO, "Forked again by Xelerance (www.xelerance.com) (C) 2006\n");
     listenaddr.s_addr = gconfig.listenaddr;
     l2tp_log (LOG_INFO, "Listening on IP address %s, port %d\n",
-	 inet_ntoa(listenaddr), gconfig.port);
+              inet_ntoa(listenaddr), gconfig.port);
     lac = laclist;
     while (lac)
     {
