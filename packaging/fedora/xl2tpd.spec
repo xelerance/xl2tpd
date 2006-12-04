@@ -84,7 +84,7 @@ fi
 
 
 %changelog
-* Wed Nov  1 2006 Paul Wouters <paul@xelerance.com> 1.1.06-1
+* Mon Dec  4 2006 Paul Wouters <paul@xelerance.com> 1.1.06-1
 - Rebased spec file on Fedora Extras copy, but using xl2tpd as package name
 
 * Sun Nov 27 2005 Paul Wouters <paul@xelerance.com> 0.69.20051030
