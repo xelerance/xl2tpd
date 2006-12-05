@@ -24,7 +24,10 @@ received by xl2tpd should have to extra fields (refme and refhim) which
 allows tracking of multiple clients using the same internal NATed IP
 address, and allows tracking of multiple clients behind the same
 NAT router. This neds to be supported by the kernel. Currently, this
-only works with KLIPS, the IPsec stack of Openswan (www.openswan.org)
+only works with Openswan KLIPS in "mast" mode. (see http://www.openswan.org/)
+
+Set this to yes and the system will provide proper SAref values in the
+recvmsg() calls.
 
 Values can be yes or no. The default is no.
 
@@ -64,11 +67,6 @@ Set this to yes to enable syslog output of FSM debugging information.
 .TP
 .B debug tunnel
 Set this to yes to enable syslog output of tunnel debugging information.
-
-.TP
-.B ipsec saref
-Set this to yes if you are using Openswan KLIPS in "klipsmast" mode, and the
-system will provide proper SAref values in the recvmsg() calls.
 
 .SH "LNS SECTION"
 .TP 
