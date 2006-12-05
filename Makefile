@@ -33,6 +33,7 @@ DFLAGS= -g -O2
 OSFLAGS= -DLINUX
 #
 # Uncomment the following to use the kernel interface under Linux
+# This requires the pppol2tp-linux-2.4.27.patch patch from contrib
 #
 #OSFLAGS+= -DUSE_KERNEL
 #
