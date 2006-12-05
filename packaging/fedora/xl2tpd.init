@@ -6,7 +6,7 @@
 # description:	Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 #
 # processname:	xl2tpd
-# config:	/etc/xl2tpd/l2tpd.conf
+# config:	/etc/xl2tpd/xl2tpd.conf
 # pidfile:	/var/run/xl2tpd/xl2tpd.pid
 
 #Servicename
