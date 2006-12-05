@@ -45,9 +45,6 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#ifdef USE_KERNEL
-#include <sys/ioctl.h>
-#endif
 #include "l2tp.h"
 
 struct tunnel_list tunnels;
@@ -238,6 +235,9 @@ void child_handler (int signal)
                      * OK...pppd died, we can go ahead and close the pty for
                      * it
                      */
+#ifdef USE_KERNEL
+                 if (!kernel_support)
+#endif
                     close (c->fd);
                     c->fd = -1;
                     /*
@@ -297,7 +297,8 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     char *stropt[80];
     struct ppp_opts *p;
 #ifdef USE_KERNEL
-    struct l2tp_call_opts co;
+    struct sockaddr_pppol2tp sax;
+    int flags;
 #endif
     int pos = 1;
     int fd2;
@@ -333,12 +334,39 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
 #ifdef USE_KERNEL
     if (kernel_support)
     {
-        co.ourtid = c->container->ourtid;
-        co.ourcid = c->ourcid;
-        ioctl (server_socket, L2TPIOCGETCALLOPTS, &co);
-        stropt[pos++] = strdup ("channel");
-        stropt[pos] = (char *) malloc (10);
-        snprintf (stropt[pos], 10, "%d", co.id);
+       fd2 = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
+       if (fd2 < 0) {
+           l2tp_log (LOG_WARNING, "%s: Unable to allocate PPPoL2TP socket.\n",
+                __FUNCTION__);
+           return -EINVAL;
+       }
+       flags = fcntl(fd2, F_GETFL);
+       if (flags == -1 || fcntl(fd2, F_SETFL, flags | O_NONBLOCK) == -1) {
+           l2tp_log (LOG_WARNING, "%s: Unable to set PPPoL2TP socket nonblock.\n",
+                __FUNCTION__);
+           return -EINVAL;
+       }
+       sax.sa_family = AF_PPPOX;
+       sax.sa_protocol = PX_PROTO_OL2TP;
+       sax.pppol2tp.pid = 0;
+       sax.pppol2tp.fd = server_socket;
+       sax.pppol2tp.addr.sin_addr.s_addr = c->container->peer.sin_addr.s_addr;
+       sax.pppol2tp.addr.sin_port = c->container->peer.sin_port;
+       sax.pppol2tp.addr.sin_family = AF_INET;
+       sax.pppol2tp.s_tunnel  = c->container->ourtid;
+       sax.pppol2tp.s_session = c->ourcid;
+       sax.pppol2tp.d_tunnel  = c->container->tid;
+       sax.pppol2tp.d_session = c->cid;
+       if (connect(fd2, (struct sockaddr *)&sax, sizeof(sax)) < 0) {
+           l2tp_log (LOG_WARNING, "%s: Unable to connect PPPoL2TP socket.\n",
+                __FUNCTION__);
+           return -EINVAL;
+       }
+       stropt[pos++] = strdup ("plugin");
+       stropt[pos++] = strdup ("pppol2tp.so");
+       stropt[pos++] = strdup ("pppol2tp");
+       stropt[pos] = (char *) malloc (10);
+       snprintf (stropt[pos], 10, "%d", fd2);
         pos++;
         stropt[pos] = NULL;
     }
@@ -399,6 +427,10 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         close (0); /* redundant; the dup2() below would do that, too */
         close (1); /* ditto */
         /* close (2); No, we want to keep the connection to /dev/null. */ 
+#ifdef USE_KERNEL
+       if (!kernel_support)
+#endif
+       {
 
         /* connect the pty to stdin and stdout */
         dup2 (fd2, 0);
@@ -416,6 +448,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             }
             st = st->next;
         }
+       }
 
         /* close the UDP socket fd */
         close (server_socket);
@@ -748,11 +781,6 @@ struct tunnel *new_tunnel ()
     tmp->hello = NULL;
 #ifndef TESTING
 /*      while(get_call((tmp->ourtid = rand() & 0xFFFF),0,0,0)); */
-#ifdef USE_KERNEL
-    if (kernel_support)
-        tmp->ourtid = ioctl (server_socket, L2TPIOCADDTUNNEL, 0);
-    else
-#endif
 /*        tmp->ourtid = rand () & 0xFFFF; */
         /* get_entropy((char *)&tmp->ourtid, 2); */
         get_entropy(entropy_buf, 2);
