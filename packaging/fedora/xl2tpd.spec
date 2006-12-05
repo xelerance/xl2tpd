@@ -1,7 +1,7 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
 Version: 1.1.06
-Release: 1
+Release: 2
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
@@ -9,7 +9,8 @@ Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-1.1.06.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
 #BuildRequires:
-Obsoletes: l2tpd
+Obsoletes: l2tpd <= 0.69-0.6.20051030.fc6
+Provides: l2tpd = 0.69-0.6.20051030.fc7
 
 %description
 xl2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
@@ -62,8 +63,8 @@ fi
 
 %preun
 if [ $1 -eq 0 ]; then
-        /sbin/service xl2tpd stop > /dev/null 2>&1
-        /sbin/chkconfig --del xl2tpd
+	/sbin/service xl2tpd stop > /dev/null 2>&1
+	/sbin/chkconfig --del xl2tpd
 fi
 
 %postun
@@ -84,6 +85,10 @@ fi
 
 
 %changelog
+* Tue Dec  5 2006 Paul Wouters <paul@xelerance.com> 1.1.06-2
+- Changed Mr. Karlsen's name to not be a utf8 problem
+- Fixed Obosoletes/Provides to be more specific wrt l2tpd.
+
 * Mon Dec  4 2006 Paul Wouters <paul@xelerance.com> 1.1.06-1
 - Rebased spec file on Fedora Extras copy, but using xl2tpd as package name
 
@@ -236,15 +241,15 @@ fi
 - Removed dependency on rpm-helper.
 
 * Mon Oct 21 2002 Lenny Cartier <lenny@mandrakesoft.com> 0.69-3mdk
-- from Per Øyvind Karlsen <peroyvind@delonic.no> :
+- from Per 0yvind Karlsen <peroyvind@delonic.no> :
  - PreReq and Requires
  - Fix preun_service
 
-* Thu Oct 17 2002 Per Øyvind Karlsen <peroyvind@delonic.no> 0.69-2mdk
+* Thu Oct 17 2002 Per 0yvind Karlsen <peroyvind@delonic.no> 0.69-2mdk
 - Move l2tpd from /usr/bin to /usr/sbin
 - Added SysV initscript
 - Patch0
 - Patch1
 
-* Thu Oct 17 2002 Per Øyvind Karlsen <peroyvind@delonic.no> 0.69-1mdk
+* Thu Oct 17 2002 Per 0yvind Karlsen <peroyvind@delonic.no> 0.69-1mdk
 - Initial release
