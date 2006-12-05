@@ -37,7 +37,7 @@ typedef unsigned long long _u64;
 #define CONTROL_PIPE "/var/run/l2tp-control"
 
 #define BINARY "xl2tpd"
-#define SERVER_VERSION "xl2tpd-1.1.06"
+#define SERVER_VERSION "xl2tpd-1.1.07"
 #define VENDOR_NAME "xelerance.com"
 #ifndef PPPD
 #define PPPD		"/usr/sbin/pppd"
