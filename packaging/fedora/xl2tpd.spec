@@ -1,7 +1,7 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
 Version: 1.1.06
-Release: 2
+Release: 2%{?dist}
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
@@ -88,6 +88,7 @@ fi
 * Tue Dec  5 2006 Paul Wouters <paul@xelerance.com> 1.1.06-2
 - Changed Mr. Karlsen's name to not be a utf8 problem
 - Fixed Obosoletes/Provides to be more specific wrt l2tpd.
+- Added dist tag which accidentally got deleted.
 
 * Mon Dec  4 2006 Paul Wouters <paul@xelerance.com> 1.1.06-1
 - Rebased spec file on Fedora Extras copy, but using xl2tpd as package name
