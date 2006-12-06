@@ -341,6 +341,7 @@ int rand_vector_avp (struct tunnel *t, struct call *c, void *data,
     _u16 *raw = (_u16 *) data;
     size = raw[0] & 0x03FF;
     size -= sizeof (struct avp_hdr);
+#ifdef SANITY
     if (t->sanity)
     {
         if (size < 0)
@@ -360,6 +361,7 @@ int rand_vector_avp (struct tunnel *t, struct call *c, void *data,
             return -EINVAL;
         }
     }
+#endif
     if (gconfig.debug_avp)
         l2tp_log (LOG_DEBUG, "%s: Random Vector of %d octets\n", __FUNCTION__,
              size);

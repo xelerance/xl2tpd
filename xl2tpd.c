@@ -802,7 +802,9 @@ struct tunnel *new_tunnel ()
     tmp->peer.sin_family = AF_INET;
     tmp->peer.sin_port = 0;
     bzero (&(tmp->peer.sin_addr), sizeof (tmp->peer.sin_addr));
-    tmp->sanity = -1;
+#ifdef SANITY
+    tp->sanity = -1;
+#endif
     tmp->qtid = -1;
     tmp->ourfc = ASYNC_FRAMING | SYNC_FRAMING;
     tmp->ourbc = 0;
