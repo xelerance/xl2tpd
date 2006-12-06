@@ -34,7 +34,7 @@ typedef unsigned long long _u64;
 #include "common.h"
 #include "ipsecmast.h"
 
-#define CONTROL_PIPE "/var/run/l2tp-control"
+#define CONTROL_PIPE "/var/run/xl2tpd/l2tp-control"
 
 #define BINARY "xl2tpd"
 #define SERVER_VERSION "xl2tpd-1.1.07"
