@@ -1,3 +1,9 @@
+v1.1.07
+* Complete support for pppol2tp's kernel mode L2TP. Patch by Cedric
+* Make spec file Fedora Extras compliant
+* Added pppol2tp-linux-2.4.27.patch to contrib/
+* Fix creation of pid file if /var/run/xl2tpd does not exist.
+
 v1.1.06
 * Build xl2tpd and use /etc/xl2tpd/xl2tpd.* configuration files with fallback
   to /etc/l2tpd/l2tpd.* configuration files.
