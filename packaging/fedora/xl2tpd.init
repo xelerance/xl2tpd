@@ -2,7 +2,7 @@
 #
 # xl2tpd			This shell script takes care of starting and stopping l2tpd.
 #
-# chkconfig:	- 80 30
+# chkconfig: - 80 30
 # description:	Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 #
 # processname:	xl2tpd
