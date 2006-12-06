@@ -29,6 +29,10 @@ RETVAL=0
 
 start() {
 	echo -n "Starting $SERVICE: "
+	if [ ! -d /var/run/xl2tpd ]
+	then
+		mkdir /var/run/xl2tpd
+	fi
 	daemon $SERVICE
 	RETVAL=$?
 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/$SERVICE
