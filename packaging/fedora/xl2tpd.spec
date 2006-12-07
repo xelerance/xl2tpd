@@ -1,7 +1,7 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.1.07
-Release: 1%{?dist}
+Version: 1.1.06
+Release: 5%{?dist}
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
@@ -11,6 +11,9 @@ Requires: ppp
 #BuildRequires:
 Obsoletes: l2tpd <= 0.69-0.6.20051030.fc6
 Provides: l2tpd = 0.69-0.6.20051030.fc7
+Requires(post): /sbin/chkconfig
+Requires(preun): /sbin/chkconfig
+Requires(preun): /sbin/service
 
 %description
 xl2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
@@ -32,15 +35,17 @@ It runs completely in userspace.
 
 %build
 make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
+sed -i -e 's|chkconfig:[ \t][ \t]*|chkconfig: |' packaging/fedora/xl2tpd.init
 
 %install
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
-install -D -m644 examples/xl2tpd.conf %{buildroot}%{_sysconfdir}/xl2tpd/xl2tpd.conf
-install -D -m644 examples/ppp-options.xl2tpd %{buildroot}%{_sysconfdir}/ppp/options.xl2tpd
-install -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/xl2tpd/l2tp-secrets
-install -D -m600 examples/chapsecrets.sample %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
-install -D -m755 packaging/fedora/xl2tpd.init %{buildroot}%{_initrddir}/xl2tpd
+install -p -D -m644 examples/xl2tpd.conf %{buildroot}%{_sysconfdir}/xl2tpd/xl2tpd.conf
+install -p -D -m644 examples/ppp-options.xl2tpd %{buildroot}%{_sysconfdir}/ppp/options.xl2tpd
+install -p -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/xl2tpd/l2tp-secrets
+install -p -D -m600 examples/chapsecrets.sample %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
+install -p -D -m755 packaging/fedora/xl2tpd.init %{buildroot}%{_initrddir}/xl2tpd
+
 
 %clean
 rm -rf %{buildroot}
@@ -56,7 +61,7 @@ then
 	mv /etc/ppp/options.xl2tpd /etc/ppp/options.xl2tpd.rpmsave
 	mv /etc/ppp/options.l2tpd /etc/ppp/options.xl2tpd
 	mv /etc/xl2tpd/l2tp-secrets /etc/xl2tpd/l2tpd-secrets.rpmsave
-	cp -a /etc/l2tpd/l2tp-secrets /etc/xl2tpd/l2tp-secrets
+	cp -pa /etc/l2tpd/l2tp-secrets /etc/xl2tpd/l2tp-secrets
 	
 fi
 
@@ -85,6 +90,19 @@ fi
 
 
 %changelog
+* Thu Dec  7 2006 Paul Wouters <paul@xelerance.com> 1.1.06-5
+- Changed space/tab replacing method
+
+* Wed Dec  6 2006 Paul Wouters <paul@xelerance.com> 1.1.06-4
+- Added -p to keep original timestamps
+- Added temporary hack to change space/tab in init file.
+- Added /sbin/service dependancy
+
+* Tue Dec  5 2006 Paul Wouters <paul@xelerance.com> 1.1.06-3
+- Added Requires(post) / Requires(preun)
+- changed init file to create /var/run/xl2tpd fixed a tab/space
+- changed control file to be within /var/run/xl2tpd/
+
 * Tue Dec  5 2006 Paul Wouters <paul@xelerance.com> 1.1.06-2
 - Changed Mr. Karlsen's name to not be a utf8 problem
 - Fixed Obosoletes/Provides to be more specific wrt l2tpd.
