@@ -803,7 +803,7 @@ struct tunnel *new_tunnel ()
     tmp->peer.sin_port = 0;
     bzero (&(tmp->peer.sin_addr), sizeof (tmp->peer.sin_addr));
 #ifdef SANITY
-    tp->sanity = -1;
+    tmp->sanity = -1;
 #endif
     tmp->qtid = -1;
     tmp->ourfc = ASYNC_FRAMING | SYNC_FRAMING;
