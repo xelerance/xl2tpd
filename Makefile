@@ -26,10 +26,8 @@
 #
 # -DTEST_HIDDEN makes Assigned Call ID sent as a hidden AVP
 #
-# Also look at the top of network.c for some other (eventually to 
-# become runtime options) debugging flags
-#
 DFLAGS= -g -O2 
+#DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB
 #
 # Uncomment the next line for Linux
 #
