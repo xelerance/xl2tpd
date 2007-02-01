@@ -1672,9 +1672,11 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
                           struct call *c)
 {
     int res;
+/* tv code is commented out below
 #ifdef DEBUG_ZLB
     struct timeval tv;
 #endif
+*/
     if (CTBIT (*((_u16 *) buf->start)))
     {
         /* We have a control packet */
