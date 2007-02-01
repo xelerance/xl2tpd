@@ -10,17 +10,20 @@
 #
 # Note on debugging flags:
 # -DDEBUG_ZLB shows all ZLB exchange traffic
-# -DDEBUG_CONTROL debugs the /var/run/l2tp-control pipe interface
 # -DDEBUG_HELLO debugs when hello messages are sent
 # -DDEBUG_CLOSE debugs call and tunnel closing
 # -DDEBUG_FLOW debugs flow control system
 # -DDEBUG_FILE debugs file format
 # -DDEBUG_AAA debugs authentication, accounting, and access control
 # -DDEBUG_PAYLOAD shows info on every payload packet
-# -DDEBUG_CONTROL shows info on every control packet
+# -DDEBUG_CONTROL shows info on every control packet and the l2tp-control pipe
 # -DDEBUG_PPPD shows the command line of pppd
 # -DDEBUG_HIDDEN debugs hidden AVP's
 # -DDEBUG_ENTROPY debug entropy generation
+# -DDEBUG_CONTROL_XMIT
+# -DDEBUG_MAGIC
+# -DDEBUG_FLOW_MORE
+#
 # -DTEST_HIDDEN makes Assigned Call ID sent as a hidden AVP
 #
 # Also look at the top of network.c for some other (eventually to 
