@@ -552,11 +552,12 @@ void network_thread ()
                     /* Got some payload to send */
                     int result;
                     recycle_payload (buf, sc->container->peer);
+/*
 #ifdef DEBUG_FLOW_MORE
                     l2tp_log (LOG_DEBUG, "%s: rws = %d, pSs = %d, pLr = %d\n",
                          __FUNCTION__, sc->rws, sc->pSs, sc->pLr);
 #endif
-/*		    if ((sc->rws>0) && (sc->pSs > sc->pLr + sc->rws) && !sc->rbit) {
+		    if ((sc->rws>0) && (sc->pSs > sc->pLr + sc->rws) && !sc->rbit) {
 #ifdef DEBUG_FLOW
 						log(LOG_DEBUG, "%s: throttling payload (call = %d, tunnel = %d, Lr = %d, Ss = %d, rws = %d)!\n",__FUNCTION__,
 								 sc->cid, sc->container->tid, sc->pLr, sc->pSs, sc->rws); 
