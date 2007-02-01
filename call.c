@@ -465,7 +465,7 @@ void destroy_call (struct call *c)
             c->lac->active)
         {
 #ifdef DEBUG_MAGIC
-            l2tp_log (LOG_LOG, "Will redial in %d seconds\n",
+            l2tp_log (LOG_DEBUG, "Will redial in %d seconds\n",
                  c->lac->rtimeout);
 #endif
             tv.tv_sec = c->lac->rtimeout;

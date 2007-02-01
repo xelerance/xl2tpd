@@ -1126,7 +1126,7 @@ void consider_pidfile() {
     /* Read previous pid file. */
     i = open(gconfig.pidfile,O_RDONLY);
     if (i < 0) {
-        /* l2tp_log(LOG_LOG, "%s: Unable to read pid file [%s]\n",
+        /* l2tp_log(LOG_DEBUG, "%s: Unable to read pid file [%s]\n",
            __FUNCTION__, gconfig.pidfile);
          */
     } else
