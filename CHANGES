@@ -4,6 +4,9 @@ v1.1.07
 * Added pppol2tp-linux-2.4.27.patch to contrib/
 * Fix creation of pid file if /var/run/xl2tpd does not exist.
 * Fix compile without SANITY defined (Charlie Brady <charlieb@moodindigo.ca>)
+* Fix configuration filename for the ppp options file (#725 by Tuomo)
+* Fixes to compile with all DEBUG_* statements enabled
+* Documented all DEBUG_* statements in Makefile
 
 v1.1.06
 * Build xl2tpd and use /etc/xl2tpd/xl2tpd.* configuration files with fallback
