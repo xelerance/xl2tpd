@@ -7,7 +7,7 @@
 #
 # processname:	xl2tpd
 # config:	/etc/xl2tpd/xl2tpd.conf
-# pidfile:	/var/run/xl2tpd/xl2tpd.pid
+# pidfile:	/var/run/xl2tpd.pid
 
 #Servicename
 SERVICE=xl2tpd

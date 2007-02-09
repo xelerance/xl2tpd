@@ -57,7 +57,7 @@ struct host
 #endif
 #define ALT_DEFAULT_AUTH_FILE "/etc/l2tpd/l2tp-secrets"
 #define ALT_DEFAULT_CONFIG_FILE "/etc/l2tp/l2tpd.conf"
-#define DEFAULT_PID_FILE "/var/run/xl2tpd/xl2tpd.pid"
+#define DEFAULT_PID_FILE "/var/run/xl2tpd.pid"
 
 /* Definition of an LNS */
 struct lns
