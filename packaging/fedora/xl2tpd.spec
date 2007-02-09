@@ -1,7 +1,7 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.1.06
-Release: 5%{?dist}
+Version: 1.1.07
+Release: 1%{?dist}
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
@@ -45,6 +45,7 @@ install -p -D -m644 examples/ppp-options.xl2tpd %{buildroot}%{_sysconfdir}/ppp/o
 install -p -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/xl2tpd/l2tp-secrets
 install -p -D -m600 examples/chapsecrets.sample %{buildroot}%{_sysconfdir}/ppp/chap-secrets.sample
 install -p -D -m755 packaging/fedora/xl2tpd.init %{buildroot}%{_initrddir}/xl2tpd
+install -p -D -m755 -d %{buildroot}%{_localstatedir}/run/xl2tpd
 
 
 %clean
@@ -87,9 +88,13 @@ fi
 %config(noreplace) %{_sysconfdir}/xl2tpd/*
 %config(noreplace) %{_sysconfdir}/ppp/*
 %attr(0755,root,root)  %{_initrddir}/xl2tpd
-
+%dir %{_localstatedir}/run/xl2tpd
 
 %changelog
+* Fri Feb  9 2007 Paul Wouters <paul@xelerance.com> 1.1.07-1
+- Upgraded to 1.1.07
+- Fixes from Tuomo Soini for pidfile handling with Fedora
+
 * Thu Dec  7 2006 Paul Wouters <paul@xelerance.com> 1.1.06-5
 - Changed space/tab replacing method
 
