@@ -429,8 +429,17 @@ void destroy_call (struct call *c)
     {
         /* Set c->pppd to zero to prevent recursion with child_handler */
         c->pppd = 0;
+#ifdef DEBUG_PPPD
+            l2tp_log (LOG_DEBUG, "Lingering pppd: sending SIGTERM to pid %d.\n", pid);
+#endif
         kill (pid, SIGTERM);
+#ifdef DEBUG_PPPD
+	l2tp_log (LOG_DEBUG, "Lingering pppd: sent SIGTERM, running waitpid.\n");
+#endif
         waitpid (pid, NULL, 0);
+#ifdef DEBUG_PPPD
+	l2tp_log (LOG_DEBUG, "Lingering pppd: waitpid returned, pppd died.\n");
+#endif
     }
     if (c->container)
     {
