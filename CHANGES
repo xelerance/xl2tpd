@@ -1,4 +1,5 @@
 v1.1.07
+* Fix for unaligned header field accesses crashes on RISC by Dave S. Miller
 * Added and enabled pppd debugging code to assist locating a serious
   xl2tpd infinite loop when pppd does not die after a SIGTERM.
 * Complete support for pppol2tp's kernel mode L2TP. Patch by Cedric
