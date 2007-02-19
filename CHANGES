@@ -1,7 +1,10 @@
 v1.1.07
+* Added and enabled pppd debugging code to assist locating a serious
+  xl2tpd infinite loop when pppd does not die after a SIGTERM.
 * Complete support for pppol2tp's kernel mode L2TP. Patch by Cedric
 * Make spec file Fedora Extras compliant
 * Added pppol2tp-linux-2.4.27.patch to contrib/
+* Pidfile fixes (by Tuomo)
 * Fix creation of pid file if /var/run/xl2tpd does not exist.
 * Fix compile without SANITY defined (Charlie Brady <charlieb@moodindigo.ca>)
 * Fix configuration filename for the ppp options file (#725 by Tuomo)
