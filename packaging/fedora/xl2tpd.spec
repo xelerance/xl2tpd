@@ -5,7 +5,7 @@ Release: 1%{?dist}
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
-Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-1.1.06.tar.gz
+Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
 #BuildRequires:
