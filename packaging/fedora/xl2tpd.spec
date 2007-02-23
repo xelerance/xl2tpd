@@ -1,6 +1,6 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.1.07
+Version: 1.1.08
 Release: 1%{?dist}
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
@@ -91,9 +91,14 @@ fi
 %dir %{_localstatedir}/run/xl2tpd
 
 %changelog
-* Fri Feb  9 2007 Paul Wouters <paul@xelerance.com> 1.1.07-1
+* Fri Feb 23 2007 Paul Wouters <paul@xelerance.com> 1.1.08-1
+- Upgraded to 1.1.08
+- This works around the ppp-2.4.2-6.4 issue of not dying on SIGTERM
+
+* Mon Feb 19 2007 Paul Wouters <paul@xelerance.com> 1.1.07-2
 - Upgraded to 1.1.07
 - Fixes from Tuomo Soini for pidfile handling with Fedora
+- Fix hardcoded version for Source in spec file.
 
 * Thu Dec  7 2006 Paul Wouters <paul@xelerance.com> 1.1.06-5
 - Changed space/tab replacing method

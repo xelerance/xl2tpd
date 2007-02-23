@@ -17,7 +17,7 @@
 # -DDEBUG_AAA debugs authentication, accounting, and access control
 # -DDEBUG_PAYLOAD shows info on every payload packet
 # -DDEBUG_CONTROL shows info on every control packet and the l2tp-control pipe
-# -DDEBUG_PPPD shows the command line of pppd
+# -DDEBUG_PPPD shows the command line of pppd and how we signal pppd (see below)
 # -DDEBUG_HIDDEN debugs hidden AVP's
 # -DDEBUG_ENTROPY debug entropy generation
 # -DDEBUG_CONTROL_XMIT
@@ -25,6 +25,14 @@
 # -DDEBUG_FLOW_MORE
 #
 # -DTEST_HIDDEN makes Assigned Call ID sent as a hidden AVP
+#
+#
+# Defining TRUST_PPPD_TO_DIE disables a workaround for broken pppds. Do NOT
+# define this unless you fully trust your version of pppd to honour SIGTERM. 
+# See: http://bugs.xelerance.com/view.php?id=739
+# Confirmed bad versions of pppd:
+# - ppp-2.4.2-6.4.RHEL4
+# -DTRUST_PPPD_TO_DIE 
 #
 DFLAGS= -g -O2 -DDEBUG_PPPD
 #DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB

@@ -429,24 +429,31 @@ void destroy_call (struct call *c)
     {
         /* Set c->pppd to zero to prevent recursion with child_handler */
         c->pppd = 0;
-	/* There might be a bug in some pppd versions where sending a SIGTERM
+	/* There is a bug in some pppd versions where sending a SIGTERM
 	   does not actually seem to kill pppd, and xl2tpd waits indefinately
-	   with waitpid, not accepting any new connections either. 
-	   If you think this is happening to you, change SIGTERM to SIGKILL.
-	   Please also report this back to us at the following URL: 
-	   http://bugs.xelerance.com/view.php?id=739
+	   using waitpid, not accepting any new connections either. Therefor
+	   we now use some more force and send it a SIGKILL instead of SIGTERM.
+	   One confirmed buggy version of pppd is ppp-2.4.2-6.4.RHEL4
+	   See http://bugs.xelerance.com/view.php?id=739
 	*/
-#ifdef DEBUG_PPPD
-            l2tp_log (LOG_DEBUG, "Lingering pppd: sending SIGTERM to pid %d.\n", pid);
-#endif
+
+#ifdef TRUST_PPPD_TO_DIE
+ #ifdef DEBUG_PPPD
+            l2tp_log (LOG_DEBUG, "Trustingly terminating pppd: sending TERM signal to pid %d\n", pid);
+ #endif
         kill (pid, SIGTERM);
-#ifdef DEBUG_PPPD
-	l2tp_log (LOG_DEBUG, "Lingering pppd: sent SIGTERM, running waitpid.\n");
+#else
+ #ifdef DEBUG_PPPD
+            l2tp_log (LOG_DEBUG, "Untrustingly terminating pppd: sending KILL signal to pid %d\n", pid);
+ #endif
+        kill (pid, SIGKILL);
 #endif
+
         waitpid (pid, NULL, 0);
 #ifdef DEBUG_PPPD
-	l2tp_log (LOG_DEBUG, "Lingering pppd: waitpid returned, pppd died.\n");
+        l2tp_log (LOG_DEBUG, "pppd successfully terminated\n");
 #endif
+
     }
     if (c->container)
     {
