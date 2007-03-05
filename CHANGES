@@ -1,3 +1,7 @@
+v1.1.09
+* Forgot to bump version number, so to avoid confusing, I bumped everything
+  to 1.1.09
+
 v1.1.08
 * Confirmed pppd bug of not always terminating on SIGTERM. The new define
   TRUST_PPPD_TO_DIE determins whether we send SIGTERM or SIGKILL, with
