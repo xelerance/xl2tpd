@@ -1,6 +1,7 @@
 v1.1.09
 * Forgot to bump version number, so to avoid confusing, I bumped everything
   to 1.1.09
+* add pid to pppd logging
 
 v1.1.08
 * Confirmed pppd bug of not always terminating on SIGTERM. The new define
