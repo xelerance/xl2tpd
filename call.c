@@ -451,7 +451,7 @@ void destroy_call (struct call *c)
 
         waitpid (pid, NULL, 0);
 #ifdef DEBUG_PPPD
-        l2tp_log (LOG_DEBUG, "pppd successfully terminated\n");
+        l2tp_log (LOG_DEBUG, "pppd %d successfully terminated\n", pid);
 #endif
 
     }
