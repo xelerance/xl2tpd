@@ -98,7 +98,7 @@ Important non-specification related features to be added
 * More configuration options if needed
 * Kernel support for *much* improved performance
 
-Usage notes on /var/run/l2tp-control
+Usage notes on /var/run/xl2tpd/l2tp-control
 ------------------------------------
 There are a few command line options to l2tpd:
     -D  prevents l2tpd from detaching from terminal and running as a
@@ -107,7 +107,7 @@ There are a few command line options to l2tpd:
     -s <secretfile> use alternate secrets file
     -p <pidfile> use alternate pid file
 
-Upon running l2tpd, a pipe is created in /var/run/l2tp-control.  Simple
+Upon running l2tpd, a pipe is created in /var/run/xl2tpd/l2tp-control.  Simple
 commands can then be echoed to this pipe to control l2tp on the fly.
 The commands are:  
 
@@ -122,7 +122,7 @@ s - print out a status summary of currently connected tunnels and
 
 For example, to establish a tunnel to marko.net, one might do:
 
-echo "t marko.net" >/var/run/l2tp-control
+echo "t marko.net" >/var/run/xl2tpd/l2tp-control
 
 l2tpd must be running for this to work.
 
