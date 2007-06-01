@@ -1,6 +1,6 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.1.09
+Version: 1.1.10
 Release: 1%{?dist}
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
@@ -21,14 +21,22 @@ L2TP allows you to tunnel PPP over UDP. Some ISPs use L2TP to tunnel user
 sessions from dial-in servers (modem banks, ADSL DSLAMs) to back-end PPP
 servers. Another important application is Virtual Private Networks where
 the IPsec protocol is used to secure the L2TP connection (L2TP/IPsec,
-RFC 3193). The L2TP/IPsec protocol is mainly used by Windows and 
+RFC 3193). The L2TP/IPsec protocol is mainly used by Windows and
 Mac OS X clients. On Linux, xl2tpd can be used in combination with IPsec
 implementations such as Openswan.
 Example configuration files for such a setup are included in this RPM.
 
 xl2tpd works by opening a pseudo-tty for communicating with pppd.
-It runs completely in userspace.
+It runs completely in userspace but supports kernel mode L2TP.
 
+xl2tpd supports IPsec SA Reference tracking to enable overlapping internak
+NAT'ed IP's by different clients (eg all clients connecting from their
+linksys internal IP 192.168.1.101) as well as multiple clients behind
+the same NAT router.
+
+
+Xl2tpd is based on the 0.69 L2TP by Jeff McAdams <jeffm@iglou.com>
+It was de-facto maintained by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.
 
 %prep
 %setup -q

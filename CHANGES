@@ -1,5 +1,7 @@
 v1.1.10
-* add pid to pppd logging
+* add pid to pppd logging [tuomo]
+* don't specify compiler flags (overrides packaging flags in rpm) [tuomo]
+* minor documentation fixes [tuomo/paul]
 
 v1.1.09
 * Forgot to bump version number, so to avoid confusing, I bumped everything
