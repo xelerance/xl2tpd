@@ -78,7 +78,7 @@ void show_status (void)
     unsigned long cnt = 0;
 
     int s = 0;
-    l2tp_log (LOG_WARNING, "====== l2tpd statistics ========\n");
+    l2tp_log (LOG_WARNING, "====== xl2tpd statistics ========\n");
     l2tp_log (LOG_WARNING, " Scheduler entries:\n");
     se = events;
     while (se)
@@ -1018,7 +1018,7 @@ void do_control ()
 
 void usage(void) {
     printf("\nxl2tpd version:  %s\n",SERVER_VERSION);
-    printf("Usage: l2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]  \n             [-C <control file>] [-D]\n");
+    printf("Usage: xl2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]  \n             [-C <control file>] [-D]\n");
     printf("\n");
     exit(1);
 }
@@ -1143,7 +1143,8 @@ void consider_pidfile() {
            complain and exit immediately. */
         if (pid && pid != getpid () && kill (pid, 0) == 0)
         {
-            l2tp_log(LOG_INFO, "%s: There's already a l2tpd server running.\n",
+            l2tp_log(LOG_INFO,
+                    "%s: There's already a xl2tpd server running.\n",
                     __FUNCTION__);
             close(server_socket);
             exit(1);
