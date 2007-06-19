@@ -1,3 +1,8 @@
+v1.1.11
+* Add DEBUG_AUTH comments to the Makefile
+* Workaround for Cisco routers that do not send transmit speed or framing
+  type.
+
 v1.1.10
 * add pid to pppd logging [tuomo]
 * don't specify compiler flags (overrides packaging flags in rpm) [tuomo]
