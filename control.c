@@ -879,16 +879,20 @@ int control_finish (struct tunnel *t, struct call *c)
         if (c->txspeed < 1)
         {
             l2tp_log (LOG_DEBUG,
-                 "%s: Peer did not specify transmit speed\n", __FUNCTION__);
-            c->needclose = -1;
+                 "%s: Warning: Peer did not specify transmit speed\n", __FUNCTION__);
+            /* don't refuse the connection over this
+	    c->needclose = -1;
             return -EINVAL;
+	    */
         };
         if (c->frame < 1)
         {
             l2tp_log (LOG_DEBUG,
-                 "%s: Peer did not specify framing type\n", __FUNCTION__);
+                 "%s: Warning: Peer did not specify framing type\n", __FUNCTION__);
+             /* don't refuse the connection over this
             c->needclose = -1;
             return -EINVAL;
+            */
         }
         c->state = ICCN;
         strncpy (ip1, IPADDY (c->lns->localaddr), sizeof (ip1));
