@@ -50,7 +50,7 @@ void l2tp_log (int level, const char *fmt, ...)
 	init_log();
 	syslog (level, "%s", buf);
     } else {
-	fprintf(stderr, "l2tpd[%d]: %s", getpid(), buf);
+	fprintf(stderr, "xl2tpd[%d]: %s", getpid(), buf);
     }
 }
 

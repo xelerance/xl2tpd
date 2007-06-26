@@ -220,7 +220,7 @@ int read_packet (struct buffer *buf, int fd, int convert)
 
     /* I should never get here */
     l2tp_log (LOG_WARNING, "%s: You should not see this message.  If you do, please enter "
-			"a bug report at http://sourceforge.net/projects/l2tpd", __FUNCTION__);
+			"a bug report at http://lists.xelerance.com/mailman/listinfo/xl2tpd", __FUNCTION__);
     return -EINVAL;
 }
 
