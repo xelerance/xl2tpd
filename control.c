@@ -177,6 +177,9 @@ int control_finish (struct tunnel *t, struct call *c)
     char ip1[STRLEN];
     char ip2[STRLEN];
     char dummy_buf[128] = "/var/l2tp/"; /* jz: needed to read /etc/ppp/var.options - just kick it if you dont like */
+    char passwdfd_buf[32] = ""; /* buffer for the fd, not the password */
+    int i;
+    int pppd_passwdfd[2];            
     int tmptid,tmpcid;
 
     if (c->msgtype < 0)
@@ -857,6 +860,27 @@ int control_finish (struct tunnel *t, struct call *c)
             }
             if (c->lac->debug)
                 po = add_opt (po, "debug");
+            if (c->lac->password[0])
+            {                    
+                if (pipe (pppd_passwdfd) == -1)
+                {
+                  l2tp_log (LOG_DEBUG,
+                            "%s: Unable to create password pipe for pppd\n", __FUNCTION__);
+                  return -EINVAL;
+                }
+                write (pppd_passwdfd[1], c->lac->password, strlen (c->lac->password));
+                close (pppd_passwdfd[1]);
+
+                /* clear memory used for password, paranoid?  */
+                for (i = 0; i < STRLEN; i++)
+                    c->lac->password[i] = '\0';
+
+                po = add_opt (po, "plugin");
+                po = add_opt (po, "passwordfd.so");
+                po = add_opt (po, "passwordfd");
+                snprintf (passwdfd_buf, 32, "%d", pppd_passwdfd[0]);
+                po = add_opt (po, passwdfd_buf);
+            }
             if (c->lac->pppoptfile[0])
             {
                 po = add_opt (po, "file");

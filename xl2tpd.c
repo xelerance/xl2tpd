@@ -846,6 +846,9 @@ void do_control ()
     char *tunstr;
     char *callstr;
 
+    char *authname = NULL;
+    char *password = NULL;
+    char delims[] = " ";
     char *sub_str;              /* jz: use by the strtok function */
     char *tmp_ptr;              /* jz: use by the strtok function */
     struct lac *lac;
@@ -887,7 +890,10 @@ void do_control ()
         case 'c':
             switch_io = 1;  /* jz: Switch for Incoming - Outgoing Calls */
             
-            tunstr = strchr (buf, ' ') + 1;
+            tunstr = strtok (&buf[1], delims);
+            authname = strtok (NULL, delims);
+            password = strtok (NULL, delims);
+
             lac = laclist;
             while (lac && strcasecmp (lac->entname, tunstr)!=0)
             {
@@ -897,6 +903,10 @@ void do_control ()
             if(lac) {
                 lac->active = -1;
                 lac->rtries = 0;
+                if (authname != NULL)
+                    strncpy (lac->authname, authname, STRLEN);
+                if (password != NULL)
+                    strncpy (lac->password, password, STRLEN);
                 if (!lac->c)
                 magic_lac_dial (lac);
                 else {

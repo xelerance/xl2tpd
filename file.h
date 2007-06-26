@@ -111,6 +111,7 @@ struct lac
     unsigned int localaddr;     /* Local IP address */
     unsigned int remoteaddr;    /* Force remote address to this */
     char authname[STRLEN];      /* Who we authenticate as */
+    char password[STRLEN];      /* Password to authenticate with */
     char peername[STRLEN];      /* Force peer name to this */
     char hostname[STRLEN];      /* Hostname to report */
     char entname[STRLEN];       /* Name of this entry */
