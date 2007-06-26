@@ -1,6 +1,6 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.1.10
+Version: 1.1.11
 Release: 1%{?dist}
 License: GPL
 Url: http://www.xelerance.com/software/xl2tpd/
@@ -88,7 +88,7 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc BUGS CHANGES CREDITS LICENSE README TODO doc/rfc2661.txt 
+%doc BUGS CHANGES CREDITS LICENSE README.* TODO doc/rfc2661.txt 
 %doc doc/README.patents examples/chapsecrets.sample
 %{_sbindir}/xl2tpd
 %{_mandir}/*/*
@@ -99,6 +99,9 @@ fi
 %dir %{_localstatedir}/run/xl2tpd
 
 %changelog
+* Tue Jun 26 2007 Paul Wouters <paul@xelerance.com> 1.1.11-1
+- Minor changes to spec file to accomodate new README files
+
 * Fri Feb 23 2007 Paul Wouters <paul@xelerance.com> 1.1.08-1
 - Upgraded to 1.1.08
 - This works around the ppp-2.4.2-6.4 issue of not dying on SIGTERM
