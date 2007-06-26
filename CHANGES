@@ -1,7 +1,10 @@
 v1.1.11
-* Add DEBUG_AUTH comments to the Makefile
+* Support for passwordfd when using xl2tpd as client.
+  Patch by David MacKinnon <blaedd@google.com>
+* Add DEBUG_AUTH comments to the Makefile [paul]
 * Workaround for Cisco routers that do not send transmit speed or framing
-  type.
+  type [paul]
+* Fix two old l2tpd references to xl2tpd (syslog used wrong name) [paul]
 
 v1.1.10
 * add pid to pppd logging [tuomo]
