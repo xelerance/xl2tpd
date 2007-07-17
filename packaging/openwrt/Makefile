@@ -41,6 +41,7 @@ $(IPKG_XL2TPD):
 	mkdir -p $(IDIR_XL2TPD)/etc/xl2tpd
 	cp $(PKG_BUILD_DIR)/examples/ppp-options.xl2tpd  $(IDIR_XL2TPD)/etc/ppp/options.xl2tpd
 	cp $(PKG_BUILD_DIR)/examples/xl2tpd.conf  $(IDIR_XL2TPD)/etc/xl2tpd
+	cp $(PKG_BUILD_DIR)/packaging/openwrt  $(IDIR_XL2TPD)/etc/init.d/
 	find $(PKG_BUILD_DIR) -name \*.old | xargs rm -rf
 	mkdir -p $(PACKAGE_DIR)
 	$(IPKG_BUILD) $(IDIR_XL2TPD) $(PACKAGE_DIR)
