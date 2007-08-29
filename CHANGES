@@ -1,3 +1,6 @@
+v1.1.12
+* Included debian directory from Roberto C. Sanchez <roberto@connexer.com> 
+
 v1.1.11
 * Support for passwordfd when using xl2tpd as client.
   Patch by David MacKinnon <blaedd@google.com>
