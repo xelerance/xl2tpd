@@ -124,8 +124,6 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 /*
                    * Hmm..  Nothing to read.  It happens
                  */
-		pos=0;
-		max=0;
                 return 0;
             }
             else if ((errno == EIO) || (errno == EINTR) || (errno == EAGAIN))
@@ -137,8 +135,6 @@ int read_packet (struct buffer *buf, int fd, int convert)
                    * anyway, we discared whatever it is we
                    * have
                  */
-		pos=0;
-		max=0;
                 return 0;
             }
             errors++;
@@ -170,16 +166,20 @@ int read_packet (struct buffer *buf, int fd, int convert)
 
             if (convert)
             {
-                if (buf->len == 0) {
-		    /* if the buffer is empty, then we have the beginning
-		     * of a packet, not the end
-		     */
-                    break;
-		}
-		
-                /* must be the end, drop the FCS */
-                buf->len -= 2;
-            }
+	      if (buf->len >= 2) {
+		/* must be the end, drop the FCS */
+		buf->len -= 2;
+	      }
+	      else if (buf->len == 1) {
+		/* Do nothing, just return the single character*/
+	      }
+	      else {
+		/* if the buffer is empty, then we have the beginning
+		 * of a packet, not the end
+		 */
+		break;
+	      }
+	    }
             else
             {
 		/* if there is space, then insert the byte */
@@ -210,7 +210,7 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 p++;
                 buf->len++;
                 break;
-            };
+            }
             l2tp_log (LOG_WARNING, "%s: read overrun\n", __FUNCTION__);
 	    pos=0;
 	    max=0;
