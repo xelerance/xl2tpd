@@ -48,7 +48,6 @@
 #include "l2tp.h"
 
 struct tunnel_list tunnels;
-int max_tunnels = DEF_MAX_TUNNELS;
 int rand_source;
 int ppd = 1;                    /* Packet processing delay */
 int control_fd;                 /* descriptor of control area */

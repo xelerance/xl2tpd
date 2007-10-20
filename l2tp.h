@@ -37,7 +37,7 @@ typedef unsigned long long _u64;
 #define CONTROL_PIPE "/var/run/xl2tpd/l2tp-control"
 
 #define BINARY "xl2tpd"
-#define SERVER_VERSION "xl2tpd-1.1.12"
+#define SERVER_VERSION "xl2tpd-1.2.1"
 #define VENDOR_NAME "xelerance.com"
 #ifndef PPPD
 #define PPPD		"/usr/sbin/pppd"
@@ -202,7 +202,6 @@ extern struct tunnel_list tunnels;
 extern void tunnel_close (struct tunnel *t);
 extern void network_thread ();
 extern int init_network ();
-extern int max_tunnels;
 extern int kernel_support;
 extern int server_socket;
 extern struct tunnel *new_tunnel ();
