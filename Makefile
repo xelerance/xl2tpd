@@ -44,9 +44,10 @@ OSFLAGS= -DLINUX
 #
 # Uncomment the following to use the kernel interface under Linux
 # This requires the pppol2tp-linux-2.4.27.patch patch from contrib
-# or a 2.6.23+ kernel
+# or a 2.6.23+ kernel. On some distributions kernel include files
+# are packages seperately (eg kernel-headers on Fedora)
 #
-OSFLAGS+= -DUSE_KERNEL
+#OSFLAGS+= -DUSE_KERNEL
 #
 # Uncomment the next line for FreeBSD
 #
