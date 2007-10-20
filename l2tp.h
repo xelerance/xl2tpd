@@ -44,8 +44,6 @@ typedef unsigned long long _u64;
 #endif
 #define CALL_PPP_OPTS "defaultroute"
 #define FIRMWARE_REV	0x0690  /* Revision of our firmware (software, in this case) */
-#define DEF_MAX_TUNNELS 32      /* By default only allow this many
-                                   tunnels to exist */
 
 #define HELLO_DELAY 60          /* How often to send a Hello message */
 
