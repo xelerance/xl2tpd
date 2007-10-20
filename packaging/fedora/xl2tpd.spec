@@ -8,7 +8,7 @@ Group: System Environment/Daemons
 Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
-#BuildRequires:
+BuildRequires: kernel-headers => 2.6.23
 Obsoletes: l2tpd <= 0.69-0.6.20051030.fc6
 Provides: l2tpd = 0.69-0.6.20051030.fc7
 Requires(post): /sbin/chkconfig
@@ -34,6 +34,8 @@ NAT'ed IP's by different clients (eg all clients connecting from their
 linksys internal IP 192.168.1.101) as well as multiple clients behind
 the same NAT router.
 
+xl2tpd supports the pppol2tp kernel mode operations on 2.6.23 or higher,
+or via a patch in contrib for 2.4.x kernels.
 
 Xl2tpd is based on the 0.69 L2TP by Jeff McAdams <jeffm@iglou.com>
 It was de-facto maintained by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.

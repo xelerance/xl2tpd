@@ -47,7 +47,7 @@ OSFLAGS= -DLINUX
 # or a 2.6.23+ kernel. On some distributions kernel include files
 # are packages seperately (eg kernel-headers on Fedora)
 #
-#OSFLAGS+= -DUSE_KERNEL
+OSFLAGS+= -DUSE_KERNEL
 #
 # Uncomment the next line for FreeBSD
 #
