@@ -1079,6 +1079,9 @@ int set_ipsec_saref (char *word, char *value, int context, void *item)
 	    if(g->ipsecsaref) {
 		    l2tp_log(LOG_WARNING, "Enabling IPsec SAref processing for L2TP transport mode SAs\n");
 	    }
+	    if(g->forceuserspace != 1) {
+		    l2tp_log(LOG_WARNING, "IPsec SAref does not work with L2TP kernel mode yet, enabling forceuserspace=yes\n");
+	    }
 	    break;
     default:
 	    snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
