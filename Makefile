@@ -93,7 +93,8 @@ romfs:
 
 install: ${EXEC}
 	install -D --mode=0755 ${EXEC} ${DESTDIR}/${BINDIR}/${EXEC}
-	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man{5,8}
+	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man5
+	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man8
 	install --mode=0644 doc/xl2tpd.8 ${DESTDIR}/${MANDIR}/man8/
 	install --mode=0644 doc/xl2tpd.conf.5 doc/l2tp-secrets.5 \
 		${DESTDIR}${MANDIR}/man5/
