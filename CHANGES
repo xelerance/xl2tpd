@@ -1,7 +1,12 @@
+v1.2.1
+
 v1.2.0
-* Included debian directory from Roberto C. Sanchez <roberto@connexer.com> 
-* Fix for dropped packets and wrong disconnects. [Ray Overland / Tuomo]
 * Synchronised IP_IPSEC_REFINFO define with KLIPSNG patch [paul]
+* Fixed versioning and bumped to 1.2.0 [paul]
+
+v1.1.12
+* Fix for dropped packets and wrong disconnects. [Ray Overland / Tuomo]
+* Included debian directory from Roberto C. Sanchez <roberto@connexer.com> 
 
 v1.1.11
 * Support for passwordfd when using xl2tpd as client.
