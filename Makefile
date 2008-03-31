@@ -30,11 +30,20 @@
 #
 # Defining TRUST_PPPD_TO_DIE disables a workaround for broken pppds. Do NOT
 # define this unless you fully trust your version of pppd to honour SIGTERM. 
-# See: http://bugs.xelerance.com/view.php?id=739
+# However, if you experience hanging pppd's, which cause xl2tpd to also hang,
+# enable this. 
+# The cost of not trusting pppd to die (and shoot it down hard), is that your
+# pppd's ip-down scripts will not have a chance to run.
+#
+# For more details see: http://bugs.xelerance.com/view.php?id=739
+#
 # Confirmed bad versions of pppd:
 # - ppp-2.4.2-6.4.RHEL4
-# -DTRUST_PPPD_TO_DIE 
+# Confirmed good version of pppd:
+# - recent Ubuntu/Debian pppd's
 #
+# -DTRUST_PPPD_TO_DIE 
+
 DFLAGS= -DDEBUG_PPPD
 #DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
 #
