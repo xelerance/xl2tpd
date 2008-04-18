@@ -1,4 +1,6 @@
 v1.2.1
+* Fixes to Suse init file and spec file [paul]
+* Changed some build defaults in Makefile [paul]
 
 v1.2.0
 * Synchronised IP_IPSEC_REFINFO define with KLIPSNG patch [paul]
