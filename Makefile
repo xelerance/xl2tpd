@@ -42,11 +42,11 @@
 # Confirmed good version of pppd:
 # - recent Ubuntu/Debian pppd's
 #
-# -DTRUST_PPPD_TO_DIE 
+-DTRUST_PPPD_TO_DIE 
 
+# DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
 DFLAGS= -DDEBUG_PPPD
-#DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
-#
+
 # Uncomment the next line for Linux. KERNELSRC is needed for if_pppol2tp.h,
 # but we use a local copy if we don't find it.
 #
@@ -54,7 +54,7 @@ DFLAGS= -DDEBUG_PPPD
 KERNELSRC?=./linux
 OSFLAGS= -DLINUX -I$(KERNELSRC)/include/
 #
-Uncomment the following to use the kernel interface under Linux
+# Uncomment the following to use the kernel interface under Linux
 # This requires the pppol2tp-linux-2.4.27.patch patch from contrib
 # or a 2.6.23+ kernel. On some distributions kernel include files
 # are packages seperately (eg kernel-headers on Fedora)
