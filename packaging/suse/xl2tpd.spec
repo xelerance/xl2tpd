@@ -93,6 +93,7 @@ exit 0
 %defattr(-,root,root)
 %doc BUGS CHANGES CREDITS LICENSE README.* TODO doc/rfc2661.txt 
 %doc doc/README.patents examples/chapsecrets.sample
+%{_sbindir}/rcxl2tpd
 %{_sbindir}/xl2tpd
 %{_mandir}/*/*
 %dir %{_sysconfdir}/xl2tpd
