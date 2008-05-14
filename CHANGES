@@ -1,3 +1,6 @@
+v1.2.2
+* PPP CHAP authentication using plugin passwordfd.so failed [tgohad@mvista.com]
+
 v1.2.1
 * Fixes to Suse init file and spec file [paul]
 * Changed some build defaults in Makefile [paul]
