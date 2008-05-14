@@ -49,7 +49,7 @@ int init_config ()
     gconfig.debug_state = 0;
     lnslist = NULL;
     laclist = NULL;
-    deflac = (struct lac *) malloc (sizeof (struct lac));
+    deflac = (struct lac *) calloc (1, sizeof (struct lac));
 
     f = fopen (gconfig.configfile, "r");
     if (!f) 
@@ -79,7 +79,7 @@ int init_config ()
 struct lns *new_lns ()
 {
     struct lns *tmp;
-    tmp = (struct lns *) malloc (sizeof (struct lns));
+    tmp = (struct lns *) calloc (1, sizeof (struct lns));
     if (!tmp)
     {
         l2tp_log (LOG_CRIT, "%s: Unable to allocate memory for new LNS\n",
@@ -124,7 +124,7 @@ struct lns *new_lns ()
 struct lac *new_lac ()
 {
     struct lac *tmp;
-    tmp = (struct lac *) malloc (sizeof (struct lac));
+    tmp = (struct lac *) calloc (1, sizeof (struct lac));
     if (!tmp)
     {
         l2tp_log (LOG_CRIT, "%s: Unable to allocate memory for lac entry!\n",

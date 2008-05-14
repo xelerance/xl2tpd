@@ -856,6 +856,7 @@ void do_control ()
     int cnt = -1;
     int done = 0;
 
+    bzero(buf, sizeof(buf));
     buf[0]='\0';
 
     while (!done)
@@ -890,6 +891,8 @@ void do_control ()
             switch_io = 1;  /* jz: Switch for Incoming - Outgoing Calls */
             
             tunstr = strtok (&buf[1], delims);
+
+            /* Are these passed on the command line? */
             authname = strtok (NULL, delims);
             password = strtok (NULL, delims);
 
