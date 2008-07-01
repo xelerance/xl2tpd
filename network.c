@@ -68,7 +68,7 @@ int init_network (void)
     arg=1;
     if(setsockopt(server_socket, SOL_IP, IP_IPSEC_REFINFO,
 		  &arg, sizeof(arg)) != 0) {
-	    l2tp_log(LOG_CRIT, "setsockopt recvref: %s\n", strerror(errno));
+	    l2tp_log(LOG_CRIT, "setsockopt recvref[%d]: %s\n", IP_IPSEC_REFINFO, strerror(errno));
 
 	    gconfig.ipsecsaref=0;
     }
