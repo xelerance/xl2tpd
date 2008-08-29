@@ -608,7 +608,7 @@ int set_papchap (char *word, char *value, int context, void *item)
                 l->pap_require = result;
         else if (c[0] == 'a')   /* Authentication */
             if (word[2] == 'f')
-                l->authself = result;
+                l->authself = !result;
             else
                 l->authpeer = result;
         else /* CHAP */ if (word[2] == 'f')
