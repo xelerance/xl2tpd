@@ -2,6 +2,8 @@ v1.2.2
 * PPP CHAP authentication using plugin passwordfd.so failed [tgohad@mvista.com]
 * Use SIGALRM only in select(). This prevents a problem where a pppd child
   (eg ntpd via ppp-up.d/ script) is using signaling too. [Shingo Yamawaki]
+* A file descriptor is left opened when exec'ing pppd. [Shingo Yamawaki]
+* When select() is interrupted, readfds should not be used. [Shingo Yamawaki]
   
 v1.2.1
 * Fixes to Suse init file and spec file [paul]
