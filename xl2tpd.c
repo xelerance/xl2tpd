@@ -434,6 +434,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         /* connect the pty to stdin and stdout */
         dup2 (fd2, 0);
         dup2 (fd2, 1);
+	close(fd2);
 
         /* close all the calls pty fds */
         st = tunnels.head;
