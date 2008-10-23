@@ -89,21 +89,26 @@ OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.
 SRCS=${OBJS:.o=.c} ${HDRS}
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
 EXEC=xl2tpd
-BINDIR=/usr/sbin
+SBINDIR?=/usr/sbin
+BINDIR?=/usr/bin
 MANDIR=/usr/share/man
-all: $(EXEC)
+all: $(EXEC) pfc
 
 clean:
-	rm -f $(OBJS) $(EXEC)
+	rm -f $(OBJS) $(EXEC) pfc
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
+pfc:
+	$(CC) $(LDFLAGS) -lpcap -o pfc -c contrib/pfc.c
+
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
 
-install: ${EXEC}
-	install -D --mode=0755 ${EXEC} ${DESTDIR}/${BINDIR}/${EXEC}
+install: ${EXEC} pfc
+	install -D --mode=0755 pfc ${DESTDIR}/${BINDIR}/pfc
+	install -D --mode=0755 ${EXEC} ${DESTDIR}/${SBINDIR}/${EXEC}
 	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man5
 	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man8
 	install --mode=0644 doc/xl2tpd.8 ${DESTDIR}/${MANDIR}/man8/

@@ -8,7 +8,7 @@ Group: System Environment/Daemons
 Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
-BuildRequires: linux-kernel-headers => 2.6.19
+BuildRequires: linux-kernel-headers => 2.6.19, libpcap-devel
 Obsoletes: l2tpd <= 0.69
 Provides: l2tpd = 0.69
 Requires(post): /sbin/chkconfig
@@ -95,6 +95,7 @@ exit 0
 %doc doc/README.patents examples/chapsecrets.sample
 %{_sbindir}/rcxl2tpd
 %{_sbindir}/xl2tpd
+%{_bindir}/pfc
 %{_mandir}/*/*
 %dir %{_sysconfdir}/xl2tpd
 %config(noreplace) %{_sysconfdir}/xl2tpd/*
@@ -103,6 +104,10 @@ exit 0
 %dir %{_localstatedir}/run/xl2tpd
 
 %changelog
+* Wed Oct 22 2008 Paul Wouters <paul@xelerance.com> 1.2.2-1
+- Updated Suse init scripts and spec file
+- Added pfc for pppd's precompiled-active-filter
+
 * Fri Apr 18 2008 Paul Wouters <paul@xelerance.com> 1.2.1-1
 - Updated Suse init scripts and spec file
 
