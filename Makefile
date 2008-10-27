@@ -75,7 +75,12 @@ OSFLAGS= -DLINUX -I$(KERNELSRC)/include/
 #CC=gcc
 #OSFLAGS= -DSOLARIS
 #OSLIBS= -lnsl -lsocket
+
+# Uncomment the next two lines for OpenBSD
 #
+#OSFLAGS= -DOPENBSD
+#LDLIBS= -lutil
+
 # Feature flags
 #
 # Comment the following line to disable xl2tpd maintaining IP address
@@ -89,9 +94,13 @@ OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.
 SRCS=${OBJS:.o=.c} ${HDRS}
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
 EXEC=xl2tpd
-SBINDIR?=/usr/sbin
-BINDIR?=/usr/bin
-MANDIR=/usr/share/man
+
+DESTDIR?=/usr/local
+SBINDIR?=${DESTDIR}/usr/sbin
+BINDIR?=${DESTDIR}/usr/bin
+MANDIR?=${DESTDIR}/share/man
+
+
 all: $(EXEC) pfc
 
 clean:
@@ -107,13 +116,19 @@ romfs:
 	$(ROMFSINST) /bin/$(EXEC)
 
 install: ${EXEC} pfc
-	install -D --mode=0755 pfc ${DESTDIR}/${BINDIR}/pfc
-	install -D --mode=0755 ${EXEC} ${DESTDIR}/${SBINDIR}/${EXEC}
-	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man5
-	install -d --mode=0755 ${DESTDIR}/${MANDIR}/man8
-	install --mode=0644 doc/xl2tpd.8 ${DESTDIR}/${MANDIR}/man8/
-	install --mode=0644 doc/xl2tpd.conf.5 doc/l2tp-secrets.5 \
-		${DESTDIR}${MANDIR}/man5/
+	install -d -m 0755 ${BINDIR}
+	install -m 0755 pfs ${BINDIR}/pfc
+	install -d -m 0755 ${SBINDIR}
+	install -m 0755 $(EXEC) ${SBINDIR}/$(EXEC)
+	install -d --mode=0755 ${MANDIR}/man5
+	install -d --mode=0755 ${MANDIR}/man8
+	install -m 0644 doc/xl2tpd.8 ${MANDIR}/man8/
+	install -m 0644 doc/xl2tpd.conf.5 doc/l2tp-secrets.5 \
+		 ${MANDIR}/man5/
+# openbsd
+#	install -d -m 0755 /var/run/xl2tpd
+#	mkfifo /var/run/l2tp-control
+
 
 TAGS:	${SRCS}
 	etags ${SRCS}
