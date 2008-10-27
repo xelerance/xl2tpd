@@ -102,7 +102,7 @@ fi
 %dir %{_localstatedir}/run/xl2tpd
 
 %changelog
-* Wed Oct 22 2008 Paul Wouters <paul@xelerance.com> 1.2.2-1
+* Sun Oct 26 2008 Paul Wouters <paul@xelerance.com> 1.2.2-1
 - Updated Suse init scripts and spec file
 - Added pfc for pppd's precompiled-active-filter
 

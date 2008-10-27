@@ -44,12 +44,12 @@ It was de-facto maintained by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.
 %setup -q
 
 %build
-make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
+make CFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 sed -i -e 's|chkconfig:[ \t][ \t]*|chkconfig: |' packaging/fedora/xl2tpd.init
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install
+make DESTDIR=%{buildroot} MANDIR=%{buildroot}/%{_mandir} install
 install -p -D -m644 examples/xl2tpd.conf %{buildroot}%{_sysconfdir}/xl2tpd/xl2tpd.conf
 install -p -D -m644 examples/ppp-options.xl2tpd %{buildroot}%{_sysconfdir}/ppp/options.xl2tpd
 install -p -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/xl2tpd/l2tp-secrets
@@ -104,7 +104,7 @@ exit 0
 %dir %{_localstatedir}/run/xl2tpd
 
 %changelog
-* Wed Oct 22 2008 Paul Wouters <paul@xelerance.com> 1.2.2-1
+* Sun Oct 26 2008 Paul Wouters <paul@xelerance.com> 1.2.2-1
 - Updated Suse init scripts and spec file
 - Added pfc for pppd's precompiled-active-filter
 
