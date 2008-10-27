@@ -8,7 +8,12 @@ Group: System Environment/Daemons
 Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
-BuildRequires: kernel-headers => 2.6.23, libpcap-devel
+BuildRequires: kernel-headers => 2.6.23
+%if 0%{?el3}%{?el4}
+BuildRequires: libpcap
+%else
+BuildRequires: libpcap-devel
+%endif
 Obsoletes: l2tpd <= 0.69-0.6.20051030.fc6
 Provides: l2tpd = 0.69-0.6.20051030.fc7
 Requires(post): /sbin/chkconfig
@@ -48,7 +53,7 @@ make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} MANDIR=%{buildroot}/%{_mandir} install
+make DESTDIR=%{buildroot} PREFIX=%{_prefix} install
 install -p -D -m644 examples/xl2tpd.conf %{buildroot}%{_sysconfdir}/xl2tpd/xl2tpd.conf
 install -p -D -m644 examples/ppp-options.xl2tpd %{buildroot}%{_sysconfdir}/ppp/options.xl2tpd
 install -p -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/xl2tpd/l2tp-secrets
