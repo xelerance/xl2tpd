@@ -47,14 +47,14 @@
 # trust pppd. This work around will be removed in the near future.
 
 # DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
-DFLAGS= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
+DFLAGS?= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
 
 # Uncomment the next line for Linux. KERNELSRC is needed for if_pppol2tp.h,
 # but we use a local copy if we don't find it.
 #
 #KERNELSRC=/lib/modules/`uname -r`/build/
 KERNELSRC?=./linux
-OSFLAGS= -DLINUX -I$(KERNELSRC)/include/
+OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 #
 # Uncomment the following to use the kernel interface under Linux
 # This requires the pppol2tp-linux-2.4.27.patch patch from contrib
@@ -97,10 +97,10 @@ SRCS=${OBJS:.o=.c} ${HDRS}
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
 EXEC=xl2tpd
 
-DESTDIR?=/usr/local
-SBINDIR?=${DESTDIR}/usr/sbin
-BINDIR?=${DESTDIR}/usr/bin
-MANDIR?=${DESTDIR}/share/man
+PREFIX?=/usr/local
+SBINDIR?=$(DESTDIR)${PREFIX}/sbin
+BINDIR?=$(DESTDIR)${PREFIX}/bin
+MANDIR?=$(DESTDIR)${PREFIX}/share/man
 
 
 all: $(EXEC) pfc
