@@ -1,3 +1,9 @@
+v1.2.3
+* Fixes for prefix/destdir and spec files [paul/tuomo]
+* Use pcap not pcap-devel on suse, rhel and centos [paul/tuomo/shingo]
+* Bug tracker bugs fixed
+  # 998: xl2tpd-1.2.2 Makefile sets wrong path for mandir 
+
 v1.2.2
 * PPP CHAP authentication using plugin passwordfd.so failed [tgohad@mvista.com]
 * Use SIGALRM only in select(). This prevents a problem where a pppd child
@@ -6,7 +12,9 @@ v1.2.2
 * When select() is interrupted, readfds should not be used. [Shingo Yamawaki]
 * Modifications to Makefile to support DESTDIR [paul]
 * Modifications to compile on OpenBSD [Stephen Ayotte]
-  
+* Bug tracker bugs fixed
+  #955: refuse authentication is backward for LAC sections [Dean Scarff]
+
 v1.2.1
 * Fixes to Suse init file and spec file [paul]
 * Changed some build defaults in Makefile [paul]
