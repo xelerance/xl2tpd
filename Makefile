@@ -104,13 +104,14 @@ MANDIR?=${DESTDIR}/share/man
 all: $(EXEC) pfc
 
 clean:
-	rm -f $(OBJS) $(EXEC) pfc
+	rm -f $(OBJS) $(EXEC) pfc.o pfc
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 pfc:
-	$(CC) $(CFLAGS) $(LDFLAGS) -lpcap $(LDLIBS) -o pfc -c contrib/pfc.c
+	$(CC) $(CFLAGS) -c contrib/pfc.c
+	$(CC) $(LDFLAGS) -lpcap $(LDLIBS) -o pfc pfc.o
 
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
