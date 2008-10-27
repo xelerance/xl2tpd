@@ -43,6 +43,8 @@
 # Confirmed good version of pppd:
 # - recent Ubuntu/Debian pppd's
 #
+# ppp 2.4.3 sends a SIGTERM after 5 seconds, so it should be safe to
+# trust pppd. This work around will be removed in the near future.
 
 # DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
 DFLAGS= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
