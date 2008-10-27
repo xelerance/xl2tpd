@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <time.h>
 #if (__GLIBC__ < 2)
-# if defined(FREEBSD)
+# if defined(FREEBSD) || defined(OPENBSD)
 #  include <sys/signal.h>
 # elif defined(LINUX)
 #  include <bsd/signal.h>
@@ -38,6 +38,9 @@
 # endif
 #else
 # include <signal.h>
+#endif
+#ifndef LINUX
+# include <sys/socket.h>
 #endif
 #include <netdb.h>
 #include <string.h>

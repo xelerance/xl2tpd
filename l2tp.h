@@ -23,6 +23,9 @@ typedef unsigned long long _u64;
 
 #include <netinet/in.h>
 #include <termios.h>
+#ifdef OPENBSD
+# include <util.h>
+#endif
 #include "osport.h"
 #include "scheduler.h"
 #include "misc.h"

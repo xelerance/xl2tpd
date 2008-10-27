@@ -22,6 +22,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
+#ifndef LINUX
+# include <sys/uio.h>
+#endif
 #include "l2tp.h"
 #include "ipsecmast.h"
 
@@ -61,18 +64,24 @@ int init_network (void)
              __FUNCTION__);
         return -EINVAL;
     }
+
+#ifdef LINUX
     /*
      * For L2TP/IPsec with KLIPSng, set the socket to receive IPsec REFINFO
      * values.
      */
     arg=1;
-    if(setsockopt(server_socket, SOL_IP, IP_IPSEC_REFINFO,
+    if(setsockopt(server_socket, IPPROTO_IP, IP_IPSEC_REFINFO,
 		  &arg, sizeof(arg)) != 0) {
 	    l2tp_log(LOG_CRIT, "setsockopt recvref[%d]: %s\n", IP_IPSEC_REFINFO, strerror(errno));
 
 	    gconfig.ipsecsaref=0;
     }
-    
+#else
+	l2tp_log(LOG_INFO, "No attempt being made to use IPsec SAref's since we're not on a Linux machine.\n");
+
+#endif
+
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
     {
@@ -267,7 +276,7 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 	msgh.msg_controllen = sizeof(cbuf);
 
 	cmsg = CMSG_FIRSTHDR(&msgh);
-	cmsg->cmsg_level = SOL_IP;
+	cmsg->cmsg_level = IPPROTO_IP;
 	cmsg->cmsg_type  = IP_IPSEC_REFINFO;
 	cmsg->cmsg_len   = CMSG_LEN(sizeof(unsigned int));
 
