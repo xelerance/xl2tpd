@@ -8,7 +8,7 @@ Group: System Environment/Daemons
 Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
-BuildRequires: linux-kernel-headers => 2.6.19, libpcap-devel
+BuildRequires: linux-kernel-headers => 2.6.19, libpcap
 Obsoletes: l2tpd <= 0.69
 Provides: l2tpd = 0.69
 Requires(post): /sbin/chkconfig
@@ -44,8 +44,7 @@ It was de-facto maintained by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.
 %setup -q
 
 %build
-make CFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
-sed -i -e 's|chkconfig:[ \t][ \t]*|chkconfig: |' packaging/fedora/xl2tpd.init
+make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
 
 %install
 rm -rf %{buildroot}

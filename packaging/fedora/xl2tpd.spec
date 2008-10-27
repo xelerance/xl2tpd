@@ -45,7 +45,6 @@ It was de-facto maintained by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.
 
 %build
 make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
-sed -i -e 's|chkconfig:[ \t][ \t]*|chkconfig: |' packaging/fedora/xl2tpd.init
 
 %install
 rm -rf %{buildroot}
