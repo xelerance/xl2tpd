@@ -110,18 +110,18 @@ $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 pfc:
-	$(CC) $(LDFLAGS) -lpcap -o pfc -c contrib/pfc.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -lpcap $(LDLIBS) -o pfc -c contrib/pfc.c
 
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
 
 install: ${EXEC} pfc
 	install -d -m 0755 ${BINDIR}
-	install -m 0755 pfs ${BINDIR}/pfc
+	install -m 0755 pfc ${BINDIR}/pfc
 	install -d -m 0755 ${SBINDIR}
 	install -m 0755 $(EXEC) ${SBINDIR}/$(EXEC)
-	install -d --mode=0755 ${MANDIR}/man5
-	install -d --mode=0755 ${MANDIR}/man8
+	install -d -m 0755 ${MANDIR}/man5
+	install -d -m 0755 ${MANDIR}/man8
 	install -m 0644 doc/xl2tpd.8 ${MANDIR}/man8/
 	install -m 0644 doc/xl2tpd.conf.5 doc/l2tp-secrets.5 \
 		 ${MANDIR}/man5/
