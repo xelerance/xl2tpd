@@ -7,8 +7,12 @@ Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
 Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: ppp 
+Requires: ppp >= 2.4.3
+%if %{sles_version} == 0
 BuildRequires: linux-kernel-headers => 2.6.19, libpcap
+%else
+BuildRequires: glibc-devel, libpcap
+%endif
 Obsoletes: l2tpd <= 0.69
 Provides: l2tpd = 0.69
 Requires(post): /sbin/chkconfig
@@ -44,11 +48,11 @@ It was de-facto maintained by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.
 %setup -q
 
 %build
-make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY"
+make DFLAGS="$RPM_OPT_FLAGS -g -DDEBUG_PPPD -DDEBUG_CONTROL -DDEBUG_ENTROPY -DTRUST_PPPD_TO_DIE"
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} MANDIR=%{buildroot}/%{_mandir} install
+make PREFIX=%{_prefix} DESTDIR=%{buildroot} MANDIR=%{buildroot}/%{_mandir} install
 install -p -D -m644 examples/xl2tpd.conf %{buildroot}%{_sysconfdir}/xl2tpd/xl2tpd.conf
 install -p -D -m644 examples/ppp-options.xl2tpd %{buildroot}%{_sysconfdir}/ppp/options.xl2tpd
 install -p -D -m600 doc/l2tp-secrets.sample %{buildroot}%{_sysconfdir}/xl2tpd/l2tp-secrets
