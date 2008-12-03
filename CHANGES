@@ -1,3 +1,7 @@
+v1.2.4
+* Fixes to Suse spec file [Shingo Yamawaki]
+* unclutter logs for 'select timeout' [Shingo Yamawaki]
+
 v1.2.3
 * Fixes for prefix/destdir and spec files [paul/tuomo]
 * Use pcap not pcap-devel on suse, rhel and centos [paul/tuomo/shingo]
