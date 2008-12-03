@@ -405,13 +405,19 @@ void network_thread ()
         {
             if (ret == 0)
             {
-                l2tp_log (LOG_DEBUG, "%s: select timeout\n", __FUNCTION__);
+                if (gconfig.debug_network)
+                {
+                    l2tp_log (LOG_DEBUG, "%s: select timeout\n", __FUNCTION__);
+                }
             }
             else
             {
-                l2tp_log (LOG_DEBUG,
-                    "%s: select returned error %d (%s)\n",
-                    __FUNCTION__, errno, strerror (errno));
+                if (gconfig.debug_network)
+                {
+                    l2tp_log (LOG_DEBUG,
+                        "%s: select returned error %d (%s)\n",
+                        __FUNCTION__, errno, strerror (errno));
+                }
             }
             continue;
         }
