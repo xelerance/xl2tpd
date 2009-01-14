@@ -9,7 +9,7 @@ Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp >= 2.4.3
 %if %{sles_version} == 0
-BuildRequires: linux-kernel-headers => 2.6.19, libpcap
+BuildRequires: linux-kernel-headers => 2.6.19, libpcap-devel
 %else
 BuildRequires: glibc-devel, libpcap
 %endif
