@@ -449,11 +449,15 @@ void destroy_call (struct call *c)
         kill (pid, SIGKILL);
 #endif
 
-        waitpid (pid, NULL, 0);
+	/*
+	 * Comment out this waitpid call, child_handler should take care of it
+	 */
+	/*
+	waitpid (pid, NULL, 0);
 #ifdef DEBUG_PPPD
         l2tp_log (LOG_DEBUG, "pppd %d successfully terminated\n", pid);
 #endif
-
+	*/
     }
     if (c->container)
     {
