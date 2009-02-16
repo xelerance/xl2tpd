@@ -1,6 +1,8 @@
 v1.2.4
 * Fixes to Suse spec file [Shingo Yamawaki]
 * unclutter logs for 'select timeout' [Shingo Yamawaki]
+* Make sure child_handler and destroy_call won't conflict when pppd is killed
+  [Mika Ilmaranta/tuomo]
 
 v1.2.3
 * Fixes for prefix/destdir and spec files [paul/tuomo]
