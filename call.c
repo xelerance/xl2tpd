@@ -511,7 +511,7 @@ void destroy_call (struct call *c)
     /*
      * Signal child_handler just to be sure that waitpid is done if some
      * pppd's died meanwhile
-    */
+     */
     kill (SIGCHLD, getpid ());
 }
 
