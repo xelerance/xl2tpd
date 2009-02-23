@@ -2,8 +2,10 @@ v1.2.4
 * Fixes to Suse spec file [Shingo Yamawaki]
 * unclutter logs for 'select timeout' [Shingo Yamawaki]
 * Make sure child_handler and destroy_call won't conflict when pppd is killed
-  [Mika Ilmaranta/tuomo]
-
+  [Mika Ilmaranta/ Tuomo]
+* Workaround for broken kernels that send duplicate pids to waitpid()
+  See: https://bugzilla.redhat.com/show_bug.cgi?id=486945 [Mika / Tuomo]
+  
 v1.2.3
 * Fixes for prefix/destdir and spec files [paul/tuomo]
 * Use pcap not pcap-devel on suse, rhel and centos [paul/tuomo/shingo]
