@@ -5,6 +5,7 @@ v1.2.4
   [Mika Ilmaranta/ Tuomo]
 * Workaround for broken kernels that send duplicate pids to waitpid()
   See: https://bugzilla.redhat.com/show_bug.cgi?id=486945 [Mika / Tuomo]
+* Fix pppd option from legacy -detach to nodetach [Tuomo]
   
 v1.2.3
 * Fixes for prefix/destdir and spec files [paul/tuomo]
