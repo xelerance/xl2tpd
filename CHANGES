@@ -1,3 +1,6 @@
+v1.2.5
+* Fix initscript for https://bugzilla.redhat.com/show_bug.cgi?id=247100
+
 v1.2.4
 * Fixes to Suse spec file [Shingo Yamawaki]
 * unclutter logs for 'select timeout' [Shingo Yamawaki]
