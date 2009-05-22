@@ -1,3 +1,6 @@
+v1.2.5
+* Fix initscript for https://bugzilla.redhat.com/show_bug.cgi?id=247100
+
 v1.2.4
 * Fixes to Suse spec file [Shingo Yamawaki]
 * unclutter logs for 'select timeout' [Shingo Yamawaki]
@@ -5,6 +8,7 @@ v1.2.4
   [Mika Ilmaranta/ Tuomo]
 * Workaround for broken kernels that send duplicate pids to waitpid()
   See: https://bugzilla.redhat.com/show_bug.cgi?id=486945 [Mika / Tuomo]
+* Fix pppd option from legacy -detach to nodetach [Tuomo]
   
 v1.2.3
 * Fixes for prefix/destdir and spec files [paul/tuomo]
