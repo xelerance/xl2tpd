@@ -412,6 +412,7 @@ int control_finish (struct tunnel *t, struct call *c)
         {
             if ((y->tid == t->tid) &&
                 (y->peer.sin_addr.s_addr == t->peer.sin_addr.s_addr) &&
+                (!gconfig.ipsecsaref || y->refhim == t->refhim) &&
                 (y != t))
             {
                 /* This can happen if we get a duplicate
