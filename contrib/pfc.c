@@ -8,11 +8,17 @@
 #include <sys/time.h>
 #include <string.h>
 
-#include <linux/types.h>
-#include <linux/ppp_defs.h>
+#ifdef LINUX
+# include <linux/types.h>
+# include <linux/ppp_defs.h>
+# include <pcap-bpf.h>
+#endif
+
+#ifdef OPENBSD
+# include <net/ppp_defs.h>
+#endif
 
 #include <pcap.h>
-#include <pcap-bpf.h>
 
 int main (int argc, char ** argv)
 {
