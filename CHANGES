@@ -1,3 +1,8 @@
+v1.2.6
+* Partial fix for compiling on OpenBSD [synapse]
+* add missing setting of logopen=1 in init_log() [Shingo Yamawaki]
+* xltpd could deadlock on syslog() call in signal handler [Bart Trojanowski] 
+
 v1.2.5
 * Fix initscript for https://bugzilla.redhat.com/show_bug.cgi?id=247100
 * Fix for two Windows machines behind the same NAT with the same
