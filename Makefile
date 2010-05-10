@@ -67,28 +67,28 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 #
 # Uncomment the next line for FreeBSD
 #
-#OSFLAGS= -DFREEBSD
+#OSFLAGS?= -DFREEBSD
 #
 # Uncomment the next line for Solaris. For solaris, at least,
 # we don't want to specify -I/usr/include because it is in
 # the basic search path, and will over-ride some gcc-specific
 # include paths and cause problems.
 #
-#CC=gcc
-#OSFLAGS= -DSOLARIS
-#OSLIBS= -lnsl -lsocket
+#CC?=gcc
+#OSFLAGS?= -DSOLARIS
+#OSLIBS?= -lnsl -lsocket
 
 # Uncomment the next two lines for OpenBSD
 #
-#OSFLAGS= -DOPENBSD
-#LDLIBS= -lutil
+#OSFLAGS?= -DOPENBSD
+#LDLIBS?= -lutil
 
 # Feature flags
 #
 # Comment the following line to disable xl2tpd maintaining IP address
 # pools to pass to pppd to control IP address allocation
 
-FFLAGS= -DIP_ALLOCATION
+FFLAGS?= -DIP_ALLOCATION
 
 CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(FFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
