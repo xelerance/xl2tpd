@@ -35,6 +35,7 @@ void init_log()
     
     if(!logopen) {
 	openlog (BINARY, LOG_PID, LOG_DAEMON);
+	logopen=1;
     }
 }
 
