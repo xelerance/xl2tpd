@@ -864,6 +864,8 @@ struct tunnel *new_tunnel ()
     };
     tmp->ourrws = DEFAULT_RWS_SIZE;
     tmp->self->ourfbit = FBIT;
+    tmp->rxspeed = DEFAULT_RX_BPS;
+    tmp->txspeed = DEFAULT_TX_BPS;
     tmp->lac = NULL;
     tmp->lns = NULL;
     tmp->chal_us.state = 0;

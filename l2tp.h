@@ -164,6 +164,8 @@ struct tunnel
 #endif
     int rws;                    /* Peer's Receive Window Size */
     int ourrws;                 /* Receive Window Size */
+    int rxspeed;		/* Receive bps */
+    int txspeed;		/* Transmit bps */
     struct call *self;
     struct lns *lns;            /* LNS that owns us */
     struct lac *lac;            /* LAC that owns us */
