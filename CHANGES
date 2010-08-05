@@ -2,6 +2,8 @@ v1.2.7
 * Reduce time in signal handlers where we cannot log [Shinichi Furuso]
 * Add rx/tx bps speed setting options [Tony Hoyle]
   (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=578070)
+* Rename FFLAGS to IPFLAGS to avoid clashing on debian [Paul]
+* spelling fix (dont -> don't) [Paul]
 
 v1.2.6
 * Partial fix for compiling on OpenBSD [synapse]
