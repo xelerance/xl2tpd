@@ -176,7 +176,7 @@ int control_finish (struct tunnel *t, struct call *c)
     struct ppp_opts *po;
     char ip1[STRLEN];
     char ip2[STRLEN];
-    char dummy_buf[128] = "/var/l2tp/"; /* jz: needed to read /etc/ppp/var.options - just kick it if you dont like */
+    char dummy_buf[128] = "/var/l2tp/"; /* jz: needed to read /etc/ppp/var.options - just kick it if you don't like */
     char passwdfd_buf[32] = ""; /* buffer for the fd, not the password */
     int i;
     int pppd_passwdfd[2];            
@@ -978,7 +978,7 @@ int control_finish (struct tunnel *t, struct call *c)
         po = add_opt (po, "passive");
         po = add_opt (po, "nodetach");
         po = add_opt (po, "file");
-        strcat (dummy_buf, c->dial_no); /* jz: use /etc/ppp/dialnumber.options for pppd - kick it if you dont like */
+        strcat (dummy_buf, c->dial_no); /* jz: use /etc/ppp/dialnumber.options for pppd - kick it if you don't like */
         strcat (dummy_buf, ".options");
         po = add_opt (po, dummy_buf);
         if (c->lac)
