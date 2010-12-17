@@ -27,6 +27,7 @@
 #endif
 #include "l2tp.h"
 #include "ipsecmast.h"
+#include "misc.h"    /* for IPADDY macro */
 
 char hostname[256];
 struct sockaddr_in server, from;        /* Server and transmitter structs */
@@ -303,7 +304,8 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 
     /* Receive one packet. */
     if ((err = sendmsg(server_socket, &msgh, 0)) < 0) {
-	l2tp_log(LOG_ERR, "udp_xmit failed with err=%d:%s\n",
+	l2tp_log(LOG_ERR, "udp_xmit failed to %s:%d with err=%d:%s\n",
+		 IPADDY(t->peer.sin_addr), ntohs(t->peer.sin_port),
 		 err,strerror(errno));
     }
 }
