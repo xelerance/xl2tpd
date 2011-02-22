@@ -1,6 +1,11 @@
+
 v1.2.8
 * Makefile: fix compilation with --as-needed linker flag [Vladimir V. Kamarzin]
 * Workaround for apple clients missing htons() [Brian Mastenbrook]
+* Log destination ip and port in case of send failure [Mika Ilmaranta]
+* Bug tracker bugs fixed:
+  #1078 xl2tpd doesn't pass 'ipparam' to pppd and pppd won't get
+        client ip (Xiaoguang WANG)
 
 v1.2.7
 * Reduce time in signal handlers where we cannot log [Shinichi Furuso]
@@ -17,7 +22,7 @@ v1.2.6
 
 v1.2.5
 * Fix initscript for https://bugzilla.redhat.com/show_bug.cgi?id=247100
-* Fix for two Windows machines behind the same NAT with the same
+* Fix for two Windows machines behind the same NAT with the samed
   number of l2tp connection attempts since boot [Shinichi Furuso]
 
 v1.2.4
