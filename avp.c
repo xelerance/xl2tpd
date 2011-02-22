@@ -470,6 +470,25 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
 #endif
     result = ntohs (raw[3].s);
     error = ntohs (raw[4].s);
+
+    if (((result & 0xFF) == 0) && (result >> 8 != 0))
+    {
+        if (DEBUG)
+            l2tp_log (LOG_DEBUG,
+                 "%s: result code endianness fix for buggy client. network=%d, le=%d\n",
+                 __FUNCTION__, result, result >> 8);
+        result >>= 8;
+    }
+
+    if (((error & 0xFF) == 0) && (error >> 8 != 0))
+    {
+        if (DEBUG)
+            l2tp_log (LOG_DEBUG,
+                 "%s: error code endianness fix for buggy client. network=%d, le=%d\n",
+                 __FUNCTION__, error, error >> 8);
+        error >>= 8;
+    }
+
     if ((c->msgtype == StopCCN) && ((result > 7) || (result < 1)))
     {
         if (DEBUG)
