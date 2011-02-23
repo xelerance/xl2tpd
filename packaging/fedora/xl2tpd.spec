@@ -107,7 +107,7 @@ fi
 %config(noreplace) %{_sysconfdir}/ppp/*
 %attr(0755,root,root)  %{_initrddir}/xl2tpd
 %dir %{_localstatedir}/run/xl2tpd
-%ghost %{_localstatedir}/run/xl2tpd/l2tp-control
+%ghost %attr(0600,root,root) %{_localstatedir}/run/xl2tpd/l2tp-control
 
 %changelog
 * Sun Oct 26 2008 Paul Wouters <paul@xelerance.com> 1.2.2-1
