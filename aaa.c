@@ -149,9 +149,11 @@ static int get_secret (char *us, char *them, unsigned char *secret, int size)
     while (!feof (f))
     {
         num++;
-        fgets (buf, sizeof (buf), f);
-        if (feof (f))
+        if (NULL == fgets (buf, sizeof (buf), f))
+        {
+            /* Error or EOF */
             break;
+        }
         /* Strip comments */
         for (t = buf; *t; t++)
             *t = ((*t == '#') || (*t == ';')) ? 0 : *t;
