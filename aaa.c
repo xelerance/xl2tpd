@@ -323,7 +323,7 @@ struct lns *get_lns (struct tunnel *t)
             {
 #ifdef DEBUG_AAA
                 l2tp_log (LOG_DEBUG,
-                     "get_lns: Rule %s to %s, sense %s matched %s\n",
+                     "$s: Rule %s to %s, sense %s matched %s\n", __FUNCTION__,
                      IPADDY (ipr->start), IPADDY (ipr->end),
                      (ipr->sense ? "allow" : "deny"), IPADDY (t->peer.sin_addr.s_addr));
 #endif
@@ -451,7 +451,7 @@ int decrypt_avp (char *buf, struct tunnel *t)
     if (!t->chal_us.vector)
     {
         l2tp_log (LOG_DEBUG,
-             "decrypt_avp: Hidden bit set, but no random vector specified!\n");
+             "%s: Hidden bit set, but no random vector specified!\n", __FUNCTION__);
         return -EINVAL;
     }
     /* First, let's decrypt all the data.  We're not guaranteed
@@ -500,7 +500,7 @@ int decrypt_avp (char *buf, struct tunnel *t)
     if (len > olen - 2)
     {
         l2tp_log (LOG_DEBUG,
-             "decrypt_avp: Decrypted length is too long (%d > %d)\n", len,
+             "%s: Decrypted length is too long (%d > %d)\n", __FUNCTION__, len,
              olen - 2);
         return -EINVAL;
     }
