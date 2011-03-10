@@ -873,7 +873,13 @@ int control_finish (struct tunnel *t, struct call *c)
                             "%s: Unable to create password pipe for pppd\n", __FUNCTION__);
                   return -EINVAL;
                 }
-                write (pppd_passwdfd[1], c->lac->password, strlen (c->lac->password));
+                if (-1 == write (pppd_passwdfd[1], c->lac->password, strlen (c->lac->password)))
+                {
+                    l2tp_log (LOG_DEBUG,
+                            "%s: Unable to write password to pipe for pppd\n", __FUNCTION__);
+                    close (pppd_passwdfd[1]);
+                    return -EINVAL;
+                }
                 close (pppd_passwdfd[1]);
 
                 /* clear memory used for password, paranoid?  */

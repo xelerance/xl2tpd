@@ -1215,9 +1215,11 @@ int parse_config (FILE * f)
     struct lac *tc;
     while (!feof (f))
     {
-        fgets (buf, sizeof (buf), f);
-        if (feof (f))
+        if (NULL == fgets (buf, sizeof (buf), f))
+        {
+            /* Error or EOL */
             break;
+        }
         linenum++;
         s = buf;
         /* Strip comments */
