@@ -3,8 +3,8 @@ Section: net
 Priority: optional
 Maintainer: Simon Deziel <simon@xelerance.com>
 Homepage: http://www.xelerance.com/software/xl2tpd/
-Build-Depends: debhelper (>= 5), libpcap0.8-dev
-Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 7), libpcap0.8-dev
+Standards-Version: 3.9.1
 
 Package: xl2tpd
 Architecture: any
