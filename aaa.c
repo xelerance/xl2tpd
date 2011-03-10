@@ -133,7 +133,7 @@ unsigned int get_addr (struct iprange *ipr)
     return 0;
 }
 
-int get_secret (char *us, char *them, unsigned char *secret, int size)
+static int get_secret (char *us, char *them, unsigned char *secret, int size)
 {
     FILE *f;
     char buf[STRLEN];
@@ -345,13 +345,13 @@ struct lns *get_lns (struct tunnel *t)
 }
 
 #ifdef DEBUG_HIDDEN
-void print_md5 (void *md5)
+static void print_md5 (void * const md5)
 {
     int *i = (int *) md5;
     l2tp_log (LOG_DEBUG, "%X%X%X%X\n", i[0], i[1], i[2], i[3], i[4]);
 }
 
-inline void print_challenge (struct challenge *chal)
+static inline void print_challenge (struct challenge *chal)
 {
     l2tp_log (LOG_DEBUG, "vector: ");
     print_md5 (chal->vector);

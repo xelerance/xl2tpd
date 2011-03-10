@@ -1176,7 +1176,7 @@ void daemonize() {
 #endif
 }
 
-void consider_pidfile() {
+static void consider_pidfile() {
     int pid=0;
     int i,l;
     char buf[STRLEN];
