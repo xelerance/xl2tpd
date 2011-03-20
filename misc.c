@@ -115,7 +115,7 @@ void bufferDump (unsigned char *buf, int buflen)
         c = line;
         for (j = 0; j < bufferDumpWIDTH; j++)
         {
-	  sprintf (c, "%02x ", (buf[i * bufferDumpWIDTH + j]) & 0xff);
+	  sprintf (c, "%02x", (buf[i * bufferDumpWIDTH + j]) & 0xff);
             c++;
             c++;                /* again two characters to display ONE byte */
         }
@@ -128,7 +128,7 @@ void bufferDump (unsigned char *buf, int buflen)
     c = line;
     for (j = 0; j < buflen % bufferDumpWIDTH; j++)
     {
-        sprintf (c, "%02x ",
+        sprintf (c, "%02x",
                  buf[(buflen / bufferDumpWIDTH) * bufferDumpWIDTH +
                      j] & 0xff);
         c++;
