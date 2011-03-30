@@ -1,6 +1,14 @@
+v1.2.9 (unreleased)
+* Refresh debian/ from Debian. [Roberto C. Snchez]
+
 v1.2.8
 * Makefile: fix compilation with --as-needed linker flag [Vladimir V. Kamarzin]
+* Workaround for apple clients missing htons() [Brian Mastenbrook]
 * Log destination ip and port in case of send failure [Mika Ilmaranta]
+* Added Default-Stop: to fedora initscript [Paul]
+* Bug tracker bugs fixed:
+  #1078 xl2tpd doesn't pass 'ipparam' to pppd and pppd won't get
+        client ip (Xiaoguang WANG)
 
 v1.2.7
 * Reduce time in signal handlers where we cannot log [Shinichi Furuso]

@@ -873,7 +873,13 @@ int control_finish (struct tunnel *t, struct call *c)
                             "%s: Unable to create password pipe for pppd\n", __FUNCTION__);
                   return -EINVAL;
                 }
-                write (pppd_passwdfd[1], c->lac->password, strlen (c->lac->password));
+                if (-1 == write (pppd_passwdfd[1], c->lac->password, strlen (c->lac->password)))
+                {
+                    l2tp_log (LOG_DEBUG,
+                            "%s: Unable to write password to pipe for pppd\n", __FUNCTION__);
+                    close (pppd_passwdfd[1]);
+                    return -EINVAL;
+                }
                 close (pppd_passwdfd[1]);
 
                 /* clear memory used for password, paranoid?  */
@@ -892,6 +898,8 @@ int control_finish (struct tunnel *t, struct call *c)
                 po = add_opt (po, c->lac->pppoptfile);
             }
         };
+	po = add_opt (po, "ipparam");
+        po = add_opt (po, IPADDY (t->peer.sin_addr));
         start_pppd (c, po);
         opt_destroy (po);
         if (c->lac)
@@ -964,6 +972,8 @@ int control_finish (struct tunnel *t, struct call *c)
             po = add_opt (po, "file");
             po = add_opt (po, c->lns->pppoptfile);
         }
+	po = add_opt (po, "ipparam");
+        po = add_opt (po, IPADDY (t->peer.sin_addr));
         start_pppd (c, po);
         opt_destroy (po);
         l2tp_log (LOG_NOTICE,
@@ -1022,6 +1032,8 @@ int control_finish (struct tunnel *t, struct call *c)
                 po = add_opt (po, c->lac->pppoptfile);
             }
         };
+	po = add_opt (po, "ipparam");
+        po = add_opt (po, IPADDY (t->peer.sin_addr));
         start_pppd (c, po);
 
         /*  jz: just show some information */

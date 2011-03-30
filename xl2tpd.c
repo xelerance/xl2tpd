@@ -1185,7 +1185,7 @@ void daemonize() {
 #endif
 }
 
-void consider_pidfile() {
+static void consider_pidfile() {
     int pid=0;
     int i,l;
     char buf[STRLEN];
@@ -1223,7 +1223,13 @@ void consider_pidfile() {
     unlink(gconfig.pidfile);
     if ((i = open (gconfig.pidfile, O_WRONLY | O_CREAT, 0640)) >= 0) {
         snprintf (buf, sizeof(buf), "%d\n", (int)getpid());
-        write (i, buf, strlen(buf));
+        if (-1 == write (i, buf, strlen(buf)))
+        {
+            l2tp_log (LOG_CRIT, "%s: Unable to write to %s.\n",
+                 __FUNCTION__, gconfig.pidfile);
+            close (i);
+            exit(1);
+        }
         close (i);
     }
 }
