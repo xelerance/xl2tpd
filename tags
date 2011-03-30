@@ -335,7 +335,7 @@ forceuserspace	file.h	/^    int forceuserspace;         \/* Force userspace? *\/
 frame	call.h	/^    int frame;                  \/* Framing being used *\/$/;"	m	struct:call
 frame_type_avp	avp.c	/^int frame_type_avp (struct tunnel *t, struct call *c, void *data, int datalen)$/;"	f
 framing_caps_avp	avp.c	/^int framing_caps_avp (struct tunnel *t, struct call *c, void *data,$/;"	f
-from	network.c	/^struct sockaddr_in server, from;        \/* Server and transmitter structs *\/$/;"	v
+from	network.c	/^struct sockaddr_in6 server, from;        \/* Server and transmitter structs *\/$/;"	v
 func	scheduler.h	/^    void (*func) (void *);      \/* Function to execute *\/$/;"	m	struct:schedule_entry
 gconfig	file.c	/^struct global gconfig;$/;"	v
 getPtyMaster	pty.c	/^int getPtyMaster (char *tty10, char *tty01)$/;"	f
@@ -435,7 +435,7 @@ new_call	call.c	/^struct call *new_call (struct tunnel *parent)$/;"	f
 new_lac	file.c	/^struct lac *new_lac ()$/;"	f
 new_lns	file.c	/^struct lns *new_lns ()$/;"	f
 new_outgoing	control.c	/^struct buffer *new_outgoing (struct tunnel *t)$/;"	f
-new_payload	call.c	/^struct buffer *new_payload (struct sockaddr_in peer)$/;"	f
+new_payload	call.c	/^struct buffer *new_payload (struct sockaddr_in6 peer)$/;"	f
 new_tunnel	l2tpd.c	/^struct tunnel *new_tunnel ()$/;"	f
 next	aaa.h	/^    struct addr_ent *next;$/;"	m	struct:addr_ent
 next	call.h	/^    struct call *next;          \/* Next call, for linking *\/$/;"	m	struct:call
@@ -471,8 +471,8 @@ pap_require	file.h	/^    int pap_require;            \/* Require PAP auth for PP
 parse_config	file.c	/^int parse_config (FILE * f)$/;"	f
 passwdauth	file.h	/^    int passwdauth;             \/* Authenticate by passwd file? (or PAM) *\/$/;"	m	struct:lns
 payload_hdr	l2tp.h	/^struct payload_hdr$/;"	s
-peer	l2tp.h	/^    struct sockaddr_in peer;    \/* Peer's Address *\/$/;"	m	struct:tunnel
-peer	misc.h	/^    struct sockaddr_in peer;$/;"	m	struct:buffer
+peer	l2tp.h	/^    struct sockaddr_in6 peer;    \/* Peer's Address *\/$/;"	m	struct:tunnel
+peer	misc.h	/^    struct sockaddr_in6 peer;$/;"	m	struct:buffer
 peername	file.h	/^    char peername[STRLEN];      \/* Force peer name to this *\/$/;"	m	struct:lac
 peername	file.h	/^    char peername[STRLEN];      \/* Force peer name to this *\/$/;"	m	struct:lns
 physchan	call.h	/^    int physchan;               \/* Physical channel ID *\/$/;"	m	struct:call
@@ -504,8 +504,8 @@ range	file.h	/^    struct iprange *range;      \/* Range of IP's we provide *\/$
 read_packet	call.c	/^int read_packet (struct buffer *buf, int fd, int convert)$/;"	f
 receive_window_size_avp	avp.c	/^int receive_window_size_avp (struct tunnel *t, struct call *c, void *data,$/;"	f
 recycle_buf	misc.c	/^inline void recycle_buf (struct buffer *b)$/;"	f
-recycle_outgoing	control.c	/^inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in peer)$/;"	f
-recycle_payload	call.c	/^inline void recycle_payload (struct buffer *buf, struct sockaddr_in peer)$/;"	f
+recycle_outgoing	control.c	/^inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in6 peer)$/;"	f
+recycle_payload	call.c	/^inline void recycle_payload (struct buffer *buf, struct sockaddr_in6 peer)$/;"	f
 redial	file.h	/^    int redial;                 \/* Redial if disconnected *\/$/;"	m	struct:lac
 remoteaddr	file.h	/^    unsigned int remoteaddr;    \/* Force remote address to this *\/$/;"	m	struct:lac
 rend	misc.h	/^    void *rend;$/;"	m	struct:buffer
@@ -541,7 +541,7 @@ sense	file.h	/^    int sense;$/;"	m	struct:iprange
 seq_reqd	call.h	/^    int seq_reqd;               \/* Sequencing required? *\/$/;"	m	struct:call
 seq_reqd_avp	avp.c	/^int seq_reqd_avp (struct tunnel *t, struct call *c, void *data, int datalen)$/;"	f
 serno	call.h	/^    unsigned int serno;         \/* Call serial number *\/$/;"	m	struct:call
-server	network.c	/^struct sockaddr_in server, from;        \/* Server and transmitter structs *\/$/;"	v
+server	network.c	/^struct sockaddr_in6 server, from;        \/* Server and transmitter structs *\/$/;"	v
 server_socket	network.c	/^int server_socket;              \/* Server socket *\/$/;"	v
 set_accesscontrol	file.c	/^int set_accesscontrol (char *word, char *value, int context, void *item)$/;"	f
 set_authfile	file.c	/^int set_authfile (char *word, char *value, int context, void *item)$/;"	f

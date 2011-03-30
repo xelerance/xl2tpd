@@ -30,7 +30,7 @@
 #include "misc.h"    /* for IPADDY macro */
 
 char hostname[256];
-struct sockaddr_in server, from;        /* Server and transmitter structs */
+struct sockaddr_in6 server, from;        /* Server and transmitter structs */
 int server_socket;              /* Server socket */
 #ifdef USE_KERNEL
 int kernel_support;             /* Kernel Support there or not? */
@@ -42,10 +42,11 @@ int init_network (void)
     long arg;
     unsigned int length = sizeof (server);
     gethostname (hostname, sizeof (hostname));
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = gconfig.listenaddr; 
-    server.sin_port = htons (gconfig.port);
-    if ((server_socket = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
+    server.sin6_family = AF_INET6;
+    //server.sin6_addr.s_addr = gconfig.listenaddr; 
+    server.sin6_addr = in6addr_any;
+    server.sin6_port = htons (gconfig.port);
+    if ((server_socket = socket (PF_INET6, SOCK_DGRAM, 0)) < 0)
     {
         l2tp_log (LOG_CRIT, "%s: Unable to allocate socket. Terminating.\n",
              __FUNCTION__);
@@ -110,7 +111,7 @@ int init_network (void)
     arg = fcntl (server_socket, F_GETFL);
     arg |= O_NONBLOCK;
     fcntl (server_socket, F_SETFL, arg);
-    gconfig.port = ntohs (server.sin_port);
+    gconfig.port = ntohs (server.sin6_port);
     return 0;
 }
 
@@ -376,7 +377,7 @@ void network_thread ()
      * We loop forever waiting on either data from the ppp drivers or from
      * our network socket.  Control handling is no longer done here.
      */
-    struct sockaddr_in from, to;
+    struct sockaddr_in6 from, to;
     unsigned int fromlen, tolen;
     int tunnel, call;           /* Tunnel and call */
     int recvsize;               /* Length of data received */
@@ -510,7 +511,7 @@ void network_thread ()
 	    {
 		l2tp_log(LOG_DEBUG, "%s: recv packet from %s, size = %d, "
 			 "tunnel = %d, call = %d ref=%u refhim=%u\n",
-			 __FUNCTION__, inet_ntoa (from.sin_addr),
+			 __FUNCTION__, IPADDY(from.sin6_addr),
 			 recvsize, tunnel, call, refme, refhim);
 	    }
 
@@ -519,12 +520,12 @@ void network_thread ()
 		do_packet_dump (buf);
 	    }
 	    if (!
-		(c = get_call (tunnel, call, from.sin_addr.s_addr,
-			       from.sin_port, refme, refhim)))
+		(c = get_call (tunnel, call, from.sin6_addr,
+			       from.sin6_port, refme, refhim)))
 	    {
 		if ((c =
-		     get_tunnel (tunnel, from.sin_addr.s_addr,
-				 from.sin_port)))
+		     get_tunnel (tunnel, from.sin6_addr,
+				 from.sin6_port)))
 		{
 		    /*
 		     * It is theoretically possible that we could be sent

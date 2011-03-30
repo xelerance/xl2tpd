@@ -75,7 +75,7 @@ struct buffer *new_outgoing (struct tunnel *t)
     return tmp;
 }
 
-inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in peer)
+inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in6 peer)
 {
     /* 
      * This should only be used for ZLB's!
@@ -372,7 +372,7 @@ int control_finish (struct tunnel *t, struct call *c)
             if (DEBUG)
                 l2tp_log (LOG_DEBUG,
                      "%s: Denied connection to unauthorized peer %s\n",
-                     __FUNCTION__, IPADDY (t->peer.sin_addr));
+                     __FUNCTION__, IPADDY (t->peer.sin6_addr));
             set_error (c, VENDOR_ERROR, "No Authorization");
             c->needclose = -1;
             return -EINVAL;
@@ -415,7 +415,7 @@ int control_finish (struct tunnel *t, struct call *c)
         while (y)
         {
             if ((y->tid == t->tid) &&
-                (y->peer.sin_addr.s_addr == t->peer.sin_addr.s_addr) &&
+                (sockaddr_cmp(y->peer.sin6_addr, t->peer.sin6_addr) == 0) &&
                 (!gconfig.ipsecsaref || y->refhim == t->refhim) &&
                 (y != t))
             {
@@ -606,8 +606,8 @@ int control_finish (struct tunnel *t, struct call *c)
         t->hello = schedule (tv, hello, (void *) t);
         l2tp_log (LOG_NOTICE,
 		  "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).\n",
-		  IPADDY (t->peer.sin_addr),
-		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim);
+		  IPADDY (t->peer.sin6_addr),
+		  ntohs (t->peer.sin6_port), t->ourtid, t->tid, t->refme, t->refhim);
         if (t->lac)
         {
             /* This is part of a LAC, so we want to go ahead
@@ -632,8 +632,8 @@ int control_finish (struct tunnel *t, struct call *c)
         t->state = SCCCN;
         l2tp_log (LOG_NOTICE,
              "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).  LNS session is '%s'\n",
-		  IPADDY (t->peer.sin_addr),
-		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim,
+		  IPADDY (t->peer.sin6_addr),
+		  ntohs (t->peer.sin6_port), t->ourtid, t->tid, t->refme, t->refhim,
 		  t->lns->entname);
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;
@@ -680,8 +680,8 @@ int control_finish (struct tunnel *t, struct call *c)
         }
         l2tp_log (LOG_INFO,
              "%s: Connection closed to %s, port %d (%s), Local: %d, Remote: %d\n",
-             __FUNCTION__, IPADDY (t->peer.sin_addr),
-             ntohs (t->peer.sin_port), t->self->errormsg, t->ourtid, t->tid);
+             __FUNCTION__, IPADDY (t->peer.sin6_addr),
+             ntohs (t->peer.sin6_port), t->self->errormsg, t->ourtid, t->tid);
         c->needclose = 0;
         c->closing = -1;
         break;
@@ -822,7 +822,7 @@ int control_finish (struct tunnel *t, struct call *c)
             l2tp_log (LOG_DEBUG, "%s: Sending ICCN\n", __FUNCTION__);
         l2tp_log (LOG_NOTICE,
 		  "Call established with %s, Local: %d, Remote: %d, Serial: %d (ref=%u/%u)\n",
-		  IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
+		  IPADDY (t->peer.sin6_addr), c->ourcid, c->cid,
 		  c->serno, t->refme, t->refhim);
         control_xmit (buf);
         po = NULL;
@@ -832,8 +832,8 @@ int control_finish (struct tunnel *t, struct call *c)
         {
             if (c->lac->defaultroute)
                 po = add_opt (po, "defaultroute");
-            strncpy (ip1, IPADDY (c->lac->localaddr), sizeof (ip1));
-            strncpy (ip2, IPADDY (c->lac->remoteaddr), sizeof (ip2));
+            strncpy (ip1, IPADDY4 (c->lac->localaddr), sizeof (ip1));
+            strncpy (ip2, IPADDY4 (c->lac->remoteaddr), sizeof (ip2));
 #ifdef IP_ALLOCATION
             po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
                           c->lac->remoteaddr ? ip2 : "");
@@ -924,8 +924,8 @@ int control_finish (struct tunnel *t, struct call *c)
             */
         }
         c->state = ICCN;
-        strncpy (ip1, IPADDY (c->lns->localaddr), sizeof (ip1));
-        strncpy (ip2, IPADDY (c->addr), sizeof (ip2));
+        strncpy (ip1, IPADDY4 (c->lns->localaddr), sizeof (ip1));
+        strncpy (ip2, IPADDY4 (c->addr), sizeof (ip2));
         po = NULL;
         po = add_opt (po, "passive");
         po = add_opt (po, "nodetach");
@@ -968,7 +968,7 @@ int control_finish (struct tunnel *t, struct call *c)
         opt_destroy (po);
         l2tp_log (LOG_NOTICE,
              "Call established with %s, Local: %d, Remote: %d, Serial: %d\n",
-             IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
+             IPADDY (t->peer.sin6_addr), c->ourcid, c->cid,
              c->serno);
         break;
     case OCRP:                 /* jz: nothing to do for OCRP, waiting for OCCN */
@@ -985,8 +985,8 @@ int control_finish (struct tunnel *t, struct call *c)
         {
             if (c->lac->defaultroute)
                 po = add_opt (po, "defaultroute");
-            strncpy (ip1, IPADDY (c->lac->localaddr), sizeof (ip1));
-            strncpy (ip2, IPADDY (c->lac->remoteaddr), sizeof (ip2));
+            strncpy (ip1, IPADDY4 (c->lac->localaddr), sizeof (ip1));
+            strncpy (ip2, IPADDY4 (c->lac->remoteaddr), sizeof (ip2));
             po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
                           c->lac->remoteaddr ? ip2 : "");
             if (c->lac->authself)
@@ -1087,7 +1087,7 @@ int control_finish (struct tunnel *t, struct call *c)
         }
         l2tp_log (LOG_INFO,
              "%s: Connection closed to %s, serial %d (%s)\n", __FUNCTION__,
-             IPADDY (t->peer.sin_addr), c->serno, c->errormsg);
+             IPADDY (t->peer.sin6_addr), c->serno, c->errormsg);
         c->needclose = 0;
         c->closing = -1;
         break;

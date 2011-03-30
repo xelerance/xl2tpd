@@ -1059,7 +1059,7 @@ int set_lns (char *word, char *value, int context, void *item)
         l2tp_log (LOG_DEBUG, "set_lns: setting LNS to '%s'\n", value);
 #endif
         l = (struct lac *) item;
-        d = strchr (value, ':');
+        d = strrchr (value, ':');
         if (d)
         {
             d[0] = 0;

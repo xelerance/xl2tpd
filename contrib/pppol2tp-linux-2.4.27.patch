@@ -99,9 +99,9 @@ Index: linux-2.4.27-l2tp/drivers/net/pppol2tp.c
 + *	sax.sa_protocol = PX_PROTO_OL2TP;
 + *	sax.pppol2tp.fd = tunnel_fd; // bound UDP socket
 + *	sax.pppol2tp.pid = 0; 	     // current pid owns UDP socket
-+ *	sax.pppol2tp.addr.sin_addr.s_addr = addr->sin_addr.s_addr;
-+ *	sax.pppol2tp.addr.sin_port = addr->sin_port;
-+ *	sax.pppol2tp.addr.sin_family = AF_INET;
++ *	sax.pppol2tp.addr.sin6_addr.s_addr = addr->sin6_addr.s_addr;
++ *	sax.pppol2tp.addr.sin6_port = addr->sin6_port;
++ *	sax.pppol2tp.addr.sin6_family = AF_INET;
 + *	sax.pppol2tp.s_tunnel  = tunnel_id;
 + *	sax.pppol2tp.s_session = session_id;
 + *	sax.pppol2tp.d_tunnel  = peer_tunnel_id;
@@ -893,19 +893,19 @@ Index: linux-2.4.27-l2tp/drivers/net/pppol2tp.c
 +#ifdef DEBUG
 +	/* Catch bad socket parameter errors */
 +	if (msg->msg_name) {
-+		struct sockaddr_in * usin = (struct sockaddr_in*)msg->msg_name;
++		struct sockaddr_in6 * usin = (struct sockaddr_in6*)msg->msg_name;
 +		if (msg->msg_namelen < sizeof(*usin)) {
 +			printk(KERN_ERR "msg->msg_namelen wrong, %d\n", msg->msg_namelen);
 +			return -EINVAL;
 +		}
-+		if (usin->sin_family != AF_INET) {
-+			if (usin->sin_family != AF_UNSPEC) {
-+				printk(KERN_ERR "addr family wrong: %d\n", usin->sin_family);
++		if (usin->sin6_family != AF_INET) {
++			if (usin->sin6_family != AF_UNSPEC) {
++				printk(KERN_ERR "addr family wrong: %d\n", usin->sin6_family);
 +				return -EINVAL;
 +			}
 +		}
-+		if ((usin->sin_addr.s_addr == 0) || (usin->sin_port == 0)) {
-+			printk(KERN_ERR "udp addr=%x/%hu\n", usin->sin_addr.s_addr, usin->sin_port);
++		if ((usin->sin6_addr.s_addr == 0) || (usin->sin6_port == 0)) {
++			printk(KERN_ERR "udp addr=%x/%hu\n", usin->sin6_addr.s_addr, usin->sin6_port);
 +			return -EINVAL;
 +		}
 +	}
@@ -1665,7 +1665,7 @@ Index: linux-2.4.27-l2tp/drivers/net/pppol2tp.c
 +
 +	DPRINTK(-1, "sock=%p, uservaddr=%p, sockaddr_len=%d, flags=%d, addr=%x/%hu\n",
 +		sock, uservaddr, sockaddr_len, flags,
-+		ntohl(sp->pppol2tp.addr.sin_addr.s_addr), ntohs(sp->pppol2tp.addr.sin_port));
++		ntohl(sp->pppol2tp.addr.sin6_addr.s_addr), ntohs(sp->pppol2tp.addr.sin6_port));
 +	lock_sock(sk);
 +
 +	error = -EINVAL;
@@ -2528,8 +2528,8 @@ Index: linux-2.4.27-l2tp/drivers/net/pppol2tp.c
 +			seq_printf(m, "  SESSION '%s' %08X/%d %04X/%04X -> "
 +				   "%04X/%04X %d %c MAGIC %s\n",
 +				   session->name,
-+				   htonl(session->tunnel_addr.addr.sin_addr.s_addr),
-+				   htons(session->tunnel_addr.addr.sin_port),
++				   htonl(session->tunnel_addr.addr.sin6_addr.s_addr),
++				   htons(session->tunnel_addr.addr.sin6_port),
 +				   session->tunnel_addr.s_tunnel,
 +				   session->tunnel_addr.s_session,
 +				   session->tunnel_addr.d_tunnel,
@@ -2792,7 +2792,7 @@ Index: linux-2.4.27-l2tp/include/linux/if_pppol2tp.h
 +					 * 0 => current */
 +	int	fd;			/* FD of UDP socket to use */
 +
-+	struct sockaddr_in addr;	/* IP address and port to send to */
++	struct sockaddr_in6 addr;	/* IP address and port to send to */
 +
 +	__u16 s_tunnel, s_session;	/* For matching incoming packets */
 +	__u16 d_tunnel, d_session;	/* For sending outgoing packets */

@@ -58,7 +58,7 @@ extern void add_control_hdr (struct tunnel *t, struct call *c,
                              struct buffer *);
 extern int control_finish (struct tunnel *t, struct call *c);
 extern void control_zlb (struct buffer *, struct tunnel *, struct call *);
-extern void recycle_outgoing (struct buffer *, struct sockaddr_in);
+extern void recycle_outgoing (struct buffer *, struct sockaddr_in6);
 extern void handle_special (struct buffer *, struct call *, _u16);
 extern void hello (void *);
 extern void send_zlb (void *);

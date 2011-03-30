@@ -316,14 +316,14 @@ struct lns *get_lns (struct tunnel *t)
         ipr = lns->lacs;
         while (ipr)
         {
-            if ((ntohl (t->peer.sin_addr.s_addr) >= ntohl (ipr->start)) &&
-                (ntohl (t->peer.sin_addr.s_addr) <= ntohl (ipr->end)))
+            //if ((ntohl (t->peer.sin6_addr.s_addr) >= ntohl (ipr->start)) &&
+            //    (ntohl (t->peer.sin6_addr.s_addr) <= ntohl (ipr->end)))
             {
 #ifdef DEBUG_AAA
                 l2tp_log (LOG_DEBUG,
                      "get_lns: Rule %s to %s, sense %s matched %s\n",
                      IPADDY (ipr->start), IPADDY (ipr->end),
-                     (ipr->sense ? "allow" : "deny"), IPADDY (t->peer.sin_addr.s_addr));
+                     (ipr->sense ? "allow" : "deny"), IPADDY (t->peer.sin6_addr));
 #endif
                 allow = ipr->sense;
             }

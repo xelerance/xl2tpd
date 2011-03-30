@@ -145,7 +145,7 @@ struct tunnel
     unsigned int addr;          /* Remote address */
     unsigned short port;        /* Port on remote end */
 #else
-    struct sockaddr_in peer;    /* Peer's Address */
+    struct sockaddr_in6 peer;    /* Peer's Address */
 #endif
     int debug;                  /* Are we debugging or not? */
     int nego;                   /* Show Negotiation? */
@@ -210,8 +210,8 @@ extern int server_socket;
 extern struct tunnel *new_tunnel ();
 extern struct packet_queue xmit_udp;
 extern void destroy_tunnel (struct tunnel *);
-extern struct buffer *new_payload (struct sockaddr_in);
-extern void recycle_payload (struct buffer *, struct sockaddr_in);
+extern struct buffer *new_payload (struct sockaddr_in6);
+extern void recycle_payload (struct buffer *, struct sockaddr_in6);
 extern void add_payload_hdr (struct tunnel *, struct call *, struct buffer *);
 extern int read_packet (struct buffer *, int, int);
 extern void udp_xmit (struct buffer *buf, struct tunnel *t);

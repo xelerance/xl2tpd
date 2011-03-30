@@ -30,7 +30,7 @@ struct pppol2tp_addr
 					 * 0 => current */
 	int	fd;			/* FD of UDP socket to use */
 
-	struct sockaddr_in addr;	/* IP address and port to send to */
+	struct sockaddr_in6 addr;	/* IP address and port to send to */
 
 	__u16 s_tunnel, s_session;	/* For matching incoming packets */
 	__u16 d_tunnel, d_session;	/* For sending outgoing packets */

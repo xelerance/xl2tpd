@@ -30,7 +30,7 @@ struct buffer
     unsigned int addr;
     int port;
 #else
-    struct sockaddr_in peer;
+    struct sockaddr_in6 peer;
 #endif
     struct tunnel *tunnel;      /* Who owns this packet, if it's a control */
     int retries;                /* Again, if a control packet, how many retries? */
@@ -42,7 +42,10 @@ struct ppp_opts
     struct ppp_opts *next;
 };
 
-#define IPADDY(a) inet_ntoa(*((struct in_addr *)&(a)))
+extern char ipaddy_buf[];
+extern socklen_t ipaddr_len;
+#define IPADDY4(a) inet_ntoa(*((struct in_addr *)&(a)))
+#define IPADDY(a) inet_ntop(AF_INET6, (struct in6_addr*)&(a), ipaddy_buf, ipaddr_len)
 
 #define DEBUG c ? c->debug || t->debug : t->debug
 
@@ -61,6 +64,7 @@ struct ppp_opts
 #define halt() printf("Halted.\n") ; for(;;)
 
 extern char hostname[];
+extern int sockaddr_cmp(struct in6_addr a1, struct in6_addr a2);
 extern void l2tp_log (int level, const char *fmt, ...);
 extern struct buffer *new_buf (int);
 extern void udppush_handler (int);
