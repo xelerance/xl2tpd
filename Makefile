@@ -94,8 +94,10 @@ CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
 SRCS=${OBJS:.o=.c} ${HDRS}
+CONTROL_SRCS=xl2tpd-control.c
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
 EXEC=xl2tpd
+CONTROL_EXEC=xl2tpd-control
 
 PREFIX?=/usr/local
 SBINDIR?=$(DESTDIR)${PREFIX}/sbin
@@ -103,13 +105,16 @@ BINDIR?=$(DESTDIR)${PREFIX}/bin
 MANDIR?=$(DESTDIR)${PREFIX}/share/man
 
 
-all: $(EXEC) pfc
+all: $(EXEC) pfc $(CONTROL_EXEC)
 
 clean:
-	rm -f $(OBJS) $(EXEC) pfc.o pfc
+	rm -f $(OBJS) $(EXEC) pfc.o pfc $(CONTROL_EXEC)
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+$(CONTROL_EXEC): $(CONTROL_SRCS)
+	$(CC) $(CONTROL_SRCS) -o $@
 
 pfc:
 	$(CC) $(CFLAGS) -c contrib/pfc.c
@@ -118,7 +123,7 @@ pfc:
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
 
-install: ${EXEC} pfc
+install: ${EXEC} pfc ${CONTROL_EXEC}
 	install -d -m 0755 ${SBINDIR}
 	install -m 0755 $(EXEC) ${SBINDIR}/$(EXEC)
 	install -d -m 0755 ${MANDIR}/man5
@@ -131,7 +136,10 @@ install: ${EXEC} pfc
 	install -m 0755 pfc ${BINDIR}/pfc
 	install -d -m 0755 ${MANDIR}/man1
 	install -m 0644 contrib/pfc.1 ${MANDIR}/man1/
-
+	# control exec
+	install -d -m 0755 ${SBINDIR}
+	install -m 0755 $(CONTROL_EXEC) ${SBINDIR}/$(CONTROL_EXEC)
+	
 # openbsd
 #	install -d -m 0755 /var/run/xl2tpd
 #	mkfifo /var/run/l2tp-control

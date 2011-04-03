@@ -1209,7 +1209,6 @@ int parse_config (FILE * f)
     char *s, *d, *t;
     int linenum = 0;
     int def = 0;
-    struct keyword *kw;
     void *data = NULL;
     struct lns *tl;
     struct lac *tc;
@@ -1389,26 +1388,41 @@ int parse_config (FILE * f)
             l2tp_log (LOG_DEBUG, "parse_config: field is %s, value is %s\n", s, t);
 #endif
             /* Okay, bit twidling is done.  Let's handle this */
-            for (kw = words; kw->keyword; kw++)
+            
+            switch (parse_one_option (s, t, context | def, data))
             {
-                if (!strcasecmp (s, kw->keyword))
-                {
-                    if (kw->handler (s, t, context | def, data))
-                    {
-                        l2tp_log (LOG_WARNING, "parse_config: line %d: %s", linenum,
+            case -1:
+                l2tp_log (LOG_WARNING, "parse_config: line %d: %s", linenum,
                              filerr);
-                        return -1;
-                    }
-                    break;
-                }
-            }
-            if (!kw->keyword)
-            {
+                return -1;
+            case -2:
                 l2tp_log (LOG_CRIT, "parse_config: line %d: Unknown field '%s'\n",
                      linenum, s);
                 return -1;
-            }
+            }            
         }
+    }
+    return 0;
+}
+
+int parse_one_option(char *word, char *value, int context, void *item)
+{
+    struct keyword *kw;
+    
+    for (kw = words; kw->keyword; kw++)
+    {
+        if (!strcasecmp (word, kw->keyword))
+        {
+            if (kw->handler (word, value, context, item))
+            {
+                return -1;
+            }
+            break;
+        }
+    }
+    if (!kw->keyword)
+    {
+        return -2;
     }
     return 0;
 }

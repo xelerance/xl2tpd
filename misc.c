@@ -51,7 +51,7 @@ void init_log()
 
 void l2tp_log (int level, const char *fmt, ...)
 {
-    char buf[256];
+    char buf[2048];
     va_list args;
     va_start (args, fmt);
     vsnprintf (buf, sizeof (buf), fmt, args);
