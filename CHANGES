@@ -1,4 +1,6 @@
-v1.2.9 (unreleased)
+v1.3.0 (unreleased)
+* Added xl2tpd-control [Alexander Dorokhov]
+* Added 'a' (add) and 'd' (delete) control options [Alexander Dorokhov]
 * Refresh debian/ from Debian. [Roberto C. Snchez]
 * Buffer overrun in reading >16 char l2tp-secrets [Matt Domsch]
   (https://bugzilla.redhat.com/show_bug.cgi?id=689178)
