@@ -904,6 +904,8 @@ int control_finish (struct tunnel *t, struct call *c)
         opt_destroy (po);
         if (c->lac)
             c->lac->rtries = 0;
+	if (c->lac->password[0])
+	    close(pppd_passwdfd[0]);
         break;
     case ICCN:
         if (c == t->self)
