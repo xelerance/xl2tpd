@@ -5,6 +5,11 @@ v1.3.0 (unreleased)
 * Buffer overrun in reading >16 char l2tp-secrets [Matt Domsch]
   (https://bugzilla.redhat.com/show_bug.cgi?id=689178)
 * xl2tpd may leaks file descriptors [Steve Barth]
+* Bug tracker bugs fixed:
+  #1119 Segfault upon config error [Andrey Cherny]
+  #1223 Gentoo QA warning: dereferencing pointer [Andrey Cherny]
+  #1236 xl2tpd hungs and wont redial after communication fail [Andrey Cherny]
+  #1237 delayed null pointer check [Andrey Cherny]
 
 v1.2.8
 * Makefile: fix compilation with --as-needed linker flag [Vladimir V. Kamarzin]
