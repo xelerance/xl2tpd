@@ -738,6 +738,11 @@ void magic_lac_dial (void *data)
 {
     struct lac *lac;
     lac = (struct lac *) data;
+    if (!lac)
+    {
+        l2tp_log (LOG_WARNING, "%s : called on NULL lac!\n", __FUNCTION__);
+        return;
+    }
     if (!lac->active)
     {
         l2tp_log (LOG_DEBUG, "%s: LAC %s not active", __FUNCTION__, lac->entname);
@@ -748,11 +753,6 @@ void magic_lac_dial (void *data)
     if (lac->rmax && (lac->rtries > lac->rmax))
     {
         l2tp_log (LOG_INFO, "%s: maximum retries exceeded.\n", __FUNCTION__);
-        return;
-    }
-    if (!lac)
-    {
-        l2tp_log (LOG_WARNING, "%s : called on NULL lac!\n", __FUNCTION__);
         return;
     }
     if (!lac->t)
