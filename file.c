@@ -867,19 +867,27 @@ struct iprange *set_range (char *word, char *value, struct iprange *in)
     bcopy (hp->h_addr, &ipr->start, sizeof (unsigned int));
     if (c)
     {
+		char ip_hi[16];
+
 		e = d;
 		while(*e != '\0') {
 			if (*e++ == '.')
 				count++;
 		}
-		if (count != 3) {
-			char ip_hi[16];
-
+		if (count < 3) {
 			strcpy(ip_hi, value);
-			e = strrchr(ip_hi, '.')+1;
+			for (e = ip_hi + sizeof(ip_hi); e >= ip_hi; e--) {
+				if (*e == '.') count--;
+				if (count < 0) {
+					e++;
+					break;
+				}
+			}
 			/* Copy the last field + null terminator */
-			strcpy(e, d);
-			d = ip_hi;
+			if (ip_hi + sizeof(ip_hi)-e > strlen(d)) {
+				strcpy(e, d);
+				d = ip_hi;
+			}
 		}
         hp = gethostbyname (d);
         if (!hp)
