@@ -628,7 +628,7 @@ struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
      */
     struct call *tmp = NULL;
     struct hostent *hp;
-    unsigned int addr;
+    struct in_addr addr;
     port = htons (port);
     hp = gethostbyname (host);
     if (!hp)
@@ -637,7 +637,7 @@ struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
              host);
         return NULL;
     }
-    bcopy (hp->h_addr, &addr, hp->h_length);
+    bcopy (hp->h_addr, &addr.s_addr, hp->h_length);
     /* Force creation of a new tunnel
        and set it's tid to 0 to cause
        negotiation to occur */

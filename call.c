@@ -600,7 +600,7 @@ struct call *get_tunnel (int tunnel, unsigned int addr, int port)
     return NULL;
 }
 
-struct call *get_call (int tunnel, int call, unsigned int addr, int port,
+struct call *get_call (int tunnel, int call,  struct in_addr addr, int port,
 		       IPsecSAref_t refme, IPsecSAref_t refhim)
 {
     /*
