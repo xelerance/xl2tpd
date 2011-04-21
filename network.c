@@ -236,9 +236,9 @@ void control_xmit (void *b)
                 strcpy (t->self->errormsg, "Timeout");
                 t->self->needclose = -1;
             }
+	    call_close(t->self);
         }
-	free(buf->rstart);
-	free(buf);
+	toss (buf);
     }
     else
     {

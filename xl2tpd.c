@@ -115,6 +115,10 @@ void show_status (void)
             l2tp_log (LOG_WARNING, "%d: Dethrottle call %d:%d\n", s, c->container->tid,
                      c->cid);
         }
+        else if (se->func == &control_xmit)
+        {
+            l2tp_log (LOG_WARNING, "%d: Control xmit on %d\n", s,((struct buffer *)se->data)->tunnel->tid);
+        }
         else
             l2tp_log (LOG_WARNING, "%d: Unknown event\n", s);
         se = se->next;
