@@ -1651,15 +1651,14 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
     }
 #endif
 
-    x = write (c->fd, wbuf, pos);
-    if (x < pos)
+    x = 0;
+    while ( pos != x )
     {
-      if (DEBUG)
+      err = write (c->fd, wbuf+x, pos-x);
+      if ( err < 0 ) {
+        if ( errno != EINTR && errno != EAGAIN ) {
 	l2tp_log (LOG_WARNING, "%s: %s(%d)\n", __FUNCTION__, strerror (errno),
 		  errno);
-
-        if (!(errno == EINTR) && !(errno == EAGAIN))
-        {
             /*
                * I guess pppd died.  we'll pretend
                * everything ended normally
@@ -1668,6 +1667,11 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
             c->fd = -1;
             return -EIO;
         }
+        else {
+          continue;  //goto while
+        }
+      }
+      x += err;
     }
     return 0;
 }
