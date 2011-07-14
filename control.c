@@ -1313,7 +1313,7 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
 			}
 		} */
         if (PSBIT (h->ver))
-            ehlen += 4;         /* Offset information */
+            ehlen += 2;         /* Offset information */
         if (PLBIT (h->ver))
             ehlen += h->length; /* include length if available */
         if (PVER (h->ver) != VER_L2TP)
@@ -1379,7 +1379,7 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
     if (!PFBIT (h->ver))
         ehlen += 4;             /* Should have Ns and Nr too */
     if (!PSBIT (h->ver))
-        ehlen += 4;             /* Offset information */
+        ehlen += 2;             /* Offset information */
     if (ehlen)
     {
         /*
@@ -1424,13 +1424,13 @@ inline int expand_payload (struct buffer *buf, struct tunnel *t,
         {
             r++;
             new_hdr->o_size = *r;
-            r++;
-            new_hdr->o_pad = *r;
+//            r++;
+//            new_hdr->o_pad = *r;
         }
         else
         {
             new_hdr->o_size = 0;
-            new_hdr->o_pad = 0;
+//            new_hdr->o_pad = 0;
         }
     }
     else
@@ -1562,8 +1562,9 @@ inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
     /*
      * Skip over header 
      */
-    buf->start += sizeof (struct payload_hdr);
-    buf->len -= sizeof (struct payload_hdr);
+    _u16 offset = ((struct payload_hdr*)(buf->start))->o_size;  // For FIXME:
+    buf->start += sizeof(struct payload_hdr) + offset;
+    buf->len -= sizeof(struct payload_hdr) + offset;
 
     c->rx_pkts++;
     c->rx_bytes += buf->len;

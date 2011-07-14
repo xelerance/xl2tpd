@@ -154,7 +154,7 @@ inline void fix_hdr (void *buf)
     {
         int len = 6;
         if (PSBIT (ver))
-            len += 4;
+            len += 2;
         if (PLBIT (ver))
             len += 2;
         if (PFBIT (ver))
