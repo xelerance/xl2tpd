@@ -1,4 +1,4 @@
-v1.3.0 (unreleased)
+v1.3.0 (July 23, 2011)
 * Added xl2tpd-control [Alexander Dorokhov]
 * Added 'a' (add) and 'd' (delete) control options [Alexander Dorokhov]
 * Refresh debian/ from Debian. [Roberto C. Snchez]
