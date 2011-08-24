@@ -1,3 +1,6 @@
+v1.3.1 (unreleased)
+* Suse updated to spec and init files [Shinichi Furuso]
+
 v1.3.0 (July 23, 2011)
 * Added xl2tpd-control [Alexander Dorokhov]
 * Added 'a' (add) and 'd' (delete) control options [Alexander Dorokhov]
