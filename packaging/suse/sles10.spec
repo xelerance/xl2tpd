@@ -8,7 +8,7 @@ Group: Productivity/Networking/Other
 Source0: http://www.xelerance.com/software/xl2tpd/xl2tpd-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp >= 2.4.3
-BuildRequires: libpcap-devel
+BuildRequires: libpcap
 Obsoletes: l2tpd < 0.69
 Provides: l2tpd = 0.69
 Requires(post): /sbin/chkconfig
