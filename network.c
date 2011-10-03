@@ -72,9 +72,9 @@ int init_network (void)
      * values.
      */
     arg=1;
-    if(setsockopt(server_socket, IPPROTO_IP, IP_IPSEC_REFINFO,
+    if(setsockopt(server_socket, IPPROTO_IP, gconfig.sarefnum,
 		  &arg, sizeof(arg)) != 0) {
-	    l2tp_log(LOG_CRIT, "setsockopt recvref[%d]: %s\n", IP_IPSEC_REFINFO, strerror(errno));
+	    l2tp_log(LOG_CRIT, "setsockopt recvref[%d]: %s\n", gconfig.sarefnum, strerror(errno));
 
 	    gconfig.ipsecsaref=0;
     }
@@ -278,11 +278,11 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 
 	cmsg = CMSG_FIRSTHDR(&msgh);
 	cmsg->cmsg_level = IPPROTO_IP;
-	cmsg->cmsg_type  = IP_IPSEC_REFINFO;
+	cmsg->cmsg_type  = gconfig.sarefnum;
 	cmsg->cmsg_len   = CMSG_LEN(sizeof(unsigned int));
 
 	if(gconfig.debug_network) {
-		l2tp_log(LOG_DEBUG,"sending with saref=%d\n", t->refhim);
+		l2tp_log(LOG_DEBUG,"sending with saref=%d using sarefnum=%d\n", t->refhim, gconfig.sarefnum);
 	}
 	refp = (unsigned int *)CMSG_DATA(cmsg);
 	*refp = t->refhim;
@@ -487,7 +487,7 @@ void network_thread ()
 			 cmsg != NULL;
 			 cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
 			    if (cmsg->cmsg_level == IPPROTO_IP
-				&& cmsg->cmsg_type == IP_IPSEC_REFINFO) {
+				&& cmsg->cmsg_type == gconfig.sarefnum) {
 				    unsigned int *refp;
 				    
 				    refp = (unsigned int *)CMSG_DATA(cmsg);

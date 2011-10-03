@@ -41,6 +41,7 @@ int init_config ()
     int returnedValue;
 
     gconfig.port = UDP_LISTEN_PORT;
+    gconfig.sarefnum = IP_IPSEC_REFINFO; /* default use the latest we know */
     gconfig.listenaddr = htonl(INADDR_ANY); /* Default is to bind (listen) to all interfaces */
     gconfig.debug_avp = 0;
     gconfig.debug_network = 0;
@@ -1141,6 +1142,27 @@ int set_ipsec_saref (char *word, char *value, int context, void *item)
     return 0;
 }
 
+int set_saref_num (char *word, char *value, int context, void *item)
+{
+	struct global *g = ((struct global *) item);
+    switch (context & ~CONTEXT_DEFAULT)
+    {
+    case CONTEXT_GLOBAL:
+	    if (set_boolean
+		(word, value, &(g->sarefnum)))
+		    return -1;
+	    if(g->sarefnum) {
+		    l2tp_log (LOG_DEBUG, "Setting saref IP_IPSEC_REFINFO number to %d\n", g->sarefnum);
+	    }
+	    break;
+    default:
+	    snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
+		      word);
+	    return -1;
+    }
+    return 0;
+}
+
 int set_rand_dev ()
 {
     rand_source = RAND_DEV;
@@ -1438,6 +1460,7 @@ int parse_one_option(char *word, char *value, int context, void *item)
 struct keyword words[] = {
     {"listen-addr", &set_listenaddr},
     {"port", &set_port},
+    {"saref refinfo", &set_saref_num},
     {"rand source", &set_rand_source},
     {"auth file", &set_authfile},
     {"exclusive", &set_exclusive},
