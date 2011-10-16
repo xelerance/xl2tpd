@@ -75,7 +75,8 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 # include paths and cause problems.
 #
 #CC?=gcc
-#OSFLAGS?= -DSOLARIS
+# Change /opt/sfw/ to whereever your pcap library/include files are
+#OSFLAGS?= -DSOLARIS -DPPPD=\"/usr/bin/pppd\" -std=c99 -pedantic -D__EXTENSIONS__ -D_XPG4_2 -D_XPG6 -I/opt/sfw/include
 #OSLIBS?= -lnsl -lsocket
 
 # Uncomment the next two lines for OpenBSD
