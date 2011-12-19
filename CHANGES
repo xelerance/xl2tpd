@@ -1,6 +1,7 @@
 v1.3.1 (unreleased)
 * Suse updated to spec and init files [Shinichi Furuso]
 * SAREF: Changed IP_IPSEC_REFINFO to global option "saref refinfo" [Paul]
+* samples: cleaned up samples and removed broken ones [Tuomo]
 
 v1.3.0 (July 23, 2011)
 * Added xl2tpd-control [Alexander Dorokhov]
