@@ -1,3 +1,6 @@
+v1.3.2 (unreleased)
+* Remove unused variables reported by gcc -Wunused [Paul Wouters]
+
 v1.3.1 (unreleased)
 * Suse updated to spec and init files [Shinichi Furuso]
 * SAREF: Changed IP_IPSEC_REFINFO to global option "saref refinfo" [Paul]

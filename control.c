@@ -1685,7 +1685,6 @@ void handle_special (struct buffer *buf, struct call *c, _u16 call)
        * call if it was a CDN, otherwise, send a CDN to notify them
        * that this call has been terminated.
      */
-    struct buffer *outgoing;
     struct tunnel *t = c->container;
     /* Don't do anything unless it's a control packet */
     if (!CTBIT (*((_u16 *) buf->start)))
@@ -1705,7 +1704,6 @@ void handle_special (struct buffer *buf, struct call *c, _u16 call)
             return;
         }
         /* Make a packet with the specified call number */
-        outgoing = new_outgoing (t);
         /* FIXME: If I'm not a CDN, I need to send a CDN */
         control_zlb (buf, t, c);
         c->cid = 0;

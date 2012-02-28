@@ -377,7 +377,7 @@ void network_thread ()
      * our network socket.  Control handling is no longer done here.
      */
     struct sockaddr_in from, to;
-    unsigned int fromlen, tolen;
+    unsigned int fromlen;
     int tunnel, call;           /* Tunnel and call */
     int recvsize;               /* Length of data received */
     struct buffer *buf;         /* Payload buffer */
@@ -443,7 +443,6 @@ void network_thread ()
 	    memset(&to,   0, sizeof(to));
 	    
 	    fromlen = sizeof(from);
-	    tolen   = sizeof(to);
 	    
 	    memset(&msgh, 0, sizeof(struct msghdr));
 	    iov.iov_base = buf->start;
