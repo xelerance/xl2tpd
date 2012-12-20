@@ -882,9 +882,10 @@ int control_finish (struct tunnel *t, struct call *c)
                 }
                 close (pppd_passwdfd[1]);
 
-                /* clear memory used for password, paranoid?  */
-                for (i = 0; i < STRLEN; i++)
-                    c->lac->password[i] = '\0';
+                /* clear password if not redialing: paranoid? */
+                if (!c->lac->redial)
+                    for (i = 0; i < STRLEN; i++)
+                        c->lac->password[i] = '\0';
 
                 po = add_opt (po, "plugin");
                 po = add_opt (po, "passwordfd.so");
