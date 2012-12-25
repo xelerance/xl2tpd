@@ -1,5 +1,6 @@
 v1.3.2 (unreleased)
 * Remove unused variables reported by gcc -Wunused [Paul Wouters]
+* Retain password when redial is enabled [Ted Phelps]
 
 v1.3.1 (Oct 6, 2011)
 * Suse updated to spec and init files [Shinichi Furuso]

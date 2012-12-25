@@ -816,18 +816,12 @@ void lac_disconnect (int tid)
 
 struct tunnel *new_tunnel ()
 {
-    struct tunnel *tmp = malloc (sizeof (struct tunnel));
+    struct tunnel *tmp = calloc (1, sizeof (struct tunnel));
     unsigned char entropy_buf[2] = "\0";
     if (!tmp)
         return NULL;
-    tmp->control_seq_num = 0;
-    tmp->control_rec_seq_num = 0;
-    tmp->cLr = 0;
-    tmp->call_head = NULL;
-    tmp->next = NULL;
     tmp->debug = -1;
     tmp->tid = -1;
-    tmp->hello = NULL;
 #ifndef TESTING
 /*      while(get_call((tmp->ourtid = rand() & 0xFFFF),0,0,0)); */
 /*        tmp->ourtid = rand () & 0xFFFF; */
@@ -845,24 +839,16 @@ struct tunnel *new_tunnel ()
 #else
     tmp->ourtid = 0x6227;
 #endif
-    tmp->nego = 0;
-    tmp->count = 0;
-    tmp->state = 0;             /* Nothing */
     tmp->peer.sin_family = AF_INET;
-    tmp->peer.sin_port = 0;
     bzero (&(tmp->peer.sin_addr), sizeof (tmp->peer.sin_addr));
 #ifdef SANITY
     tmp->sanity = -1;
 #endif
     tmp->qtid = -1;
     tmp->ourfc = ASYNC_FRAMING | SYNC_FRAMING;
-    tmp->ourbc = 0;
     tmp->ourtb = (((_u64) rand ()) << 32) | ((_u64) rand ());
     tmp->fc = -1;               /* These really need to be specified by the peer */
     tmp->bc = -1;               /* And we want to know if they forgot */
-    tmp->hostname[0] = 0;
-    tmp->vendor[0] = 0;
-    tmp->secret[0] = 0;
     if (!(tmp->self = new_call (tmp)))
     {
         free (tmp);
@@ -872,21 +858,9 @@ struct tunnel *new_tunnel ()
     tmp->self->ourfbit = FBIT;
     tmp->rxspeed = DEFAULT_RX_BPS;
     tmp->txspeed = DEFAULT_TX_BPS;
-    tmp->lac = NULL;
-    tmp->lns = NULL;
-    tmp->chal_us.state = 0;
-    tmp->chal_us.secret[0] = 0;
     memset (tmp->chal_us.reply, 0, MD_SIG_SIZE);
-    tmp->chal_us.challenge = NULL;
-    tmp->chal_us.chal_len = 0;
-    tmp->chal_them.state = 0;
-    tmp->chal_them.secret[0] = 0;
     memset (tmp->chal_them.reply, 0, MD_SIG_SIZE);
-    tmp->chal_them.challenge = NULL;
-    tmp->chal_them.chal_len = 0;
     tmp->chal_them.vector = (unsigned char *) malloc (VECTOR_SIZE);
-    tmp->chal_us.vector = NULL;
-    tmp->hbit = 0;
     return tmp;
 }
 
