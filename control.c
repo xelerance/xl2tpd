@@ -597,7 +597,9 @@ int control_finish (struct tunnel *t, struct call *c)
             l2tp_log (LOG_DEBUG, "%s: sending SCCCN\n", __FUNCTION__);
         control_xmit (buf);
 
+#ifdef USE_KERNEL
         connect_pppol2tp(t);
+#endif
 
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;
@@ -640,7 +642,9 @@ int control_finish (struct tunnel *t, struct call *c)
 		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim,
 		  t->lns->entname);
 
+#ifdef USE_KERNEL
         connect_pppol2tp(t);
+#endif
 
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;

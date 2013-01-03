@@ -674,8 +674,8 @@ void network_thread ()
 
 }
 
-int connect_pppol2tp(struct tunnel *t) {
 #ifdef USE_KERNEL
+int connect_pppol2tp(struct tunnel *t) {
         if (kernel_support) {
             int ufd = -1, fd2 = -1;
             int flags;
@@ -749,6 +749,6 @@ int connect_pppol2tp(struct tunnel *t) {
             }
             t->pppox_fd = fd2;
         }
-#endif
     return 0;
 }
+#endif
