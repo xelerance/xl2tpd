@@ -1154,6 +1154,7 @@ int set_ipsec_saref (char *word, char *value, int context, void *item)
 	    }
 	    if(g->forceuserspace != 1) {
 		    l2tp_log(LOG_WARNING, "IPsec SAref does not work with L2TP kernel mode yet, enabling forceuserspace=yes\n");
+		    g->forceuserspace = 1;
 	    }
 	    break;
     default:

@@ -167,6 +167,8 @@ struct tunnel
     int ourrws;                 /* Receive Window Size */
     int rxspeed;		/* Receive bps */
     int txspeed;		/* Transmit bps */
+    int udp_fd;			/* UDP fd */
+    int pppox_fd;			/* PPPOX tunnel fd */
     struct call *self;
     struct lns *lns;            /* LNS that owns us */
     struct lac *lac;            /* LAC that owns us */
@@ -206,7 +208,6 @@ extern struct tunnel_list tunnels;
 extern void tunnel_close (struct tunnel *t);
 extern void network_thread ();
 extern int init_network ();
-extern int kernel_support;
 extern int server_socket;
 extern struct tunnel *new_tunnel ();
 extern struct packet_queue xmit_udp;
@@ -220,6 +221,10 @@ extern void control_xmit (void *);
 extern int ppd;
 extern int switch_io;           /* jz */
 extern int control_fd;
+#ifdef USE_KERNEL
+extern int kernel_support;
+extern int connect_pppol2tp (struct tunnel *t);
+#endif
 extern int start_pppd (struct call *c, struct ppp_opts *);
 extern void magic_lac_dial (void *);
 extern int get_entropy (unsigned char *, int);
