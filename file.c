@@ -1256,6 +1256,8 @@ int parse_config (FILE * f)
     char *s, *d, *t;
     int linenum = 0;
     int def = 0;
+    int in_comment = 0;
+    int has_lf;
     void *data = NULL;
     struct lns *tl;
     struct lac *tc;
@@ -1266,11 +1268,20 @@ int parse_config (FILE * f)
             /* Error or EOL */
             break;
         }
+        /* Watch for continuation comments. */
+        has_lf = buf[strlen(buf) - 1] == '\n';
+        if (in_comment)
+        {
+            in_comment = !has_lf;
+            continue;
+        }
         linenum++;
         s = buf;
         /* Strip comments */
         while (*s && *s != ';')
             s++;
+        if (*s == ';' && !has_lf)
+            in_comment = 1;
         *s = 0;
         s = buf;
         if (!strlen (buf))
