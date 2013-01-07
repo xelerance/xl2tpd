@@ -398,9 +398,9 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
                 __FUNCTION__);
            return -EINVAL;
        }
+       memset(&sax, 0, sizeof(sax));
        sax.sa_family = AF_PPPOX;
        sax.sa_protocol = PX_PROTO_OL2TP;
-       sax.pppol2tp.pid = 0;
        sax.pppol2tp.fd = c->container->udp_fd;
        sax.pppol2tp.addr.sin_addr.s_addr = c->container->peer.sin_addr.s_addr;
        sax.pppol2tp.addr.sin_port = c->container->peer.sin_port;
