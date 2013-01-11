@@ -1154,6 +1154,7 @@ int set_ipsec_saref (char *word, char *value, int context, void *item)
 	    }
 	    if(g->forceuserspace != 1) {
 		    l2tp_log(LOG_WARNING, "IPsec SAref does not work with L2TP kernel mode yet, enabling forceuserspace=yes\n");
+		    g->forceuserspace = 1;
 	    }
 	    break;
     default:
@@ -1251,7 +1252,7 @@ int parse_config (FILE * f)
     /* Read in the configuration file handed to us */
     /* FIXME: I should check for incompatible options */
     int context = 0;
-    char buf[STRLEN];
+    char buf[1024]; 
     char *s, *d, *t;
     int linenum = 0;
     int def = 0;
@@ -1428,7 +1429,7 @@ int parse_config (FILE * f)
             }
             if (!(t = strchr (s, '=')))
             {
-                l2tp_log (LOG_WARNING, "parse_config: line %d: no '=' in data\n",
+                l2tp_log (LOG_WARNING, "parse_config: line %d: line too long or no '=' in data\n",
                      linenum);
                 return -1;
             }
