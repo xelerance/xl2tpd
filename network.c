@@ -55,7 +55,9 @@ int init_network (void)
 
     flags = 1;
     setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
+#ifdef SO_NO_CHECK
     setsockopt(server_socket, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
+#endif
 
     if (bind (server_socket, (struct sockaddr *) &server, sizeof (server)))
     {
@@ -694,7 +696,9 @@ int connect_pppol2tp(struct tunnel *t) {
 
             flags=1;
             setsockopt(ufd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
+#ifdef SO_NO_CHECK
             setsockopt(ufd, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
+#endif
 
             if (bind (ufd, (struct sockaddr *) &server, sizeof (server)))
             {
