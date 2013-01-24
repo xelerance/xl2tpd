@@ -62,7 +62,7 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 # are packages seperately (eg kernel-headers on Fedora)
 # Note: 2.6.23+ support still needs some changes in the xl2tpd source
 #
-#OSFLAGS+= -DUSE_KERNEL
+OSFLAGS+= -DUSE_KERNEL
 #
 #
 # Uncomment the next line for FreeBSD
@@ -115,7 +115,7 @@ $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 $(CONTROL_EXEC): $(CONTROL_SRCS)
-	$(CC) $(LDFLAGS) $(CONTROL_SRCS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(CONTROL_SRCS) -o $@
 
 pfc:
 	$(CC) $(CFLAGS) -c contrib/pfc.c
