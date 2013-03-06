@@ -495,7 +495,7 @@ int control_finish (struct tunnel *t, struct call *c)
         c->cnu = 0;
         if (gconfig.debug_state)
             l2tp_log (LOG_DEBUG, "%s: sending SCCRP\n", __FUNCTION__);
-		sleep(2);
+
         control_xmit (buf);
         break;
     case SCCRP:
