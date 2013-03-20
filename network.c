@@ -277,10 +277,9 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
      */
     memset(&msgh, 0, sizeof(struct msghdr));
 
-    msgh.msg_control = cbuf;
-    msgh.msg_controllen = sizeof(cbuf);
-
     if(gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
+        msgh.msg_control = cbuf;
+
 	cmsg = CMSG_FIRSTHDR(&msgh);
 	cmsg->cmsg_level = IPPROTO_IP;
 	cmsg->cmsg_type  = gconfig.sarefnum;
