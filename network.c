@@ -55,7 +55,9 @@ int init_network (void)
 
     flags = 1;
     setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
+#ifdef SO_NO_CHECK
     setsockopt(server_socket, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
+#endif
 
     if (bind (server_socket, (struct sockaddr *) &server, sizeof (server)))
     {
@@ -275,11 +277,8 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
      */
     memset(&msgh, 0, sizeof(struct msghdr));
 
-    msgh.msg_control = cbuf;
-    msgh.msg_controllen = 0;
-
     if(gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
-	msgh.msg_controllen = sizeof(cbuf);
+        msgh.msg_control = cbuf;
 
 	cmsg = CMSG_FIRSTHDR(&msgh);
 	cmsg->cmsg_level = IPPROTO_IP;
@@ -694,7 +693,9 @@ int connect_pppol2tp(struct tunnel *t) {
 
             flags=1;
             setsockopt(ufd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
+#ifdef SO_NO_CHECK
             setsockopt(ufd, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
+#endif
 
             if (bind (ufd, (struct sockaddr *) &server, sizeof (server)))
             {
