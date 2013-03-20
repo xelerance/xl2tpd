@@ -279,6 +279,7 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 
     if(gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
         msgh.msg_control = cbuf;
+        msgh.msg_controllen = sizeof(cbuf);
 
 	cmsg = CMSG_FIRSTHDR(&msgh);
 	cmsg->cmsg_level = IPPROTO_IP;
