@@ -91,7 +91,9 @@ int init_network (void)
 	    l2tp_log(LOG_CRIT, "setsockopt IP_PKTINFO: %s\n", strerror(errno));
     }
 #else
+    {
 	l2tp_log(LOG_INFO, "No attempt being made to use IPsec SAref's since we're not on a Linux machine.\n");
+    }
 
 #endif
 
