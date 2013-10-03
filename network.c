@@ -97,6 +97,13 @@ int init_network (void)
 
 #endif
 
+    /* turn off UDP checksums */
+    arg=1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_NO_CHECK , (void*)&arg,
+                   sizeof(arg)) ==-1) {
+      l2tp_log(LOG_INFO, "unable to turn off UDP checksums");
+    }
+
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
     {
