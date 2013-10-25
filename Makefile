@@ -99,7 +99,6 @@ CONTROL_SRCS=xl2tpd-control.c
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
 EXEC=xl2tpd
 CONTROL_EXEC=xl2tpd-control
-CONTROL_OBJ=xl2tpd-control.o
 
 PREFIX?=/usr/local
 SBINDIR?=$(DESTDIR)${PREFIX}/sbin
@@ -116,8 +115,7 @@ $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) -lcrypto $(LDLIBS)
 
 $(CONTROL_EXEC): $(CONTROL_SRCS)
-	$(CC) $(CFLAGS) -c $(CONTROL_SRCS)
-	$(CC) $(LDFLAGS) -o $@ $(CONTROL_EXECL_OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(CONTROL_SRCS) -o $@
 
 pfc:
 	$(CC) $(CFLAGS) -c contrib/pfc.c
