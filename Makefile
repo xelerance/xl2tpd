@@ -92,8 +92,8 @@ OSFLAGS+= -DUSE_KERNEL
 IPFLAGS?= -DIP_ALLOCATION
 
 CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
-HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
-OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
+HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h 
+OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o 
 SRCS=${OBJS:.o=.c} ${HDRS}
 CONTROL_SRCS=xl2tpd-control.c
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
@@ -113,7 +113,7 @@ clean:
 	rm -f $(OBJS) $(EXEC) pfc.o pfc $(CONTROL_EXEC)
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) -lcrypto $(LDLIBS)
 
 $(CONTROL_EXEC): $(CONTROL_SRCS)
 	$(CC) $(CFLAGS) -c $(CONTROL_SRCS)
