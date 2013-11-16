@@ -707,8 +707,13 @@ void magic_lac_tunnel (void *data)
     }
     if (lac->lns)
     {
-        /* FIXME: I should try different LNS's if I get failures */
-        l2tp_call (lac->lns->hostname, lac->lns->port, lac, NULL);
+        struct host *current_lns = lac->lns;
+        do {
+            /* try all lns in our list */
+            l2tp_call (current_lns->hostname, current_lns->port, lac, NULL);
+            current_lns = current_lns->next;
+        } while (current_lns);
+
         return;
     }
     else if (deflac && deflac->lns)
