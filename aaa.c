@@ -21,8 +21,6 @@
 #include <errno.h>
 #include "l2tp.h"
 
-#include <openssl/md5.h>
-
 extern void bufferDump (char *, int);
 
 /* FIXME: Accounting? */
@@ -275,11 +273,11 @@ int handle_challenge (struct tunnel *t, struct challenge *chal)
 #endif
 
     memset (chal->response, 0, MD_SIG_SIZE);
-    MD5_Init (&chal->md5);
-    MD5_Update (&chal->md5, &chal->ss, 1);
-    MD5_Update (&chal->md5, chal->secret, strlen ((char *)chal->secret));
-    MD5_Update (&chal->md5, chal->challenge, chal->chal_len);
-    MD5_Final (chal->response, &chal->md5);
+    MD5Init (&chal->md5);
+    MD5Update (&chal->md5, &chal->ss, 1);
+    MD5Update (&chal->md5, chal->secret, strlen ((char *)chal->secret));
+    MD5Update (&chal->md5, chal->challenge, chal->chal_len);
+    MD5Final (chal->response, &chal->md5);
 #ifdef DEBUG_AUTH
     l2tp_log (LOG_DEBUG, "response is %X%X%X%X to '%s' and %X%X%X%X, %d\n",
          *((int *) &chal->response[0]),
@@ -394,12 +392,12 @@ void encrypt_avp (struct buffer *buf, _u16 len, struct tunnel *t)
     buf->len += length;
     /* Back to the beginning of real data, including the original length AVP */
 
-    MD5_Init (&t->chal_them.md5);
-    MD5_Update (&t->chal_them.md5, (void *) &attr, 2);
-    MD5_Update (&t->chal_them.md5, t->chal_them.secret,
+    MD5Init (&t->chal_them.md5);
+    MD5Update (&t->chal_them.md5, (void *) &attr, 2);
+    MD5Update (&t->chal_them.md5, t->chal_them.secret,
                strlen ((char *)t->chal_them.secret));
-    MD5_Update (&t->chal_them.md5, t->chal_them.vector, VECTOR_SIZE);
-    MD5_Final (digest, &t->chal_them.md5);
+    MD5Update (&t->chal_them.md5, t->chal_them.vector, VECTOR_SIZE);
+    MD5Final (digest, &t->chal_them.md5);
 
     /* Though not a "MUST" in the spec, our subformat length is always a multiple of 16 */
     ptr = ((unsigned char *) new_hdr) + sizeof (struct avp_hdr);
@@ -423,11 +421,11 @@ void encrypt_avp (struct buffer *buf, _u16 len, struct tunnel *t)
 #endif
         if (ptr < end)
         {
-            MD5_Init (&t->chal_them.md5);
-            MD5_Update (&t->chal_them.md5, t->chal_them.secret,
+            MD5Init (&t->chal_them.md5);
+            MD5Update (&t->chal_them.md5, t->chal_them.secret,
                        strlen ((char *)t->chal_them.secret));
-            MD5_Update (&t->chal_them.md5, previous_segment, MD_SIG_SIZE);
-            MD5_Final (digest, &t->chal_them.md5);
+            MD5Update (&t->chal_them.md5, previous_segment, MD_SIG_SIZE);
+            MD5Final (digest, &t->chal_them.md5);
         }
         previous_segment = ptr;
     }
@@ -460,12 +458,12 @@ int decrypt_avp (char *buf, struct tunnel *t)
        that it will be padded to a 16 byte boundary, so we
        have to be more careful than when encrypting */
     attr = ntohs (old_hdr->attr);
-    MD5_Init (&t->chal_us.md5);
-    MD5_Update (&t->chal_us.md5, (void *) &attr, 2);
-    MD5_Update (&t->chal_us.md5, t->chal_us.secret,
+    MD5Init (&t->chal_us.md5);
+    MD5Update (&t->chal_us.md5, (void *) &attr, 2);
+    MD5Update (&t->chal_us.md5, t->chal_us.secret,
                strlen ((char *)t->chal_us.secret));
-    MD5_Update (&t->chal_us.md5, t->chal_us.vector, t->chal_us.vector_len);
-    MD5_Final (digest, &t->chal_us.md5);
+    MD5Update (&t->chal_us.md5, t->chal_us.vector, t->chal_us.vector_len);
+    MD5Final (digest, &t->chal_us.md5);
 #ifdef DEBUG_HIDDEN
     l2tp_log (LOG_DEBUG, "attribute is %d and challenge is: ", attr);
     print_challenge (&t->chal_us);
@@ -476,11 +474,11 @@ int decrypt_avp (char *buf, struct tunnel *t)
     {
         if (cnt >= MD_SIG_SIZE)
         {
-            MD5_Init (&t->chal_us.md5);
-            MD5_Update (&t->chal_us.md5, t->chal_us.secret,
+            MD5Init (&t->chal_us.md5);
+            MD5Update (&t->chal_us.md5, t->chal_us.secret,
                        strlen ((char *)t->chal_us.secret));
-            MD5_Update (&t->chal_us.md5, saved_segment, MD_SIG_SIZE);
-            MD5_Final (digest, &t->chal_us.md5);
+            MD5Update (&t->chal_us.md5, saved_segment, MD_SIG_SIZE);
+            MD5Final (digest, &t->chal_us.md5);
             cnt = 0;
         }
         /* at the beginning of each segment, we save the current segment (16 octets or less) of cipher 

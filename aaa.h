@@ -15,7 +15,7 @@
 
 #ifndef _AAA_H
 #define _AAA_H
-#include <openssl/md5.h>
+#include "md5.h"
 
 #define ADDR_HASH_SIZE 256
 #define MD_SIG_SIZE 16
@@ -34,8 +34,7 @@ struct addr_ent
 
 struct challenge
 {
-    /* struct MD5Context md5; */
-    MD5_CTX md5;
+    struct MD5Context md5;
     unsigned char ss;           /* State we're sending in */
     unsigned char secret[MAXSTRLEN];    /* The shared secret */
     unsigned char *challenge;       /* The original challenge */
