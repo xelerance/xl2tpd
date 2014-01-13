@@ -1,3 +1,9 @@
+v1.3.4 (Jan 13, 2014)
+* Revert "Patches from Fedora to use Openssl MD5 instead of our own"
+    This patch forced us to ask for a license exception, which we cannot do.
+* Revert "Add a license exception to link xl2tpd with OpenSSL"
+    Without the OpenSSL MD5 requirement, we no longer need to ask for a license exception.
+
 v1.3.3 (Jan 3, 2014)
 * License exception for linking with OpenSSL
    (this is because we do not use our MD5 anymore)
