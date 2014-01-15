@@ -1,5 +1,7 @@
 v1.3.6 (Jan 15, 2014)
 * I keep screwing up the version number.  Changes to CHANGES and l2tp.h
+* Fix the size of the lenght param for AVP headers. This should fix Android
+  support no matter how the compiler optimizes.
 
 v1.3.5 (Jan 15, 2014)
 * Re-define the add_header() function as the compiler was screwing up the lenght|MBIT logic.
