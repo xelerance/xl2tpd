@@ -34,7 +34,10 @@ void add_nonmandatory_header(struct buffer *buf, _u8 length, _u16 type) {
 }
 
 void add_header(struct buffer *buf, _u8 length, _u16 type) {
-	add_nonmandatory_header(buf, length|MBIT, type);
+  struct avp_hdr *avp = (struct avp_hdr *) (buf->start + buf->len);
+  avp->length = htons (length | MBIT );
+  avp->vendorid = htons (VENDOR_ID);
+  avp->attr = htons (type);
 }
 
 /* 
