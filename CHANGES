@@ -1,3 +1,7 @@
+v1.3.5 (Jan 15, 2014)
+* Re-define the add_header() function as the compiler was screwing up the lenght|MBIT logic.
+  THIS RE-ENABLES ANDROID SUPPORT which had been broken since 1.2.7
+
 v1.3.4 (Jan 13, 2014)
 * Revert "Patches from Fedora to use Openssl MD5 instead of our own"
     This patch forced us to ask for a license exception, which we cannot do.
