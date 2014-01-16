@@ -35,7 +35,7 @@
 #  include <sys/signal.h>
 # elif defined(LINUX)
 #  include <bsd/signal.h>
-# elif defined(SOLARIS)
+# elif defined(SOLARIS) || defined(NETBSD)
 #  include <signal.h>
 # endif
 #else

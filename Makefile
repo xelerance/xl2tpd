@@ -69,6 +69,12 @@ OSFLAGS+= -DUSE_KERNEL
 #
 #OSFLAGS?= -DFREEBSD
 #
+# Uncomment the next three lines for NetBSD
+#
+#OSFLAGS?= -DNETBSD
+#CFLAGS+= -D_NETBSD_SOURCE
+#LDLIBS?= -lutil
+#
 # Uncomment the next line for Solaris. For solaris, at least,
 # we don't want to specify -I/usr/include because it is in
 # the basic search path, and will over-ride some gcc-specific
