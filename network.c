@@ -617,7 +617,10 @@ void network_thread ()
 		    handle_special (buf, c, call);
 
 		    /* get a new buffer */
+        /* Let's recycle the buffer instead, even if it is the control buffer
 		    buf = new_buf (MAX_RECV_SIZE);
+        */
+        recycle_buf (buf);
 		}
 		else
 		    l2tp_log (LOG_DEBUG,

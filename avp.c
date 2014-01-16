@@ -1633,9 +1633,11 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
     int hidlen = 0;
     char *data = buf->start + sizeof (struct control_hdr);
     avp = (struct avp_hdr *) data;
+    /* I had to comment out the following since Valgrind tells me it leaks like my bathroom faucet
     if (gconfig.debug_avp)
         l2tp_log (LOG_DEBUG, "%s: handling avp's for tunnel %d, call %d\n",
              __FUNCTION__, t->ourtid, c->ourcid);
+    */
     while (len > 0)
     {
         /* Go ahead and byte-swap the header */

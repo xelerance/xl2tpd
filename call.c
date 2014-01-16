@@ -495,7 +495,10 @@ void destroy_call (struct call *c)
         }
     }
 
-    free (c);
+    /* This is totally the wrong place to free the memory.
+     * It's already being done by the upper layers.
+     free (c);
+   */
 }
 
 

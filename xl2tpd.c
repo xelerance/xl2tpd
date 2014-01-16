@@ -642,6 +642,7 @@ void destroy_tunnel (struct tunnel *t)
         close (t->udp_fd);
     free (t);
     free (me);
+    free (dial_no_tmp);
 }
 
 struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
