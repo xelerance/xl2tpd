@@ -43,16 +43,27 @@ struct command_t
     int (*handler) (FILE*, char* tunnel, int optc, char *optv[]);
 };
 
-int command_add (FILE*, char* tunnel, int optc, char *optv[]);
-int command_connect (FILE*, char* tunnel, int optc, char *optv[]);
-int command_disconnect (FILE*, char* tunnel, int optc, char *optv[]);
-int command_remove (FILE*, char* tunnel, int optc, char *optv[]);
+int command_add_lac (FILE*, char* tunnel, int optc, char *optv[]);
+int command_connect_lac (FILE*, char* tunnel, int optc, char *optv[]);
+int command_disconnect_lac (FILE*, char* tunnel, int optc, char *optv[]);
+int command_remove_lac (FILE*, char* tunnel, int optc, char *optv[]);
+int command_add_lns (FILE*, char* tunnel, int optc, char *optv[]);
 
 struct command_t commands[] = {
-    {"add", &command_add},
-    {"connect", &command_connect},
-    {"disconnect", &command_disconnect},
-    {"remove", &command_remove},
+    /* Keep this command mapping for backwards compat */
+    {"add", &command_add_lac},
+    {"connect", &command_connect_lac},
+    {"disconnect", &command_disconnect_lac},
+    {"remove", &command_remove_lac},
+
+    /* LAC commands */
+    {"add-lac", &command_add_lac},
+    {"connect-lac", &command_connect_lac},
+    {"disconnect-lac", &command_disconnect_lac},
+    {"remove-lac", &command_remove_lac},
+
+    /* LNS commands */
+    {"add-lns", &command_add_lns},
     {NULL, NULL}
 };
 
@@ -64,7 +75,7 @@ void usage()
             "    -c\tspecifies xl2tpd control file\n"
             "    -d\tspecify xl2tpd-control to run in debug mode\n"
             "--help\tshows extended help\n"
-            "Available commands: add, connect, disconnect, remove\n"
+            "Available commands: add, connect, disconnect, remove, add-lns\n"
     );
 }
 
@@ -85,6 +96,7 @@ void help()
         "\tremove\tremoves lac configuration from xl2tpd.\n"
         "\t\txl2tpd disconnects the tunnel before removing.\n"
         "\n"
+        "\tadd-lns\tadds new or modify existing lns configuration.\n"
         "See xl2tpd-control man page for more help\n"
     );
 }
@@ -299,14 +311,14 @@ int read_result(int result_fd, char* buf, ssize_t size)
 }
 
 int command_add
-(FILE* mesf, char* tunnel, int optc, char *optv[])
+(FILE* mesf, char* tunnel, int optc, char *optv[], int reqopt)
 {
     if (optc <= 0)
     {
         print_error (ERROR_LEVEL, "error: tunnel configuration expected\n");
         return -1;
     }
-    fprintf (mesf, "%c %s ", CONTROL_PIPE_REQ_LAC_ADD_MODIFY, tunnel);
+    fprintf (mesf, "%c %s ", reqopt, tunnel);
     int i;
     int wait_key = 1;
     for (i = 0; i < optc; i++)
@@ -336,7 +348,20 @@ int command_add
     return 0;
 }
 
-int command_connect
+int command_add_lac
+(FILE* mesf, char* tunnel, int optc, char *optv[])
+{
+    return command_add(mesf, tunnel, optc, optv, CONTROL_PIPE_REQ_LAC_ADD_MODIFY);
+}
+
+int command_add_lns
+(FILE* mesf, char* tunnel, int optc, char *optv[])
+{
+    return command_add(mesf, tunnel, optc, optv, CONTROL_PIPE_REQ_LNS_ADD_MODIFY);
+}
+
+
+int command_connect_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_CONNECT, tunnel);
@@ -350,14 +375,14 @@ int command_connect
     return 0;
 }
 
-int command_disconnect
+int command_disconnect_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_DISCONNECT, tunnel);
     return 0;
 }
 
-int command_remove
+int command_remove_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_REMOVE, tunnel);

@@ -899,12 +899,12 @@ void write_res (FILE* res_file, const char *fmt, ...)
     va_end (args);
 }
 
-int parse_one_line_lac (char* bufp, struct lac *tc)
+int parse_one_line (char* bufp, int context, void* tc)
 {
     /* FIXME: I should check for incompatible options */
     char *s, *d, *t;
     int linenum = 0;
-    
+   
     s = strtok (bufp, ";");
     // parse options token by token    
     while (s != NULL)
@@ -939,7 +939,7 @@ int parse_one_line_lac (char* bufp, struct lac *tc)
 #endif
         /* Okay, bit twidling is done.  Let's handle this */
         
-        switch (parse_one_option (s, t, CONTEXT_LAC, tc))
+        switch (parse_one_option (s, t, context, tc))
         {
         case -1:
             l2tp_log (LOG_WARNING, "%s: error token %d\n",
@@ -954,6 +954,34 @@ int parse_one_line_lac (char* bufp, struct lac *tc)
         s = strtok (NULL, ";");
     }
     return 0;
+}
+
+int parse_one_line_lac (char* bufp, struct lac *tc){
+    return parse_one_line(bufp, CONTEXT_LAC, tc);
+}
+
+int parse_one_line_lns (char* bufp, struct lns *tc){
+    return parse_one_line(bufp, CONTEXT_LNS, tc);
+}
+
+struct lns* find_lns_by_name(char* name){
+    struct lns *cursor;
+
+    /* ml: First check to see if we are searching for default */
+    if(strcmp(name, "default") == 0){
+        return deflns;
+    }
+
+    cursor  = lnslist;
+    while (cursor)
+    {
+        if(strcasecmp (cursor->entname, name) ==0){
+            return cursor;
+        }
+        cursor = cursor->next;
+    };
+
+    return NULL; /* ml: Ok we could not find anything*/
 }
 
 void do_control ()
@@ -971,6 +999,7 @@ void do_control ()
     char *tmp_ptr;              /* jz: use by the strtok function */
     struct lac *lac;
     struct lac *prev_lac;     /* for lac removing */
+    struct lns *lns;
     int call;
     int tunl;
     int cnt = -1;
@@ -1032,6 +1061,22 @@ void do_control ()
 
         switch (bufp[0])
         {
+        case CONTROL_PIPE_REQ_LNS_ADD_MODIFY:
+            tunstr = strtok (&bufp[1], delims);
+            lns = find_lns_by_name(tunstr);    
+            if(lns){
+                bufp = tunstr + strlen (tunstr) + 1;
+                if (parse_one_line_lns (bufp, lns))
+                {
+                    write_res (resf, "%02i Configuration parse error\n", 3);
+                }else{
+                    write_res (resf, "%02i OK: Saved value\n", 0);
+                }
+            }else{
+                write_res (resf, "%02i Error: Could not find lns, add not supported yet\n", 1);
+            }
+            break;
+
         case CONTROL_PIPE_REQ_TUNNEL:
             host = strchr (bufp, ' ') + 1;
 #ifdef DEBUG_CONTROL

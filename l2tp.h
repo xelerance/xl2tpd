@@ -50,6 +50,8 @@ typedef unsigned long long _u64;
 #define CONTROL_PIPE_REQ_LAC_CONNECT 'c'
 #define CONTROL_PIPE_REQ_TUNNEL 't'
 
+#define CONTROL_PIPE_REQ_LNS_ADD_MODIFY 'z' /* Create or modify an existing LNS */
+
 #define BINARY "xl2tpd"
 #define SERVER_VERSION "xl2tpd-1.3.6"
 #define VENDOR_NAME "xelerance.com"
