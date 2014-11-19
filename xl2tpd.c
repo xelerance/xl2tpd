@@ -1032,7 +1032,7 @@ void do_control ()
 
         switch (bufp[0])
         {
-        case 't':
+        case CONTROL_PIPE_REQ_TUNNEL:
             host = strchr (bufp, ' ') + 1;
 #ifdef DEBUG_CONTROL
             l2tp_log (LOG_DEBUG, "%s: Attempting to tunnel to %s\n",
@@ -1043,7 +1043,7 @@ void do_control ()
             else
                 write_res (resf, "%02i Error\n", 1);
             break;
-        case 'c':
+        case CONTROL_PIPE_REQ_LAC_CONNECT:
             switch_io = 1;  /* jz: Switch for Incoming - Outgoing Calls */
             
             tunstr = strtok (&bufp[1], delims);
@@ -1096,7 +1096,7 @@ void do_control ()
                 write_res (resf, "%02i Error\n", 1);
             break;
             
-       case 'o':          /* jz: option 'o' for doing a outgoing call */
+       case CONTROL_PIPE_REQ_LAC_OUTGOING_CALL:          /* jz: option 'o' for doing a outgoing call */
             switch_io = 0;  /* jz: Switch for incoming - outgoing Calls */
             
             sub_str = strchr (bufp, ' ') + 1;
@@ -1144,7 +1144,7 @@ void do_control ()
                 write_res (resf, "%02i Error\n", 1);
             break;
             
-        case 'h':
+        case CONTROL_PIPE_REQ_LAC_HANGUP:
             callstr = strchr (bufp, ' ') + 1;
             call = atoi (callstr);
 #ifdef DEBUG_CONTROL
@@ -1155,7 +1155,7 @@ void do_control ()
             write_res (resf, "%02i OK\n", 0);
             break;
 
-        case 'd':
+        case CONTROL_PIPE_REQ_LAC_DISCONNECT:
             tunstr = strchr (bufp, ' ') + 1;
             lac = laclist;
             while (lac)
@@ -1194,10 +1194,10 @@ void do_control ()
             lac_disconnect (tunl);
             write_res (resf, "%02i OK\n", 0);
             break;
-        case 's':
+        case CONTROL_PIPE_REQ_STATUS:
             show_status ();
             break;
-        case 'a':
+        case CONTROL_PIPE_REQ_LAC_ADD_MODIFY:
             /* add new or modify existing lac configuration */
             {               
                 int create_new_lac = 0; 
@@ -1259,7 +1259,7 @@ void do_control ()
                 write_res (resf, "%02i OK\n", 0);
             }
             break;
-        case 'r':
+        case CONTROL_PIPE_REQ_LAC_REMOVE:
             // find lac in laclist
             tunstr = strchr (bufp, ' ') + 1;
             lac = laclist;

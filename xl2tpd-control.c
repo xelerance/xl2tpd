@@ -306,7 +306,7 @@ int command_add
         print_error (ERROR_LEVEL, "error: tunnel configuration expected\n");
         return -1;
     }
-    fprintf (mesf, "a %s ", tunnel);
+    fprintf (mesf, "%c %s ", CONTROL_PIPE_REQ_LAC_ADD_MODIFY, tunnel);
     int i;
     int wait_key = 1;
     for (i = 0; i < optc; i++)
@@ -339,7 +339,7 @@ int command_add
 int command_connect
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
-    fprintf (mesf, "c %s", tunnel);
+    fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_CONNECT, tunnel);
     /* try to read authname and password from opts */
     if (optc > 0) {
         if (optc == 1)
@@ -353,14 +353,14 @@ int command_connect
 int command_disconnect
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
-    fprintf (mesf, "d %s", tunnel);
+    fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_DISCONNECT, tunnel);
     return 0;
 }
 
 int command_remove
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
-    fprintf (mesf, "r %s", tunnel);
+    fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_REMOVE, tunnel);
     return 0;
 }
 
