@@ -43,7 +43,7 @@ typedef unsigned long long _u64;
 /* Control pip request types */
 #define CONTROL_PIPE_REQ_LAC_REMOVE 'r'
 #define CONTROL_PIPE_REQ_LAC_ADD_MODIFY 'a'
-#define CONTROL_PIPE_REQ_STATUS 's'
+#define CONTROL_PIPE_REQ_LAC_STATUS 's'
 #define CONTROL_PIPE_REQ_LAC_DISCONNECT 'd'
 #define CONTROL_PIPE_REQ_LAC_HANGUP 'h'
 #define CONTROL_PIPE_REQ_LAC_OUTGOING_CALL 'o'
@@ -51,6 +51,7 @@ typedef unsigned long long _u64;
 #define CONTROL_PIPE_REQ_TUNNEL 't'
 
 #define CONTROL_PIPE_REQ_LNS_ADD_MODIFY 'z' /* Create or modify an existing LNS */
+#define CONTROL_PIPE_REQ_LNS_STATUS 'y'     /* Get status of LNS */
 
 #define BINARY "xl2tpd"
 #define SERVER_VERSION "xl2tpd-1.3.6"

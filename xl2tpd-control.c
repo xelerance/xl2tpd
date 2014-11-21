@@ -48,7 +48,8 @@ int command_connect_lac (FILE*, char* tunnel, int optc, char *optv[]);
 int command_disconnect_lac (FILE*, char* tunnel, int optc, char *optv[]);
 int command_remove_lac (FILE*, char* tunnel, int optc, char *optv[]);
 int command_add_lns (FILE*, char* tunnel, int optc, char *optv[]);
-int command_status (FILE*, char* tunnel, int optc, char *optv[]);
+int command_status_lac (FILE*, char* tunnel, int optc, char *optv[]);
+int command_status_lns (FILE*, char* tunnel, int optc, char *optv[]);
 
 struct command_t commands[] = {
     /* Keep this command mapping for backwards compat */
@@ -67,7 +68,8 @@ struct command_t commands[] = {
     {"add-lns", &command_add_lns},
 
     /* Generic commands */
-    {"status", &command_status},
+    {"status", &command_status_lac},
+    {"status-lns", &command_status_lns},
     {NULL, NULL}
 };
 
@@ -393,10 +395,17 @@ int command_remove_lac
     return 0;
 }
 
-int command_status 
+int command_status_lns
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
-    fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_STATUS, tunnel);
+    fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LNS_STATUS, tunnel);
+    return 0;
+}
+
+int command_status_lac
+(FILE* mesf, char* tunnel, int optc, char *optv[])
+{
+    fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_STATUS, tunnel);
     return 0;
 }
 

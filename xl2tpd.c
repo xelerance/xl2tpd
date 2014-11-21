@@ -1089,6 +1089,60 @@ void do_control ()
                 write_res (resf, "%02i Error: Could not find lns and could not create it\n", 1);
             }
             break;
+        case CONTROL_PIPE_REQ_LNS_STATUS:
+            tunstr = strtok (&bufp[1], delims);
+            lns = find_lns_by_name(tunstr);    
+            if(lns){
+                /* Lets keep it simple, what is useful first */ 
+                write_res (resf, "%02i OK\n", 0);
+
+                /* ml: TODO: I am not sure what this 'active' really means, need to hunt around*/
+                write_res (resf, "%02i STATUS active=%d\n", 0, lns->active);
+
+                int active_tunnel_count = 0;
+                struct tunnel* t = tunnels.head;
+                while(t){
+                    if(t->lns == lns){
+                        /* Lets provide some information on each tunnel */
+                        write_res (resf, "%02i STATUS tunnels.%d.id=%d\n", 0, active_tunnel_count, t->tid);
+                        write_res (resf, "%02i STATUS tunnels.%d.peer=%s:%d\n", 0, active_tunnel_count, 
+                                    IPADDY (t->peer.sin_addr), ntohs (t->peer.sin_port));
+
+                        /* And some call stats */
+                        struct call *c = t->call_head;
+                        int active_call_count = 0;
+                        while(c){
+                            write_res (resf, "%02i STATUS tunnels.%d.calls.%d.id=%d\n", 0, 
+                                    active_tunnel_count, active_call_count, c->ourcid); 
+
+                            write_res (resf, "%02i STATUS tunnels.%d.calls.%d.tx_bytes=%d\n", 0, 
+                                    active_tunnel_count, active_call_count, c->tx_bytes); 
+                            write_res (resf, "%02i STATUS tunnels.%d.calls.%d.rx_bytes=%d\n", 0, 
+                                    active_tunnel_count, active_call_count, c->rx_bytes); 
+
+                            write_res (resf, "%02i STATUS tunnels.%d.calls.%d.tx_pkts=%d\n", 0,
+                                active_tunnel_count, active_call_count, c->tx_pkts);
+
+                            write_res (resf, "%02i STATUS tunnels.%d.calls.%d.rx_pkts=%d\n", 0,
+                                active_tunnel_count, active_call_count, c->rx_pkts);
+
+                            c = c->next;
+                            active_call_count++;
+                        }
+
+                        write_res (resf, "%02i STATUS tunnels.%d.calls.count=%d\n", 0,
+                            active_tunnel_count, active_call_count);
+
+                        active_tunnel_count++;
+                    }
+                    t = t->next;
+                }
+
+                write_res (resf, "%02i STATUS tunnels.count=%d\n", 0, active_tunnel_count);
+            }else{
+                write_res (resf, "%02i Error: Could not find lns\n", 1);
+            }
+            break;
 
         case CONTROL_PIPE_REQ_TUNNEL:
             host = strchr (bufp, ' ') + 1;
@@ -1252,7 +1306,7 @@ void do_control ()
             lac_disconnect (tunl);
             write_res (resf, "%02i OK\n", 0);
             break;
-        case CONTROL_PIPE_REQ_STATUS:
+        case CONTROL_PIPE_REQ_LAC_STATUS:
             show_status ();
             break;
         case CONTROL_PIPE_REQ_LAC_ADD_MODIFY:
