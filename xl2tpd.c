@@ -1064,6 +1064,19 @@ void do_control ()
         case CONTROL_PIPE_REQ_LNS_ADD_MODIFY:
             tunstr = strtok (&bufp[1], delims);
             lns = find_lns_by_name(tunstr);    
+            if(!lns){
+                lns = new_lns();
+
+                /* ml: Give me a name please :) */
+                strncpy (lns->entname, tunstr, sizeof (lns->entname));
+
+                /* ml: Is there any good reason why I cant add it now? */
+                lns->next = lnslist;
+                lnslist = lns;
+            }
+
+            /* ml: Its possible that new_lns() and find_lns_by_name() both
+            returned NULL. */
             if(lns){
                 bufp = tunstr + strlen (tunstr) + 1;
                 if (parse_one_line_lns (bufp, lns))
@@ -1073,7 +1086,7 @@ void do_control ()
                     write_res (resf, "%02i OK: Saved value\n", 0);
                 }
             }else{
-                write_res (resf, "%02i Error: Could not find lns, add not supported yet\n", 1);
+                write_res (resf, "%02i Error: Could not find lns and could not create it\n", 1);
             }
             break;
 
