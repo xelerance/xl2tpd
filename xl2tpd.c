@@ -1066,17 +1066,16 @@ void do_control ()
             lns = find_lns_by_name(tunstr);    
             if(!lns){
                 lns = new_lns();
+                if(lns){ /* This seems a bit stupid, but new_lns() can return NULL */
+                    /* ml: Give me a name please :) */
+                    strncpy (lns->entname, tunstr, sizeof (lns->entname));
 
-                /* ml: Give me a name please :) */
-                strncpy (lns->entname, tunstr, sizeof (lns->entname));
-
-                /* ml: Is there any good reason why I cant add it now? */
-                lns->next = lnslist;
-                lnslist = lns;
+                    /* ml: Is there any good reason why I cant add it now? */
+                    lns->next = lnslist;
+                    lnslist = lns;
+                }
             }
 
-            /* ml: Its possible that new_lns() and find_lns_by_name() both
-            returned NULL. */
             if(lns){
                 bufp = tunstr + strlen (tunstr) + 1;
                 if (parse_one_line_lns (bufp, lns))
