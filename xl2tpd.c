@@ -85,6 +85,7 @@ int control_handle_lac_disconnect(FILE* resf, char* bufp);
 int control_handle_lac_add_modify(FILE* resf, char* bufp);
 int control_handle_lac_remove(FILE* resf, char* bufp);
 int control_handle_lac_status(FILE* resf, char* bufp);
+int control_handle_lns_remove(FILE* resf, char* bufp);
 
 struct control_requests_handler control_handlers[] = {
     {CONTROL_PIPE_REQ_AVAILABLE, &control_handle_available},
@@ -98,6 +99,7 @@ struct control_requests_handler control_handlers[] = {
     {CONTROL_PIPE_REQ_LAC_ADD_MODIFY, &control_handle_lac_add_modify},
     {CONTROL_PIPE_REQ_LAC_REMOVE, &control_handle_lac_remove},
     {CONTROL_PIPE_REQ_LAC_STATUS, &control_handle_lac_status},
+    {CONTROL_PIPE_REQ_LNS_REMOVE, &control_handle_lns_remove},
 
     {0, NULL}
 };
@@ -1090,6 +1092,46 @@ int control_handle_lns_add_modify(FILE* resf, char* bufp){
     return 1;
 }
 
+int control_handle_lns_remove(FILE* resf, char* bufp){
+    char *tunstr;
+    struct lns* lns;
+    struct lns* prev_lns;
+
+    tunstr = strchr (bufp, ' ') + 1;
+    lns = lnslist;
+    prev_lns = NULL;
+    while (lns && strcasecmp (lns->entname, tunstr) != 0)
+    {
+        prev_lns = lns;
+        lns= lns->next;
+    }
+    if (!lns)
+    {
+        l2tp_log (LOG_DEBUG, "No such tunnel '%s'\n", tunstr);
+        write_res (resf, "%02i No such tunnel '%s'\n", 1, tunstr);
+        return 0;
+    }
+
+    /* We need to destroy the tunnels associated with this guy */
+    struct tunnel* t = tunnels.head;
+    while(t){
+        if(t->lns == lns){
+            destroy_tunnel(t);
+        }
+        t = t->next;
+    }
+
+    if (prev_lns == NULL){
+        lnslist = lns->next;
+    }else{
+        prev_lns->next = lns->next;
+    }
+
+    free(lns);
+    write_res (resf, "%02i OK\n", 0);
+    return 1;
+}
+
 int control_handle_lns_status(FILE* resf, char* bufp){
     struct lns *lns;
     char* tunstr;
@@ -1100,9 +1142,6 @@ int control_handle_lns_status(FILE* resf, char* bufp){
     if(lns){
         /* Lets keep it simple, what is useful first */
         write_res (resf, "%02i OK\n", 0);
-
-        /* ml: TODO: I am not sure what this 'active' really means, need to hunt around*/
-        write_res (resf, "%02i STATUS active=%d\n", 0, lns->active);
 
         int active_tunnel_count = 0;
         struct tunnel* t = tunnels.head;

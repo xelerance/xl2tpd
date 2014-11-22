@@ -54,6 +54,7 @@ int command_remove_lac (FILE*, char* tunnel, int optc, char *optv[]);
 int command_add_lns (FILE*, char* tunnel, int optc, char *optv[]);
 int command_status_lac (FILE*, char* tunnel, int optc, char *optv[]);
 int command_status_lns (FILE*, char* tunnel, int optc, char *optv[]);
+int command_remove_lns (FILE*, char* tunnel, int optc, char *optv[]);
 int command_available (FILE*, char* tunnel, int optc, char *optv[]);
 
 struct command_t commands[] = {
@@ -71,6 +72,7 @@ struct command_t commands[] = {
 
     /* LNS commands */
     {"add-lns", &command_add_lns, TUNNEL_REQUIRED},
+    {"remove-lns", &command_remove_lns, TUNNEL_REQUIRED},
 
     /* Generic commands */
     {"status", &command_status_lac, TUNNEL_REQUIRED},
@@ -421,6 +423,13 @@ int command_available
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_AVAILABLE, tunnel);
+    return 0;
+}
+
+int command_remove_lns
+(FILE* mesf, char* tunnel, int optc, char *optv[])
+{
+    fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LNS_REMOVE, tunnel);
     return 0;
 }
 
