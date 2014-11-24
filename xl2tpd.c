@@ -466,6 +466,19 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         stropt[pos] = (char *) malloc (10);
         snprintf (stropt[pos], 10, "%d", c->ourcid);
             pos++;
+
+           if(c->container->lns->pppd_plugin[0]){
+	       stropt[pos++] = strdup ("plugin");
+	       stropt[pos++] = strdup (c->lns->pppd_plugin);
+
+               char *token;
+               token = strtok(strdup(c->container->lns->pppd_plugin_opts), " ");
+               while( token != NULL )
+               {
+                   stropt[pos++] = strdup (token);
+                   token = strtok(NULL, " ");
+               }
+           }
        }
         stropt[pos] = NULL;
     }
