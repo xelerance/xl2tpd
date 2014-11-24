@@ -1096,6 +1096,8 @@ int control_handle_lns_remove(FILE* resf, char* bufp){
     char *tunstr;
     struct lns* lns;
     struct lns* prev_lns;
+    struct tunnel* t;
+    struct call* c;
 
     tunstr = strchr (bufp, ' ') + 1;
     lns = lnslist;
@@ -1113,10 +1115,16 @@ int control_handle_lns_remove(FILE* resf, char* bufp){
     }
 
     /* We need to destroy the tunnels associated with this guy */
-    struct tunnel* t = tunnels.head;
+    t = tunnels.head;
     while(t){
         if(t->lns == lns){
-            destroy_tunnel(t);
+            c = t->call_head;
+
+            while (c)
+            {
+                call_close (c);
+                c = c->next;
+            };
         }
         t = t->next;
     }
