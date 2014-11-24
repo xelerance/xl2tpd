@@ -999,9 +999,12 @@ int control_finish (struct tunnel *t, struct call *c)
         {
             po = add_opt (po, "plugin");
             po = add_opt (po, c->lns->pppd_plugin);
-            
+          
+            /* Get and push the params for this plugin*/ 
             char *token;
-            token = strtok(c->lns->pppd_plugin_opts, " ");
+            char copy_of_pppd_plugin_opts[STRLEN];
+            memcpy(copy_of_pppd_plugin_opts, c->lns->pppd_plugin_opts, sizeof(c->lns->pppd_plugin_opts));
+            token = strtok(copy_of_pppd_plugin_opts, " ");
             while( token != NULL ) 
             {
 		po = add_opt (po, token);
