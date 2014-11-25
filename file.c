@@ -122,8 +122,6 @@ struct lns *new_lns ()
     tmp->pass_peer = 0;
     tmp->pppoptfile[0] = 0;
     tmp->t = NULL;
-    tmp->pppd_plugin[0] = 0;
-    tmp->pppd_plugin_opts[0] = 0;
     return tmp;
 }
 
@@ -233,42 +231,6 @@ int set_port (char *word, char *value, int context, void *item)
              value);
 #endif
         set_int (word, value, &(((struct global *) item)->port));
-        break;
-    default:
-        snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
-                  word);
-        return -1;
-    }
-    return 0;
-}
-
-int set_pppd_plugin(char* word, char* value, int context, void* item){
-    switch (context & ~CONTEXT_DEFAULT)
-    {
-    case CONTEXT_LNS:
-#ifdef DEBUG_FILE
-        l2tp_log (LOG_DEBUG, "set_port: Setting global port number to %s\n",
-             value);
-#endif
-        set_string (word, value, (char*) &(((struct lns*) item)->pppd_plugin), sizeof(((struct lns*) item)->pppd_plugin));
-        break;
-    default:
-        snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
-                  word);
-        return -1;
-    }
-    return 0;
-}
-
-int set_pppd_plugin_opts(char* word, char* value, int context, void* item){
-    switch (context & ~CONTEXT_DEFAULT)
-    {
-    case CONTEXT_LNS:
-#ifdef DEBUG_FILE
-        l2tp_log (LOG_DEBUG, "set_port: Setting global port number to %s\n",
-             value);
-#endif
-        set_string (word, value, (char*) &(((struct lns*) item)->pppd_plugin_opts), sizeof(((struct lns*) item)->pppd_plugin_opts));
         break;
     default:
         snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
@@ -1575,8 +1537,5 @@ struct keyword words[] = {
     {"tx bps", &set_speed},
     {"rx bps", &set_speed},
     {"bps", &set_speed},
-    {"ppp plugin", &set_pppd_plugin},
-    {"ppp plugin opts", &set_pppd_plugin_opts},
-
     {NULL, NULL}
 };

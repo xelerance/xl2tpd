@@ -995,21 +995,6 @@ int control_finish (struct tunnel *t, struct call *c)
             po = add_opt (po, IPADDY (t->peer.sin_addr));
         }
 
-	if (c->lns->pppd_plugin[0])
-        {
-            po = add_opt (po, "plugin");
-            po = add_opt (po, c->lns->pppd_plugin);
-          
-            /* Get and push the params for this plugin*/ 
-            char *token;
-            token = strtok(strdup(c->lns->pppd_plugin_opts), " ");
-            while( token != NULL ) 
-            {
-		po = add_opt (po, token);
-                token = strtok(NULL, " ");
-            }
-        }
-
         start_pppd (c, po);
         opt_destroy (po);
         l2tp_log (LOG_NOTICE,

@@ -98,8 +98,6 @@ struct lns
     int pass_peer;              /* Pass peer IP to pppd as ipparam? */
     char pppoptfile[STRLEN];    /* File containing PPP options */
     struct tunnel *t;           /* Tunnel of this, if it's ready */
-    char pppd_plugin[STRLEN];   /* Plugin to load, and params*/
-    char pppd_plugin_opts[STRLEN];   /* Plugin opts*/
 };
 
 struct lac
