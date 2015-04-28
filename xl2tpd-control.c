@@ -278,17 +278,20 @@ int read_result(int result_fd, char* buf, ssize_t size)
     /*FIXME: there is a chance to hang up reading.
              Should I create watching thread with timeout?
      */
-    ssize_t readed;
+    ssize_t readed = 0;
+    ssize_t len;
+
     do
     {
-        readed = read (result_fd, buf, size);
-        if (readed < 0)
+        len = read (result_fd, buf + readed, size - readed);
+        if (len < 0)
         {
             print_error (ERROR_LEVEL,
                 "error: can't read command result: %s\n", strerror (errno));
             break;
         }
-    } while (readed == 0);
+        readed += len;
+    } while (len > 0 && (size - readed) > 0);
     buf[readed] = '\0';
     
     /* scan result code */
