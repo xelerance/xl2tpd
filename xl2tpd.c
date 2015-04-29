@@ -347,7 +347,6 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     /* char a, b; */
     char tty[512];
     char *stropt[80];
-    struct ppp_opts *p;
 #ifdef USE_KERNEL
     struct sockaddr_pppol2tp sax;
     int flags;
@@ -361,16 +360,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     struct call *sc;
     struct tunnel *st;
 
-    p = opts;
     stropt[0] = strdup (PPPD);
-    while (p)
-    {
-        stropt[pos] = (char *) malloc (strlen (p->option) + 1);
-        strncpy (stropt[pos], p->option, strlen (p->option) + 1);
-        pos++;
-        p = p->next;
-    }
-    stropt[pos] = NULL;
     if (c->pppd > 0)
     {
         l2tp_log(LOG_WARNING, "%s: PPP already started on call!\n", __FUNCTION__);
@@ -432,7 +422,6 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         snprintf (stropt[pos], 10, "%d", c->ourcid);
             pos++;
        }
-        stropt[pos] = NULL;
     }
     else
 #endif
@@ -462,6 +451,16 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             return -EINVAL;
         }
         stropt[pos++] = strdup(tty);
+    }
+
+    {
+        struct ppp_opts *p = opts;
+        while (p)
+        {
+            stropt[pos] = strdup (p->option);
+            pos++;
+            p = p->next;
+        }
         stropt[pos] = NULL;
     }
 
