@@ -246,7 +246,7 @@ int main (int argc, char *argv[])
     print_error (DEBUG_LEVEL, "command to be passed:\n%s\n", buf);
 
     /* try to open control file for writing */
-    int control_fd = open (control_filename, O_WRONLY, 0600);
+    int control_fd = open (control_filename, O_WRONLY | O_NONBLOCK, 0600);
     if (control_fd < 0)
     {
         int errorno = errno;
@@ -264,6 +264,14 @@ int main (int argc, char *argv[])
                 control_filename, strerror (errorno));
         }
         return -1;
+    }
+
+    /* turn off O_NONBLOCK */
+    if (fcntl (control_fd, F_SETFL, O_WRONLY) == -1) {
+        print_error (ERROR_LEVEL,
+            "Can not turn off nonblocking mode for control_fd: %s\n",
+            strerror(errno));
+        return -2;
     }
     
     /* pass command to control pipe */
