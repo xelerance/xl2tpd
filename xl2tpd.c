@@ -455,7 +455,8 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
 
     {
         struct ppp_opts *p = opts;
-        while (p)
+        int maxn_opts = sizeof(stropt) / sizeof(stropt[0]) - 1;
+        while (p && pos < maxn_opts)
         {
             stropt[pos] = strdup (p->option);
             pos++;
