@@ -12,6 +12,7 @@
  
 #define _GNU_SOURCE
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -34,6 +35,9 @@
 
 #define TUNNEL_REQUIRED 1
 #define TUNNEL_NOT_REQUIRED 0
+
+char result_filename[128];
+int result_fd = -1;
 
 int log_level = ERROR_LEVEL;
 
@@ -117,6 +121,14 @@ void help()
     );
 }
 
+void cleanup(void)
+{
+    /* cleaning up */
+    if (result_fd >= 0)
+	    close (result_fd);
+    unlink (result_filename);
+}
+
 int main (int argc, char *argv[])
 {
     char* control_filename = NULL;
@@ -195,11 +207,11 @@ int main (int argc, char *argv[])
     FILE* mesf = fmemopen (buf, CONTROL_PIPE_MESSAGE_SIZE, "w");
 
     /* create result pipe for reading */
-    char result_filename[128];
     snprintf (result_filename, 128, RESULT_FILENAME_FORMAT, getpid());
     unlink (result_filename);
     mkfifo (result_filename, 0600);
-    int result_fd = open (result_filename, O_RDONLY | O_NONBLOCK, 0600);
+    atexit(cleanup);
+    result_fd = open (result_filename, O_RDONLY | O_NONBLOCK, 0600);
     if (result_fd < 0)
     {
         print_error (ERROR_LEVEL,
@@ -292,11 +304,6 @@ int main (int argc, char *argv[])
         result_fd, rbuf, CONTROL_PIPE_MESSAGE_SIZE
     );
     printf ("%s", rbuf);
-    
-    /* cleaning up */
-    
-    close (result_fd);
-    unlink (result_filename);
     
     return command_result_code;
 }
