@@ -1595,7 +1595,7 @@ void do_control ()
 void usage(void) {
     printf("\nxl2tpd version:  %s\n", SERVER_VERSION);
     printf("Usage: xl2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]\n"
-            "              [-C <control file>] [-D]\n"
+            "              [-C <control file>] [-D] [-l]\n"
             "              [-v, --version]\n");
     printf("\n");
     exit(1);
@@ -1606,6 +1606,7 @@ void init_args(int argc, char *argv[])
     int i=0;
 
     gconfig.daemon=1;
+    gconfig.syslog=-1;
     memset(gconfig.altauthfile,0,STRLEN);
     memset(gconfig.altconfigfile,0,STRLEN);
     memset(gconfig.authfile,0,STRLEN);
@@ -1643,6 +1644,9 @@ void init_args(int argc, char *argv[])
         else if (! strncmp(argv[i],"-D",2)) {
             gconfig.daemon=0;
         }
+        else if (! strncmp(argv[i],"-l",2)) {
+            gconfig.syslog=1;
+        }
         else if (! strncmp(argv[i],"-s",2)) {
             if(++i == argc)
                 usage();
@@ -1668,6 +1672,13 @@ void init_args(int argc, char *argv[])
             usage();
         }
     }
+
+    /*
+     * defaults to syslog if no log facility was explicitly
+     * specified and we are about to daemonize
+     */
+    if (gconfig.syslog < 0)
+        gconfig.syslog = gconfig.daemon;
 }
 
 
