@@ -10,6 +10,8 @@
  *
  */
  
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -32,6 +34,9 @@
 
 #define TUNNEL_REQUIRED 1
 #define TUNNEL_NOT_REQUIRED 0
+
+char result_filename[128];
+int result_fd = -1;
 
 int log_level = ERROR_LEVEL;
 
@@ -115,6 +120,14 @@ void help()
     );
 }
 
+void cleanup(void)
+{
+    /* cleaning up */
+    if (result_fd >= 0)
+	    close (result_fd);
+    unlink (result_filename);
+}
+
 int main (int argc, char *argv[])
 {
     char* control_filename = NULL;
@@ -193,11 +206,11 @@ int main (int argc, char *argv[])
     FILE* mesf = fmemopen (buf, CONTROL_PIPE_MESSAGE_SIZE, "w");
 
     /* create result pipe for reading */
-    char result_filename[128];
     snprintf (result_filename, 128, RESULT_FILENAME_FORMAT, getpid());
     unlink (result_filename);
     mkfifo (result_filename, 0600);
-    int result_fd = open (result_filename, O_RDONLY | O_NONBLOCK, 0600);
+    atexit(cleanup);
+    result_fd = open (result_filename, O_RDONLY | O_NONBLOCK, 0600);
     if (result_fd < 0)
     {
         print_error (ERROR_LEVEL,
@@ -244,7 +257,7 @@ int main (int argc, char *argv[])
     print_error (DEBUG_LEVEL, "command to be passed:\n%s\n", buf);
 
     /* try to open control file for writing */
-    int control_fd = open (control_filename, O_WRONLY, 0600);
+    int control_fd = open (control_filename, O_WRONLY | O_NONBLOCK, 0600);
     if (control_fd < 0)
     {
         int errorno = errno;
@@ -262,6 +275,14 @@ int main (int argc, char *argv[])
                 control_filename, strerror (errorno));
         }
         return -1;
+    }
+
+    /* turn off O_NONBLOCK */
+    if (fcntl (control_fd, F_SETFL, O_WRONLY) == -1) {
+        print_error (ERROR_LEVEL,
+            "Can not turn off nonblocking mode for control_fd: %s\n",
+            strerror(errno));
+        return -2;
     }
     
     /* pass command to control pipe */
@@ -283,11 +304,6 @@ int main (int argc, char *argv[])
     );
     printf ("%s", rbuf);
     
-    /* cleaning up */
-    
-    close (result_fd);
-    unlink (result_filename);
-    
     return command_result_code;
 }
 
@@ -306,17 +322,20 @@ int read_result(int result_fd, char* buf, ssize_t size)
     /*FIXME: there is a chance to hang up reading.
              Should I create watching thread with timeout?
      */
-    ssize_t readed;
+    ssize_t readed = 0;
+    ssize_t len;
+
     do
     {
-        readed = read (result_fd, buf, size);
-        if (readed < 0)
+        len = read (result_fd, buf + readed, size - readed);
+        if (len < 0)
         {
             print_error (ERROR_LEVEL,
                 "error: can't read command result: %s\n", strerror (errno));
             break;
         }
-    } while (readed == 0);
+        readed += len;
+    } while (len > 0 && (size - readed) > 0);
     buf[readed] = '\0';
     
     /* scan result code */
