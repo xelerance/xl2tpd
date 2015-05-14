@@ -164,7 +164,6 @@ int main (int argc, char *argv[])
     {
         control_filename = strdup (CONTROL_PIPE);
     }
-    print_error (DEBUG_LEVEL, "set control filename to %s\n", control_filename);    
 
     /* parse command name */
     for (command = commands; command->name; command++)
@@ -176,10 +175,7 @@ int main (int argc, char *argv[])
         }
     }
     
-    if (command->name)
-    {
-        print_error (DEBUG_LEVEL, "get command %s\n", command->name);
-    } else {
+    if (!command->name) {
         print_error (ERROR_LEVEL, "error: no such command %s\n", argv[i]);
         return -1;
     }
@@ -303,7 +299,8 @@ int main (int argc, char *argv[])
     int command_result_code = read_result (
         result_fd, rbuf, CONTROL_PIPE_MESSAGE_SIZE
     );
-    printf ("%s", rbuf);
+    /* rbuf contains a newline, make it double to form a boundary. */
+    print_error (DEBUG_LEVEL, "command response: \n%s\n", rbuf);
     
     return command_result_code;
 }
@@ -313,6 +310,7 @@ void print_error (int level, const char *fmt, ...)
     if (level > log_level) return;
     va_list args;
     va_start (args, fmt);
+    fprintf (stderr, "xl2tpd-control: ");
     vfprintf (stderr, fmt, args);
     va_end (args);
 }
