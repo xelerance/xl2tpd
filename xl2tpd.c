@@ -1040,7 +1040,7 @@ int control_handle_available(FILE* resf, char* bufp){
         lns_count++;
     }                                               
 
-    write_res (resf, "%02i AVAILABLE lns.cout=%d\n", 0, lns_count);
+    write_res (resf, "%02i AVAILABLE lns.count=%d\n", 0, lns_count);
 
     lac  = laclist;
     int lac_count = 0;
@@ -1054,7 +1054,7 @@ int control_handle_available(FILE* resf, char* bufp){
     if(deflac){
         write_res (resf, "%02i AVAILABLE lac.%d.name=%s\n", 0, lac_count, deflac->entname);
         lac_count++;
-    }                                               
+    }
 
     write_res (resf, "%02i AVAILABLE lac.count=%d\n", 0, lac_count);
     return 1;
