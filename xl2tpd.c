@@ -1552,7 +1552,6 @@ void do_control ()
             /*FIXME: check quotes to allow filenames with spaces?
               (do not forget quotes escaping to allow filenames with quotes)*/
 
-            /*FIXME: write to res_filename may cause SIGPIPE, need to catch it*/
             resf = fopen (res_filename, "w");
             if (!resf) {
                 l2tp_log (LOG_DEBUG, "%s: Can't open result file %s\n",
@@ -1812,6 +1811,7 @@ void init (int argc,char *argv[])
     signal (SIGCHLD, &sigchld_handler);
     signal (SIGUSR1, &sigusr1_handler);
     signal (SIGHUP, &sighup_handler);
+    signal (SIGPIPE, SIG_IGN);
     init_scheduler ();
 
     unlink(gconfig.controlfile);
