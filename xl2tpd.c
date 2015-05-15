@@ -1582,6 +1582,8 @@ void do_control ()
         if (resf)
         {
             fclose (resf);
+            /* unlink it anyway to prevent leftover a regular file. */
+            unlink(res_filename);
         }
     }
 
