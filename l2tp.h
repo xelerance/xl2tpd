@@ -170,11 +170,6 @@ struct tunnel
     _u16 control_seq_num;       /* Sequence for next packet */
     _u16 control_rec_seq_num;   /* Next expected to receive */
     int cLr;                    /* Last packet received by peer */
-    char hostname[MAXSTRLEN];   /* Remote hostname */
-    char vendor[MAXSTRLEN];     /* Vendor of remote product */
-    struct challenge chal_us;   /* Their Challenge to us */
-    struct challenge chal_them; /* Our challenge to them */
-    char secret[MAXSTRLEN];     /* Secret to use */
 #ifdef SANITY
     int sanity;                 /* check for sanity? */
 #endif
@@ -188,6 +183,11 @@ struct tunnel
     struct lns *lns;            /* LNS that owns us */
     struct lac *lac;            /* LAC that owns us */
     struct in_pktinfo my_addr;  /* Address of my endpoint */
+    char hostname[MAXSTRLEN];   /* Remote hostname */
+    char vendor[MAXSTRLEN];     /* Vendor of remote product */
+    struct challenge chal_us;   /* Their Challenge to us */
+    struct challenge chal_them; /* Our challenge to them */
+    char secret[MAXSTRLEN];     /* Secret to use */
 };
 
 struct tunnel_list

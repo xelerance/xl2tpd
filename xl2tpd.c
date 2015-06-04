@@ -339,6 +339,7 @@ void death_handler (int signal)
     /* erase pid and control files */
     unlink (gconfig.pidfile);
     unlink (gconfig.controlfile);
+	free(dial_no_tmp);
 
     exit (1);
 }
@@ -588,7 +589,7 @@ void destroy_tunnel (struct tunnel *t)
      * "suicide safe"
      */
 
-    struct call *c, *me;
+    struct call *c, *me, *next;
     struct tunnel *p;
     struct timeval tv;
     if (!t)
@@ -609,8 +610,9 @@ void destroy_tunnel (struct tunnel *t)
     c = t->call_head;
     while (c)
     {
+		next = c->next;
         destroy_call (c);
-        c = c->next;
+        c = next;
     };
     /*
      * Remove ourselves from the list of tunnels
@@ -676,6 +678,8 @@ void destroy_tunnel (struct tunnel *t)
     if (t->udp_fd > -1 )
         close (t->udp_fd);
     free (t);
+	if(me->oldptyconf)
+		free(me->oldptyconf);
     free (me);
 }
 

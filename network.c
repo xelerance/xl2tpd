@@ -483,7 +483,8 @@ void network_thread ()
         server_socket_processed = 0;
         currentfd = NULL;
         st = tunnels.head;
-        while (st || !server_socket_processed) {
+        while (st || !server_socket_processed)
+		{
             if (st && (st->udp_fd == -1)) {
                 st=st->next;
                 continue;
@@ -594,13 +595,10 @@ void network_thread ()
 	    {
 		do_packet_dump (buf);
 	    }
-	    if (!
-		(c = get_call (tunnel, call, from.sin_addr,
+			if (!(c = get_call (tunnel, call, from.sin_addr,
 			       from.sin_port, refme, refhim)))
 	    {
-		if ((c =
-		     get_tunnel (tunnel, from.sin_addr.s_addr,
-				 from.sin_port)))
+				if ((c = get_tunnel (tunnel, from.sin_addr.s_addr, from.sin_port)))
 		{
 		    /*
 		     * It is theoretically possible that we could be sent
@@ -617,7 +615,8 @@ void network_thread ()
 		    handle_special (buf, c, call);
 
 		    /* get a new buffer */
-		    buf = new_buf (MAX_RECV_SIZE);
+		// 		    buf = new_buf (MAX_RECV_SIZE);
+					recycle_buf (buf);
 		}
 		else
 		    l2tp_log (LOG_DEBUG,
@@ -645,7 +644,7 @@ void network_thread ()
 		    control_zlb (buf, c->container, c);
 		    c->cnu = 0;
 		}
-	    };
+			}
 	}
 	if (st) st=st->next;
 	}
