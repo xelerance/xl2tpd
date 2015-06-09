@@ -351,6 +351,14 @@ int set_speed (char *word, char *value, int context, void *item)
     return 0;
 }
 
+int set_host_ip_dump_file(char *word, char *value, int context, void *item)
+{
+    int len = strlen(value) + 1;
+    host_ip_dump_file = (char*)malloc(len);
+    strcpy(host_ip_dump_file, value);
+    return 0;
+}
+
 int set_rmax (char *word, char *value, int context, void *item)
 {
     if (atoi (value) < 1)
@@ -1537,5 +1545,6 @@ struct keyword words[] = {
     {"tx bps", &set_speed},
     {"rx bps", &set_speed},
     {"bps", &set_speed},
+    {"host ip dump file", &set_host_ip_dump_file},
     {NULL, NULL}
 };

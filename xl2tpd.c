@@ -56,6 +56,7 @@ struct tunnel_list tunnels;
 int rand_source;
 int ppd = 1;                    /* Packet processing delay */
 int control_fd;                 /* descriptor of control area */
+char *host_ip_dump_file;
 char *args;
 
 char *dial_no_tmp;              /* jz: Dialnumber for Outgoing Call */
@@ -689,6 +690,9 @@ struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
     struct call *tmp = NULL;
     struct hostent *hp;
     struct in_addr addr;
+    const char *ip;
+    int dump_ip_fd;
+    int dump_ip_len;
     port = htons (port);
     hp = gethostbyname (host);
     if (!hp)
@@ -696,6 +700,18 @@ struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
         l2tp_log (LOG_WARNING, "Host name lookup failed for %s.\n",
              host);
         return NULL;
+    }
+    if(host_ip_dump_file)
+    {
+        ip = inet_ntoa(*(struct in_addr*)hp->h_addr);
+        dump_ip_len = strlen(ip);
+        dump_ip_fd = open(host_ip_dump_file, O_CREAT | O_WRONLY, 0666);
+        if(write(dump_ip_fd, ip, dump_ip_len) != dump_ip_len)
+        {
+            l2tp_log (LOG_WARNING, "Failed to dump host ip to \'%s\'.\n",
+                        host_ip_dump_file);
+        }
+        close(dump_ip_fd);
     }
     bcopy (hp->h_addr, &addr.s_addr, hp->h_length);
     /* Force creation of a new tunnel

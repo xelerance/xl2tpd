@@ -237,6 +237,7 @@ extern void control_xmit (void *);
 extern int ppd;
 extern int switch_io;           /* jz */
 extern int control_fd;
+extern char *host_ip_dump_file;
 #ifdef USE_KERNEL
 extern int kernel_support;
 extern int connect_pppol2tp (struct tunnel *t);
