@@ -336,7 +336,7 @@ void call_close (struct call *c)
             tmp = tmp2;
         }
         l2tp_log (LOG_INFO,
-             "Connection %d closed to %s, port %d (%s)\n", 
+             "Connection %d closed to %s, port %d (%s)\n",
              c->container->tid,
              IPADDY (c->container->peer.sin_addr),
              ntohs (c->container->peer.sin_port), c->errormsg);
@@ -408,7 +408,10 @@ void destroy_call (struct call *c)
      * Close the tty
      */
     if (c->fd > 0)
+    {
         close (c->fd);
+        c->fd = -1;
+    }
 /*	if (c->dethrottle) deschedule(c->dethrottle); */
     if (c->zlb_xmit)
         deschedule (c->zlb_xmit);
@@ -419,7 +422,7 @@ void destroy_call (struct call *c)
 #endif
 
     /*
-     * Kill off pppd and wait for it to 
+     * Kill off pppd and wait for it to
      * return to us.  This should only be called
      * in rare cases if pppd hasn't already died
      * voluntarily
@@ -577,8 +580,8 @@ struct call *new_call (struct tunnel *parent)
 /*	if (tmp->ourrws >= 0)
 		tmp->ourfbit = FBIT;
 	else */
-    tmp->ourfbit = 0;           /* initialize to 0 since we don't actually use this 
-                                   value at this point anywhere in the code (I don't 
+    tmp->ourfbit = 0;           /* initialize to 0 since we don't actually use this
+                                   value at this point anywhere in the code (I don't
                                    think)  We might just be able to remove it completely */
     tmp->dial_no[0] = '\0';     /* jz: dialing number for outgoing call */
     return tmp;
@@ -606,7 +609,7 @@ struct call *get_call (int tunnel, int call,  struct in_addr addr, int port,
 		       IPsecSAref_t refme, IPsecSAref_t refhim)
 {
     /*
-     * Figure out which call struct should handle this. 
+     * Figure out which call struct should handle this.
      * If we have tunnel and call ID's then they are unique.
      * Otherwise, if the tunnel is 0, look for an existing connection
      * or create a new tunnel.
