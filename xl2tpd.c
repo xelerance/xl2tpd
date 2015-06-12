@@ -549,18 +549,17 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
              if (kernel_support) {
                  close(st->udp_fd); /* tunnel UDP fd */
                  close(st->pppox_fd); /* tunnel PPPoX fd */
-             } else {
+             } else
 #endif
+			 {
                  sc = st->call_head;
                  while (sc)
                  {
                      close (sc->fd); /* call pty fd */
                      sc = sc->next;
                  }
-                 st = st->next;
-#ifdef USE_KERNEL
-             }
-#endif
+			 }
+             st = st->next;
         }
 
         /* close the UDP socket fd */
@@ -1067,7 +1066,8 @@ int control_handle_available(FILE* resf, char* bufp){
     }
 
     write_res (resf, "%02i AVAILABLE lac.count=%d\n", 0, lac_count);
-    return 1;
+
+	return 1;
 }
 
 int control_handle_lns_add_modify(FILE* resf, char* bufp){
