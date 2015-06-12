@@ -1067,6 +1067,16 @@ int control_handle_available(FILE* resf, char* bufp){
 
     write_res (resf, "%02i AVAILABLE lac.count=%d\n", 0, lac_count);
 
+	struct tunnel *st;
+	st = tunnels.head;
+	while (st)
+	{
+		write_res (resf, "%02i AVAILABLE tunnel %p, id %d has %d calls and self %p\n", 0, st, st->tid, st->count, st->self);
+		st = st->next;
+	}
+
+	write_res (resf, "%02i AVAILABLE tunnels count=%d\n", 0, tunnels.count);
+	write_res (resf, "%02i AVAILABLE calls count=%d\n", 0, tunnels.calls);
 	return 1;
 }
 
