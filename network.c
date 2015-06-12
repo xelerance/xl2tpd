@@ -708,6 +708,8 @@ int connect_pppol2tp(struct tunnel *t) {
             struct sockaddr_pppol2tp sax;
 
             struct sockaddr_in server;
+
+            memset(&server, 0, sizeof(struct sockaddr_in));
             server.sin_family = AF_INET;
             server.sin_addr.s_addr = gconfig.listenaddr;
             server.sin_port = htons (gconfig.port);
@@ -741,6 +743,7 @@ int connect_pppol2tp(struct tunnel *t) {
             if (connect (ufd, (struct sockaddr *) &server, sizeof(server)) < 0) {
                 l2tp_log (LOG_CRIT, "%s: Unable to connect UDP peer. Terminating.\n",
                  __FUNCTION__);
+                close(ufd);
                 return -EINVAL;
             }
 
@@ -756,6 +759,7 @@ int connect_pppol2tp(struct tunnel *t) {
             if (flags == -1 || fcntl(fd2, F_SETFL, flags | O_NONBLOCK) == -1) {
                 l2tp_log (LOG_WARNING, "%s: Unable to set PPPoL2TP socket nonblock.\n",
                      __FUNCTION__);
+                close(fd2);
                 return -EINVAL;
             }
             memset(&sax, 0, sizeof(sax));

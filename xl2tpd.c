@@ -518,6 +518,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     {
         /* parent */
         l2tp_log(LOG_WARNING,"%s: unable to fork(), abandoning!\n", __FUNCTION__);
+        close(fd2);
         return -EINVAL;
     }
     else if (!c->pppd)
@@ -1689,13 +1690,14 @@ void daemonize() {
 
     close(0);
     i = open("/dev/null", O_RDWR);
-    if (i != 0) {
+    if (i == -1) {
         l2tp_log(LOG_INFO, "Redirect of stdin to /dev/null failed\n");
     } else {
         if (dup2(0, 1) == -1)
             l2tp_log(LOG_INFO, "Redirect of stdout to /dev/null failed\n");
         if (dup2(0, 2) == -1)
             l2tp_log(LOG_INFO, "Redirect of stderr to /dev/null failed\n");
+        close(i);
     }
 #endif
 }
