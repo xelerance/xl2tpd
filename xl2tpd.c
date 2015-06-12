@@ -547,15 +547,18 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         {
 #ifdef USE_KERNEL
              if (kernel_support) {
-                 close(st->udp_fd); /* tunnel UDP fd */
-                 close(st->pppox_fd); /* tunnel PPPoX fd */
+                if(st->udp_fd!=-1)
+                    close(st->udp_fd); /* tunnel UDP fd */
+                if(st->pppox_fd!=-1)
+                    close(st->pppox_fd); /* tunnel PPPoX fd */
              } else
 #endif
 			 {
                  sc = st->call_head;
                  while (sc)
                  {
-                     close (sc->fd); /* call pty fd */
+                     if(sc->fd!=-1)
+                        close (sc->fd); /* call pty fd */
                      sc = sc->next;
                  }
 			 }
@@ -563,10 +566,12 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         }
 
         /* close the UDP socket fd */
-        close (server_socket);
+        if(server_socket!=-1)
+            close (server_socket);
 
         /* close the control pipe fd */
-        close (control_fd);
+        if(control_fd!=-1)
+            close (control_fd);
 
         if( c->dialing[0] )
         {
