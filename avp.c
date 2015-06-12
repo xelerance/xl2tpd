@@ -502,7 +502,7 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
         return 0;
     }
 
-    if ((c->msgtype == CDN) && ((result > 11) || (result < 1)))
+    if ((c->msgtype == CDN) && ((result > 10) || (result < 1)))
     {
         if (DEBUG)
             l2tp_log (LOG_DEBUG,
