@@ -88,9 +88,9 @@ void add_payload_hdr (struct tunnel *t, struct call *c, struct buffer *buf)
 /*	c->rbit=0; */
 }
 
-int read_packet (struct buffer *buf, int fd)
+int read_packet (struct buffer *buf, struct call *c)
 {
-    unsigned char c;
+    unsigned char ch;
     unsigned char escape = 0;
     unsigned char *p;
     static unsigned char rbuf[MAX_RECV_SIZE];
@@ -99,13 +99,12 @@ int read_packet (struct buffer *buf, int fd)
     int res;
     int errors = 0;
 
-    /* Read a packet, doing async->sync conversion if necessary */
     p = buf->start;
     while (1)
     {
         if (pos >= max)
         {
-            max = read(fd, rbuf, sizeof (rbuf));
+            max = read(c->fd, rbuf, sizeof (rbuf));
             res = max;
             pos = 0;
         }
@@ -114,7 +113,7 @@ int read_packet (struct buffer *buf, int fd)
             res = 1;
         }
 
-        c = rbuf[pos++];
+        ch = rbuf[pos++];
 
 	/* if there was a short read, then see what is about */
         if (res < 1)
@@ -152,7 +151,7 @@ int read_packet (struct buffer *buf, int fd)
             continue;
         }
 
-        switch (c)
+        switch (ch)
         {
         case PPP_FLAG:
             if (escape)
@@ -186,11 +185,11 @@ int read_packet (struct buffer *buf, int fd)
             break;
 
         default:
-            c ^= escape;
+            ch ^= escape;
             escape = 0;
             if (buf->len < buf->maxlen)
             {
-                *p = c;
+                *p = ch;
                 p++;
                 buf->len++;
                 break;
