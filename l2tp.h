@@ -20,6 +20,8 @@ typedef unsigned long long _u64;
 #define _L2TP_H
 
 #define MAXSTRLEN 120           /* Maximum length of common strings */
+                                /* FIXME: MAX_RECV_SIZE, what is it? */
+#define MAX_RECV_SIZE 4096      /* Biggest packet we'll accept */
 
 #include <netinet/in.h>
 #include <termios.h>
@@ -124,8 +126,6 @@ struct payload_hdr
 #define MIN_PAYLOAD_HDR_LEN 6
 
 #define UDP_LISTEN_PORT  1701
-                                /* FIXME: MAX_RECV_SIZE, what is it? */
-#define MAX_RECV_SIZE 4096      /* Biggest packet we'll accept */
 
 #define OUR_L2TP_VERSION 0x100  /* We support version 1, revision 0 */
 

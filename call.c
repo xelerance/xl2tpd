@@ -93,27 +93,24 @@ int read_packet (struct buffer *buf, struct call *c)
     unsigned char ch;
     unsigned char escape = 0;
     unsigned char *p;
-    static unsigned char rbuf[MAX_RECV_SIZE];
-    static int pos = 0;
-    static int max = 0;
     int res;
     int errors = 0;
 
     p = buf->start;
     while (1)
     {
-        if (pos >= max)
+        if (c->rbuf_pos >= c->rbuf_max)
         {
-            max = read(c->fd, rbuf, sizeof (rbuf));
-            res = max;
-            pos = 0;
+            c->rbuf_max = read(c->fd, c->rbuf, sizeof (c->rbuf));
+            res = c->rbuf_max;
+            c->rbuf_pos = 0;
         }
         else
         {
             res = 1;
         }
 
-        ch = rbuf[pos++];
+        ch = c->rbuf[c->rbuf_pos++];
 
 	/* if there was a short read, then see what is about */
         if (res < 1)
@@ -144,8 +141,8 @@ int read_packet (struct buffer *buf, struct call *c)
                 l2tp_log (LOG_DEBUG,
                      "%s: Too many errors.  Declaring call dead.\n",
                      __FUNCTION__);
-		pos=0;
-		max=0;
+                c->rbuf_pos = 0;
+                c->rbuf_max = 0;
                 return -errno;
             }
             continue;
@@ -158,8 +155,8 @@ int read_packet (struct buffer *buf, struct call *c)
             {
                 l2tp_log (LOG_DEBUG, "%s: got an escaped PPP_FLAG\n",
                      __FUNCTION__);
-		pos=0;
-		max=0;
+                c->rbuf_pos = 0;
+                c->rbuf_max = 0;
                 return -EINVAL;
             }
 
@@ -195,8 +192,8 @@ int read_packet (struct buffer *buf, struct call *c)
                 break;
             }
             l2tp_log (LOG_WARNING, "%s: read overrun\n", __FUNCTION__);
-	    pos=0;
-	    max=0;
+            c->rbuf_pos = 0;
+            c->rbuf_max = 0;
             return -EINVAL;
         }
     }
@@ -537,6 +534,8 @@ struct call *new_call (struct tunnel *parent)
     tmp->container = parent;
 /*	tmp->rws = -1; */
     tmp->fd = -1;
+    tmp->rbuf_pos = 0;
+    tmp->rbuf_max = 0;
     tmp->oldptyconf = malloc (sizeof (struct termios));
     tmp->pnu = 0;
     tmp->cnu = 0;
