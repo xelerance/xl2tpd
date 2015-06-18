@@ -231,7 +231,7 @@ extern void destroy_tunnel (struct tunnel *);
 extern struct buffer *new_payload (struct sockaddr_in);
 extern void recycle_payload (struct buffer *, struct sockaddr_in);
 extern void add_payload_hdr (struct tunnel *, struct call *, struct buffer *);
-extern int read_packet (struct buffer *, struct call *);
+extern int read_packet (struct call *);
 extern void udp_xmit (struct buffer *buf, struct tunnel *t);
 extern void control_xmit (void *);
 extern int ppd;

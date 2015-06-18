@@ -88,15 +88,16 @@ void add_payload_hdr (struct tunnel *t, struct call *c, struct buffer *buf)
 /*	c->rbit=0; */
 }
 
-int read_packet (struct buffer *buf, struct call *c)
+int read_packet (struct call *c)
 {
+    struct buffer *buf = c->ppp_buf;
     unsigned char ch;
     unsigned char escape = 0;
     unsigned char *p;
     int res;
     int errors = 0;
 
-    p = buf->start;
+    p = buf->start + buf->len;
     while (1)
     {
         if (c->rbuf_pos >= c->rbuf_max)
@@ -392,6 +393,7 @@ void destroy_call (struct call *c)
 /*	if (c->dethrottle) deschedule(c->dethrottle); */
     if (c->zlb_xmit)
         deschedule (c->zlb_xmit);
+    toss(c->ppp_buf);
 
 #ifdef IP_ALLOCATION
     if (c->addr)
@@ -536,6 +538,7 @@ struct call *new_call (struct tunnel *parent)
     tmp->fd = -1;
     tmp->rbuf_pos = 0;
     tmp->rbuf_max = 0;
+    tmp->ppp_buf = new_payload (parent->peer);
     tmp->oldptyconf = malloc (sizeof (struct termios));
     tmp->pnu = 0;
     tmp->cnu = 0;
