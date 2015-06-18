@@ -666,7 +666,7 @@ void network_thread ()
                     recycle_payload (buf, sc->container->peer);
 
                     while ((result =
-                            read_packet (buf, sc->fd, SYNC_FRAMING)) > 0)
+                            read_packet (buf, sc->fd)) > 0)
                     {
                         add_payload_hdr (sc->container, sc, buf);
                         if (gconfig.packet_dump)

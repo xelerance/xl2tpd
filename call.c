@@ -88,7 +88,7 @@ void add_payload_hdr (struct tunnel *t, struct call *c, struct buffer *buf)
 /*	c->rbit=0; */
 }
 
-int read_packet (struct buffer *buf, int fd, int convert)
+int read_packet (struct buffer *buf, int fd)
 {
     unsigned char c;
     unsigned char escape = 0;
@@ -164,31 +164,18 @@ int read_packet (struct buffer *buf, int fd, int convert)
                 return -EINVAL;
             }
 
-            if (convert)
-            {
-	      if (buf->len >= 2) {
-		/* must be the end, drop the FCS */
-		buf->len -= 2;
-	      }
-	      else if (buf->len == 1) {
-		/* Do nothing, just return the single character*/
-	      }
-	      else {
-		/* if the buffer is empty, then we have the beginning
-		 * of a packet, not the end
-		 */
-		break;
-	      }
-	    }
-            else
-            {
-		/* if there is space, then insert the byte */
-                if (buf->len < buf->maxlen)
-                {
-                    *p = c;
-                    p++;
-                    buf->len++;
-                }
+            if (buf->len >= 2) {
+              /* must be the end, drop the FCS */
+              buf->len -= 2;
+            }
+            else if (buf->len == 1) {
+              /* Do nothing, just return the single character*/
+            }
+            else {
+              /* if the buffer is empty, then we have the beginning
+               * of a packet, not the end
+               */
+              break;
             }
 
 	    /* return what we have now */
@@ -196,13 +183,10 @@ int read_packet (struct buffer *buf, int fd, int convert)
 
         case PPP_ESCAPE:
             escape = PPP_TRANS;
-            if (convert)
-                break;
+            break;
 
-	    /* fall through */
         default:
-            if (convert)
-                c ^= escape;
+            c ^= escape;
             escape = 0;
             if (buf->len < buf->maxlen)
             {
