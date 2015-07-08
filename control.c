@@ -994,6 +994,7 @@ int control_finish (struct tunnel *t, struct call *c)
             po = add_opt (po, "ipparam");
             po = add_opt (po, IPADDY (t->peer.sin_addr));
         }
+
         start_pppd (c, po);
         opt_destroy (po);
         l2tp_log (LOG_NOTICE,
