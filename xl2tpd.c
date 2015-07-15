@@ -1414,20 +1414,18 @@ int control_handle_lac_add_modify(FILE* resf, char* bufp){
             return 0;
         lac = lac->next;
     }
+
+    /* nothing found, create new lac */
+    lac = new_lac ();
     if (!lac)
     {
-        /* nothing found, create new lac */
-        lac = new_lac ();
-        if (!lac)
-        {
-            write_res (resf,
-                    "%02i Could't create new lac: no memory\n", 2);
-            l2tp_log (LOG_CRIT,
-                    "%s: Couldn't create new lac\n", __FUNCTION__);
-            return 0;
-        }
-        create_new_lac = 1;
+        write_res (resf,
+                "%02i Could't create new lac: no memory\n", 2);
+        l2tp_log (LOG_CRIT,
+                "%s: Couldn't create new lac\n", __FUNCTION__);
+        return 0;
     }
+    create_new_lac = 1;
     strncpy (lac->entname, tunstr, sizeof (lac->entname));
 
     if (parse_one_line_lac (bufp, lac))
