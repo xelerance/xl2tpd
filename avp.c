@@ -104,6 +104,7 @@ char *cdn_result_codes[] = {
     "Call failed due to lack of appropriate facilities being available (permanent condition)",
     "Invalid destination",
     "Call failed due to no carrier detected",
+    "Call failed due to detection of a busy signal",
     "Call failed due to lack of a dial tone",
     "Call was no established within time allotted by LAC",
     "Call was connected but no appropriate framing was detect"
