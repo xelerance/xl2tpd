@@ -386,7 +386,6 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     /* char a, b; */
     char tty[512];
     char *stropt[80];
-    struct ppp_opts *p;
 #ifdef USE_KERNEL
     struct sockaddr_pppol2tp sax;
     int flags;
@@ -400,16 +399,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     struct call *sc;
     struct tunnel *st;
 
-    p = opts;
     stropt[0] = strdup (PPPD);
-    while (p)
-    {
-        stropt[pos] = (char *) malloc (strlen (p->option) + 1);
-        strncpy (stropt[pos], p->option, strlen (p->option) + 1);
-        pos++;
-        p = p->next;
-    }
-    stropt[pos] = NULL;
     if (c->pppd > 0)
     {
         l2tp_log(LOG_WARNING, "%s: PPP already started on call!\n", __FUNCTION__);
@@ -471,7 +461,6 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         snprintf (stropt[pos], 10, "%d", c->ourcid);
             pos++;
        }
-        stropt[pos] = NULL;
     }
     else
 #endif
@@ -501,6 +490,17 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             return -EINVAL;
         }
         stropt[pos++] = strdup(tty);
+    }
+
+    {
+        struct ppp_opts *p = opts;
+        int maxn_opts = sizeof(stropt) / sizeof(stropt[0]) - 1;
+        while (p && pos < maxn_opts)
+        {
+            stropt[pos] = strdup (p->option);
+            pos++;
+            p = p->next;
+        }
         stropt[pos] = NULL;
     }
 
@@ -1055,7 +1055,7 @@ int control_handle_available(FILE* resf, char* bufp){
         lns_count++;
     }
 
-    write_res (resf, "%02i AVAILABLE lns.cout=%d\n", 0, lns_count);
+    write_res (resf, "%02i AVAILABLE lns.count=%d\n", 0, lns_count);
 
     lac  = laclist;
     int lac_count = 0;
@@ -1440,20 +1440,18 @@ int control_handle_lac_add_modify(FILE* resf, char* bufp){
             return 0;
         lac = lac->next;
     }
+
+    /* nothing found, create new lac */
+    lac = new_lac ();
     if (!lac)
     {
-        /* nothing found, create new lac */
-        lac = new_lac ();
-        if (!lac)
-        {
-            write_res (resf,
-                    "%02i Could't create new lac: no memory\n", 2);
-            l2tp_log (LOG_CRIT,
-                    "%s: Couldn't create new lac\n", __FUNCTION__);
-            return 0;
-        }
-        create_new_lac = 1;
+        write_res (resf,
+                "%02i Could't create new lac: no memory\n", 2);
+        l2tp_log (LOG_CRIT,
+                "%s: Couldn't create new lac\n", __FUNCTION__);
+        return 0;
     }
+    create_new_lac = 1;
     strncpy (lac->entname, tunstr, sizeof (lac->entname));
 
     if (parse_one_line_lac (bufp, lac))
@@ -1578,7 +1576,6 @@ void do_control ()
             /*FIXME: check quotes to allow filenames with spaces?
               (do not forget quotes escaping to allow filenames with quotes)*/
 
-            /*FIXME: write to res_filename may cause SIGPIPE, need to catch it*/
             resf = fopen (res_filename, "w");
             if (!resf) {
                 l2tp_log (LOG_DEBUG, "%s: Can't open result file %s\n",
@@ -1609,6 +1606,8 @@ void do_control ()
         if (resf)
         {
             fclose (resf);
+            /* unlink it anyway to prevent leftover a regular file. */
+            unlink(res_filename);
         }
     }
 
@@ -1621,7 +1620,7 @@ void do_control ()
 void usage(void) {
     printf("\nxl2tpd version:  %s\n", SERVER_VERSION);
     printf("Usage: xl2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]\n"
-            "              [-C <control file>] [-D]\n"
+            "              [-C <control file>] [-D] [-l]\n"
             "              [-v, --version]\n");
     printf("\n");
     exit(1);
@@ -1632,6 +1631,7 @@ void init_args(int argc, char *argv[])
     int i=0;
 
     gconfig.daemon=1;
+    gconfig.syslog=-1;
     memset(gconfig.altauthfile,0,STRLEN);
     memset(gconfig.altconfigfile,0,STRLEN);
     memset(gconfig.authfile,0,STRLEN);
@@ -1669,6 +1669,9 @@ void init_args(int argc, char *argv[])
         else if (! strncmp(argv[i],"-D",2)) {
             gconfig.daemon=0;
         }
+        else if (! strncmp(argv[i],"-l",2)) {
+            gconfig.syslog=1;
+        }
         else if (! strncmp(argv[i],"-s",2)) {
             if(++i == argc)
                 usage();
@@ -1694,6 +1697,13 @@ void init_args(int argc, char *argv[])
             usage();
         }
     }
+
+    /*
+     * defaults to syslog if no log facility was explicitly
+     * specified and we are about to daemonize
+     */
+    if (gconfig.syslog < 0)
+        gconfig.syslog = gconfig.daemon;
 }
 
 
@@ -1830,6 +1840,7 @@ void init (int argc,char *argv[])
     signal (SIGCHLD, &sigchld_handler);
     signal (SIGUSR1, &sigusr1_handler);
     signal (SIGHUP, &sighup_handler);
+    signal (SIGPIPE, SIG_IGN);
     init_scheduler ();
 
     unlink(gconfig.controlfile);
