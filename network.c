@@ -596,59 +596,55 @@ void network_thread ()
 	    {
 		do_packet_dump (buf);
 	    }
-			if (!(c = get_call (tunnel, call, from.sin_addr,
-			       from.sin_port, refme, refhim)))
-	    {
-				if ((c = get_tunnel (tunnel, from.sin_addr.s_addr, from.sin_port)))
-		{
-		    /*
-		     * It is theoretically possible that we could be sent
-		     * a control message (say a StopCCN) on a call that we
-		     * have already closed or some such nonsense.  To
-		     * prevent this from closing the tunnel, if we get a
-		     * call on a valid tunnel, but not with a valid CID,
-		     * we'll just send a ZLB to ack receiving the packet.
-		     */
-		    if (gconfig.debug_tunnel)
-			l2tp_log (LOG_DEBUG,
-				  "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
-				  __FUNCTION__);
-		    handle_special (buf, c, call);
 
-		    /* get a new buffer */
-            /* Let's recycle the buffer instead, even if it is the control buffer
-                buf = new_buf (MAX_RECV_SIZE);
-            */
-            recycle_buf (buf);
-		}
-		else
-		    l2tp_log (LOG_DEBUG,
-			      "%s: unable to find call or tunnel to handle packet.  call = %d, tunnel = %d Dumping.\n",
-			      __FUNCTION__, call, tunnel);
+        if (!(c = get_call (tunnel, call, from.sin_addr,
+                from.sin_port, refme, refhim)))
+        {
+            if ((c = get_tunnel (tunnel, from.sin_addr.s_addr, from.sin_port)))
+            {
+                /*
+                * It is theoretically possible that we could be sent
+                * a control message (say a StopCCN) on a call that we
+                * have already closed or some such nonsense.  To
+                * prevent this from closing the tunnel, if we get a
+                * call on a valid tunnel, but not with a valid CID,
+                * we'll just send a ZLB to ack receiving the packet.
+                */
+                if (gconfig.debug_tunnel)
+                l2tp_log (LOG_DEBUG,
+                    "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
+                    __FUNCTION__);
+                if(1==handle_special (buf, c, call)) {
+                    buf = new_buf (MAX_RECV_SIZE);
+                }
+            }
+            else
+                l2tp_log (LOG_DEBUG,
+                    "%s: unable to find call or tunnel to handle packet.  call = %d, tunnel = %d Dumping.\n",
+                    __FUNCTION__, call, tunnel);
+        }
+        else
+        {
+            if (c->container) {
+                c->container->my_addr = to;
+            }
 
-	    }
-	    else
-	    {
-		if (c->container) {
-			c->container->my_addr = to;
-		}
-
-		buf->peer = from;
-		/* Handle the packet */
-		c->container->chal_us.vector = NULL;
-		if (handle_packet (buf, c->container, c))
-		{
-		    if (gconfig.debug_tunnel)
-			l2tp_log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
-		};
-		if (c->cnu)
-		{
-		    /* Send Zero Byte Packet */
-		    control_zlb (buf, c->container, c);
-		    c->cnu = 0;
-		}
-			}
-	}
+            buf->peer = from;
+            /* Handle the packet */
+            c->container->chal_us.vector = NULL;
+            if (handle_packet (buf, c->container, c))
+            {
+                if (gconfig.debug_tunnel)
+                l2tp_log (LOG_DEBUG, "%s: bad packet\n", __FUNCTION__);
+            }
+            if (c->cnu)
+            {
+                /* Send Zero Byte Packet */
+                control_zlb (buf, c->container, c);
+                c->cnu = 0;
+            }
+        }
+    }
 	if (st) st=st->next;
 	}
 
@@ -665,8 +661,34 @@ void network_thread ()
                 {
                     /* Got some payload to send */
                     int result;
+<<<<<<< HEAD
 
                     while ((result = read_packet (sc)) > 0)
+=======
+                    recycle_payload (buf, sc->container->peer);
+/*
+#ifdef DEBUG_FLOW_MORE
+                    l2tp_log (LOG_DEBUG, "%s: rws = %d, pSs = %d, pLr = %d\n",
+                         __FUNCTION__, sc->rws, sc->pSs, sc->pLr);
+#endif
+		    if ((sc->rws>0) && (sc->pSs > sc->pLr + sc->rws) && !sc->rbit) {
+#ifdef DEBUG_FLOW
+						log(LOG_DEBUG, "%s: throttling payload (call = %d, tunnel = %d, Lr = %d, Ss = %d, rws = %d)!\n",__FUNCTION__,
+								 sc->cid, sc->container->tid, sc->pLr, sc->pSs, sc->rws);
+#endif
+						sc->throttle = -1;
+						We unthrottle in handle_packet if we get a payload packet,
+						valid or ZLB, but we also schedule a dethrottle in which
+						case the R-bit will be set
+						FIXME: Rate Adaptive timeout?
+						tv.tv_sec = 2;
+						tv.tv_usec = 0;
+						sc->dethrottle = schedule(tv, dethrottle, sc);
+					} else */
+/*					while ((result=read_packet(buf,sc->fd,sc->frame & SYNC_FRAMING))>0) { */
+                    while ((result =
+                            read_packet (buf, sc->fd, SYNC_FRAMING)) > 0)
+>>>>>>> cristi/master
                     {
                         add_payload_hdr (sc->container, sc, sc->ppp_buf);
                         if (gconfig.packet_dump)
