@@ -692,7 +692,6 @@ void destroy_tunnel (struct tunnel *t)
 	if(me->oldptyconf)
 		free(me->oldptyconf);
     free (me);
-    free (dial_no_tmp);
 }
 
 struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
