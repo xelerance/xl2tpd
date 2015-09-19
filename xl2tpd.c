@@ -1506,6 +1506,16 @@ int control_handle_lac_remove(FILE* resf, char* bufp){
         lac_disconnect (lac->t->ourtid);
         lac->t->lac = NULL;
     }
+    if (lac->lns)
+    {
+        struct host *t, *h = lac->lns;
+        while (h)
+        {
+            t = h->next;
+            free(h);
+            h = t;
+        }
+    }
     // removes lac from laclist
     if (prev_lac == NULL)
         laclist = lac->next;
