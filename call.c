@@ -480,12 +480,9 @@ void destroy_call (struct call *c)
         }
     }
     if(c->oldptyconf)
-		free(c->oldptyconf);
+        free(c->oldptyconf);
 
-    /* This is totally the wrong place to free the memory.
-     * It's already being done by the upper layers.
-     free (c);
-   */
+    free (c);
 }
 
 

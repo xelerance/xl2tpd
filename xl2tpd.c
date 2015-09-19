@@ -688,10 +688,8 @@ void destroy_tunnel (struct tunnel *t)
         close (t->pppox_fd);
     if (t->udp_fd > -1 )
         close (t->udp_fd);
+    destroy_call (me);
     free (t);
-	if(me->oldptyconf)
-		free(me->oldptyconf);
-    free (me);
 }
 
 struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
