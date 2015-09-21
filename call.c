@@ -480,7 +480,7 @@ void destroy_call (struct call *c)
         }
     }
     if(c->oldptyconf)
-		free(c->oldptyconf);
+        free(c->oldptyconf);
 
     free (c);
 }
