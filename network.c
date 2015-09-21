@@ -546,6 +546,7 @@ void network_thread ()
                     l2tp_log (LOG_WARNING, "%s: received too small a packet\n",
                          __FUNCTION__);
                 }
+		if (st) st=st->next;
 		continue;
             }
 
