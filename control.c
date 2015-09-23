@@ -1140,7 +1140,7 @@ int control_finish (struct tunnel *t, struct call *c)
     return 0;
 }
 
-inline int check_control (const struct buffer *buf, struct tunnel *t,
+static inline int check_control (const struct buffer *buf, struct tunnel *t,
                           struct call *c)
 {
     /*
@@ -1276,7 +1276,7 @@ inline int check_control (const struct buffer *buf, struct tunnel *t,
     return 0;
 }
 
-inline int check_payload (struct buffer *buf, struct tunnel *t,
+static inline int check_payload (struct buffer *buf, struct tunnel *t,
                           struct call *c)
 {
     /*
@@ -1382,7 +1382,7 @@ inline int check_payload (struct buffer *buf, struct tunnel *t,
 #endif
     return 0;
 }
-inline int expand_payload (struct buffer *buf, struct tunnel *t,
+static inline int expand_payload (struct buffer *buf, struct tunnel *t,
                            struct call *c)
 {
     /*
@@ -1562,7 +1562,7 @@ void send_zlb (void *data)
     toss (buf);
 }
 
-inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
+static inline int write_packet (struct buffer *buf, struct tunnel *t, struct call *c,
                          int convert)
 {
     /*
