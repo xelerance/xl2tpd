@@ -688,10 +688,8 @@ void destroy_tunnel (struct tunnel *t)
         close (t->pppox_fd);
     if (t->udp_fd > -1 )
         close (t->udp_fd);
+    destroy_call (me);
     free (t);
-	if(me->oldptyconf)
-		free(me->oldptyconf);
-    free (me);
 }
 
 struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
@@ -1504,6 +1502,27 @@ int control_handle_lac_remove(FILE* resf, char* bufp){
     if (lac->t)
     {
         lac_disconnect (lac->t->ourtid);
+        lac->t->lac = NULL;
+        lac->t->self->lac = NULL;
+    }
+    if (lac->c)
+    {
+        struct call *c = lac->c;
+        while (c)
+        {
+            c->lac = NULL;
+            c = c->next;
+        }
+    }
+    if (lac->lns)
+    {
+        struct host *t, *h = lac->lns;
+        while (h)
+        {
+            t = h->next;
+            free(h);
+            h = t;
+        }
     }
     // removes lac from laclist
     if (prev_lac == NULL)
