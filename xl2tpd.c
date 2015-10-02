@@ -1074,7 +1074,7 @@ int control_handle_available(FILE* resf, char* bufp){
 	st = tunnels.head;
 	while (st)
 	{
-		write_res (resf, "%02i AVAILABLE tunnel %p, id %d has %d calls and self %p\n", 0, st, st->tid, st->count, st->self);
+        write_res (resf, "%02i AVAILABLE tunnel %p, id %d, ourtid %d has %d calls and self %p\n", 0, st, st->tid, st->ourtid, st->count, st->self);
 		st = st->next;
 	}
 
