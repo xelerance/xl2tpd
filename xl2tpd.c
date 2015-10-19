@@ -1504,8 +1504,13 @@ int control_handle_lac_remove(FILE* resf, char* bufp){
     if (lac->t)
     {
         lac_disconnect (lac->t->ourtid);
-        lac->t->lac = NULL;
-        lac->t->self->lac = NULL;
+        /* destroy_tunnel may clear lac->t */
+        if(lac->t)
+        {
+            lac->t->lac = NULL;
+            if(lac->t->self)
+                lac->t->self->lac = NULL;
+        }
     }
     if (lac->c)
     {
