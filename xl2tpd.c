@@ -757,18 +757,15 @@ void magic_lac_tunnel (void *data)
     {
         /* FIXME: I should try different LNS's if I get failures */
         l2tp_call (lac->lns->hostname, lac->lns->port, lac, NULL);
-        return;
     }
     else if (deflac && deflac->lns)
     {
         l2tp_call (deflac->lns->hostname, deflac->lns->port, lac, NULL);
-        return;
     }
     else
     {
         l2tp_log (LOG_WARNING, "%s: Unable to find hostname to dial for '%s'\n",
              __FUNCTION__, lac->entname);
-        return;
     }
 }
 
