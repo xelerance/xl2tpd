@@ -175,7 +175,7 @@ void show_status (void)
         while (c)
         {
             cnt++;
-            l2tp_log (LOG_WARNING, 
+            l2tp_log (LOG_WARNING,
                      "Call %s # %lu, ID = %d (local), %d (remote), serno = %u,"
                      " data_seq_num = %d, data_rec_seq_num = %d,"
                      " pLr = %d, tx = %u bytes (%u), rx= %u bytes (%u)",
@@ -219,9 +219,9 @@ void show_status (void)
 
 void null_handler(int sig)
 {
-       /* FIXME 
-        * A sighup is received when a call is terminated, unknown origine .. 
-        * I catch it and ll looks good, but .. 
+       /* FIXME
+        * A sighup is received when a call is terminated, unknown origine ..
+        * I catch it and ll looks good, but ..
         */
 }
 
@@ -236,7 +236,7 @@ void child_handler (int signal)
      * Oops, somebody we launched was killed.
      * It's time to reap them and close that call.
      * But first, we have to find out what PID died.
-     * unfortunately, pppd will 
+     * unfortunately, pppd will
      */
     struct tunnel *t;
     struct call *c;
@@ -280,7 +280,7 @@ void child_handler (int signal)
                          c->cid );
                     }
                     c->needclose = -1;
-                    /* 
+                    /*
                      * OK...pppd died, we can go ahead and close the pty for
                      * it
                      */
@@ -339,6 +339,10 @@ void death_handler (int signal)
     /* erase pid and control files */
     unlink (gconfig.pidfile);
     unlink (gconfig.controlfile);
+    free(dial_no_tmp);
+    close(server_socket);
+    close(control_fd);
+    closelog();
 
     exit (1);
 }
@@ -477,7 +481,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             l2tp_log (LOG_WARNING, "%s: unable to allocate pty, abandoning!\n",
                       __FUNCTION__);
             return -EINVAL;
-        } 
+        }
 
         /* set fd opened above to not echo so we don't see read our own packets
            back of the file descriptor that we just wrote them to */
@@ -509,7 +513,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
 #endif
 #ifdef __uClinux__
     c->pppd = vfork ();
-#else 
+#else
     c->pppd = fork ();
 #endif
 
@@ -517,6 +521,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     {
         /* parent */
         l2tp_log(LOG_WARNING,"%s: unable to fork(), abandoning!\n", __FUNCTION__);
+        close(fd2);
         return -EINVAL;
     }
     else if (!c->pppd)
@@ -525,7 +530,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
 
         close (0); /* redundant; the dup2() below would do that, too */
         close (1); /* ditto */
-        /* close (2); No, we want to keep the connection to /dev/null. */ 
+        /* close (2); No, we want to keep the connection to /dev/null. */
 #ifdef USE_KERNEL
        if (!kernel_support)
 #endif
@@ -534,32 +539,39 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         /* connect the pty to stdin and stdout */
         dup2 (fd2, 0);
         dup2 (fd2, 1);
-	close(fd2);
+        close(fd2);
        }
         /* close all the calls pty fds */
         st = tunnels.head;
         while (st)
         {
-            sc = st->call_head;
-            while (sc)
-            {
 #ifdef USE_KERNEL
-                if (kernel_support) {
+             if (kernel_support) {
+                if(st->udp_fd!=-1)
                     close(st->udp_fd); /* tunnel UDP fd */
+                if(st->pppox_fd!=-1)
                     close(st->pppox_fd); /* tunnel PPPoX fd */
-                } else
+             } else
 #endif
-                    close (sc->fd); /* call pty fd */
-                sc = sc->next;
-            }
-            st = st->next;
+			 {
+                 sc = st->call_head;
+                 while (sc)
+                 {
+                     if(sc->fd!=-1)
+                        close (sc->fd); /* call pty fd */
+                     sc = sc->next;
+                 }
+			 }
+             st = st->next;
         }
 
         /* close the UDP socket fd */
-        close (server_socket);
+        if(server_socket!=-1)
+            close (server_socket);
 
         /* close the control pipe fd */
-        close (control_fd);
+        if(control_fd!=-1)
+            close (control_fd);
 
         if( c->dialing[0] )
         {
@@ -588,7 +600,7 @@ void destroy_tunnel (struct tunnel *t)
      * "suicide safe"
      */
 
-    struct call *c, *me;
+    struct call *c, *me, *next;
     struct tunnel *p;
     struct timeval tv;
     if (!t)
@@ -609,8 +621,9 @@ void destroy_tunnel (struct tunnel *t)
     c = t->call_head;
     while (c)
     {
+		next = c->next;
         destroy_call (c);
-        c = c->next;
+        c = next;
     };
     /*
      * Remove ourselves from the list of tunnels
@@ -676,6 +689,8 @@ void destroy_tunnel (struct tunnel *t)
     if (t->udp_fd > -1 )
         close (t->udp_fd);
     free (t);
+	if(me->oldptyconf)
+		free(me->oldptyconf);
     free (me);
 }
 
@@ -939,13 +954,13 @@ int parse_one_line (char* bufp, int context, void* tc)
     /* FIXME: I should check for incompatible options */
     char *s, *d, *t;
     int linenum = 0;
-   
+
     s = strtok (bufp, ";");
-    // parse options token by token    
+    // parse options token by token
     while (s != NULL)
     {
         linenum++;
-        
+
         while ((*s < 33) && *s)
             s++;                /* Skip over beginning white space */
         t = s + strlen (s);
@@ -973,7 +988,7 @@ int parse_one_line (char* bufp, int context, void* tc)
             __FUNCTION__, s, t);
 #endif
         /* Okay, bit twidling is done.  Let's handle this */
-        
+
         switch (parse_one_option (s, t, context, tc))
         {
         case -1:
@@ -1037,7 +1052,7 @@ int control_handle_available(FILE* resf, char* bufp){
     if(deflns){
         write_res (resf, "%02i AVAILABLE lns.%d.name=%s\n", 0, lns_count, deflns->entname);
         lns_count++;
-    }                                               
+    }
 
     write_res (resf, "%02i AVAILABLE lns.cout=%d\n", 0, lns_count);
 
@@ -1053,10 +1068,21 @@ int control_handle_available(FILE* resf, char* bufp){
     if(deflac){
         write_res (resf, "%02i AVAILABLE lac.%d.name=%s\n", 0, lac_count, deflac->entname);
         lac_count++;
-    }                                               
+    }
 
     write_res (resf, "%02i AVAILABLE lac.count=%d\n", 0, lac_count);
-    return 1;
+
+	struct tunnel *st;
+	st = tunnels.head;
+	while (st)
+	{
+		write_res (resf, "%02i AVAILABLE tunnel %p, id %d has %d calls and self %p\n", 0, st, st->tid, st->count, st->self);
+		st = st->next;
+	}
+
+	write_res (resf, "%02i AVAILABLE tunnels count=%d\n", 0, tunnels.count);
+	write_res (resf, "%02i AVAILABLE calls count=%d\n", 0, tunnels.calls);
+	return 1;
 }
 
 int control_handle_lns_add_modify(FILE* resf, char* bufp){
@@ -1505,7 +1531,7 @@ void do_control ()
     int cnt = -1;
     int done = 0;
     int handler_found = 0;
-    struct control_requests_handler* handler = NULL; 
+    struct control_requests_handler* handler = NULL;
 
     bzero(buf, sizeof(buf));
     buf[0]='\0';
@@ -1681,17 +1707,22 @@ void daemonize() {
         exit(1);
     }
     else if (pid)
+    {
+        close(server_socket);
+        closelog();
         exit(0);
+    }
 
     close(0);
     i = open("/dev/null", O_RDWR);
-    if (i != 0) {
+    if (i == -1) {
         l2tp_log(LOG_INFO, "Redirect of stdin to /dev/null failed\n");
     } else {
         if (dup2(0, 1) == -1)
             l2tp_log(LOG_INFO, "Redirect of stdout to /dev/null failed\n");
         if (dup2(0, 2) == -1)
             l2tp_log(LOG_INFO, "Redirect of stderr to /dev/null failed\n");
+        close(i);
     }
 #endif
 }
@@ -1745,7 +1776,7 @@ static void consider_pidfile() {
     }
 }
 
-static void open_controlfd() 
+static void open_controlfd()
 {
     control_fd = open (gconfig.controlfile, O_RDONLY | O_NONBLOCK, 0600);
     if (control_fd < 0)
