@@ -30,6 +30,8 @@
 #include "ipsecmast.h"
 #include "misc.h"    /* for IPADDY macro */
 
+#include <math.h>
+
 char hostname[256];
 struct sockaddr_in server, from;        /* Server and transmitter structs */
 int server_socket;              /* Server socket */
@@ -264,9 +266,9 @@ void control_xmit (void *b)
     else
     {
         /*
-           * FIXME:  How about adaptive timeouts?
+           * Adaptive timeout with exponential backoff
          */
-        tv.tv_sec = 1;
+        tv.tv_sec = 1*pow(2, buf->retries-1);
         tv.tv_usec = 0;
         schedule (tv, control_xmit, buf);
 #ifdef DEBUG_CONTROL_XMIT
