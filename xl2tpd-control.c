@@ -10,6 +10,9 @@
  *
  */
  
+#define _GNU_SOURCE
+
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -33,6 +36,9 @@
 #define TUNNEL_REQUIRED 1
 #define TUNNEL_NOT_REQUIRED 0
 
+char result_filename[128];
+int result_fd = -1;
+
 int log_level = ERROR_LEVEL;
 
 void print_error (int level, const char *fmt, ...);
@@ -45,6 +51,7 @@ struct command_t
     char *name;
     int (*handler) (FILE*, char* tunnel, int optc, char *optv[]);
     int requires_tunnel;
+    char *help;
 };
 
 int command_add_lac (FILE*, char* tunnel, int optc, char *optv[]);
@@ -59,10 +66,24 @@ int command_available (FILE*, char* tunnel, int optc, char *optv[]);
 
 struct command_t commands[] = {
     /* Keep this command mapping for backwards compat */
-    {"add", &command_add_lac, TUNNEL_REQUIRED},
-    {"connect", &command_connect_lac, TUNNEL_REQUIRED},
-    {"disconnect", &command_disconnect_lac, TUNNEL_REQUIRED},
-    {"remove", &command_remove_lac, TUNNEL_REQUIRED},
+    {"add", &command_add_lac, TUNNEL_REQUIRED,
+        "\tadd\tadds new or modify existing lac configuration.\n"
+        "\t\tConfiguration must be specified as command options in\n"
+        "\t\t<key>=<value> pairs format.\n"
+        "\t\tSee available options in xl2tpd.conf(5)\n"
+    },
+    {"connect", &command_connect_lac, TUNNEL_REQUIRED,
+        "\tconnect\ttries to activate the tunnel.\n"
+        "\t\tUsername and secret for the tunnel can be passed as\n"
+        "\t\tcommand options.\n"
+    },
+    {"disconnect", &command_disconnect_lac, TUNNEL_REQUIRED,
+        "\tdisconnect\tdisconnects the tunnel.\n"
+    },
+    {"remove", &command_remove_lac, TUNNEL_REQUIRED,
+        "\tremove\tremoves lac configuration from xl2tpd.\n"
+        "\t\txl2tpd disconnects the tunnel before removing.\n"
+    },
 
     /* LAC commands */
     {"add-lac", &command_add_lac, TUNNEL_REQUIRED},
@@ -71,7 +92,9 @@ struct command_t commands[] = {
     {"remove-lac", &command_remove_lac, TUNNEL_REQUIRED},
 
     /* LNS commands */
-    {"add-lns", &command_add_lns, TUNNEL_REQUIRED},
+    {"add-lns", &command_add_lns, TUNNEL_REQUIRED,
+        "\tadd-lns\tadds new or modify existing lns configuration.\n"
+    },
     {"remove-lns", &command_remove_lns, TUNNEL_REQUIRED},
 
     /* Generic commands */
@@ -83,36 +106,52 @@ struct command_t commands[] = {
 
 void usage()
 {
+    int i;
+
     printf ("\nxl2tpd server version %s\n", SERVER_VERSION);
     printf ("Usage: xl2tpd-control [-c <PATH>] <command> <tunnel name> [<COMMAND OPTIONS>]\n"
             "\n"
             "    -c\tspecifies xl2tpd control file\n"
             "    -d\tspecify xl2tpd-control to run in debug mode\n"
             "--help\tshows extended help\n"
-            "Available commands: add, connect, disconnect, remove, add-lns\n"
     );
+
+    printf ("Available commands: ");
+    for (i = 0; commands[i].name; i++) {
+        struct command_t *command = &commands[i];
+        int last = command[1].name == NULL;
+
+        printf ("%s%s", command->name, !last ? ", " : "\n");
+    }
 }
 
 void help()
 {
+    int i;
+
     usage();
     printf (
         "\n"
         "Commands help:\n"
-        "\tadd\tadds new or modify existing lac configuration.\n"
-        "\t\tConfiguration must be specified as command options in\n"
-        "\t\t<key>=<value> pairs format.\n"
-        "\t\tSee available options in xl2tpd.conf(5)\n"
-        "\tconnect\ttries to activate the tunnel.\n"
-        "\t\tUsername and secret for the tunnel can be passed as\n"
-        "\t\tcommand options.\n"
-        "\tdisconnect\tdisconnects the tunnel.\n"
-        "\tremove\tremoves lac configuration from xl2tpd.\n"
-        "\t\txl2tpd disconnects the tunnel before removing.\n"
-        "\n"
-        "\tadd-lns\tadds new or modify existing lns configuration.\n"
-        "See xl2tpd-control man page for more help\n"
     );
+
+    for (i = 0; commands[i].name; i++) {
+        struct command_t *command = &commands[i];
+
+        if (!command->help)
+            continue;
+        printf ("%s", command->help);
+    }
+    /*FIXME Ha! there is currently no manpage for xl2tpd-control */
+    printf ("See xl2tpd-control man page for more help\n");
+}
+
+void cleanup(void)
+{
+    /* cleaning up */
+    if (result_fd >= 0)
+	    close (result_fd);
+    unlink (result_filename);
 }
 
 int main (int argc, char *argv[])
@@ -150,7 +189,6 @@ int main (int argc, char *argv[])
     {
         control_filename = strdup (CONTROL_PIPE);
     }
-    print_error (DEBUG_LEVEL, "set control filename to %s\n", control_filename);    
 
     /* parse command name */
     for (command = commands; command->name; command++)
@@ -162,10 +200,7 @@ int main (int argc, char *argv[])
         }
     }
     
-    if (command->name)
-    {
-        print_error (DEBUG_LEVEL, "get command %s\n", command->name);
-    } else {
+    if (!command->name) {
         print_error (ERROR_LEVEL, "error: no such command %s\n", argv[i]);
         return -1;
     }
@@ -193,11 +228,11 @@ int main (int argc, char *argv[])
     FILE* mesf = fmemopen (buf, CONTROL_PIPE_MESSAGE_SIZE, "w");
 
     /* create result pipe for reading */
-    char result_filename[128];
     snprintf (result_filename, 128, RESULT_FILENAME_FORMAT, getpid());
     unlink (result_filename);
     mkfifo (result_filename, 0600);
-    int result_fd = open (result_filename, O_RDONLY | O_NONBLOCK, 0600);
+    atexit(cleanup);
+    result_fd = open (result_filename, O_RDONLY | O_NONBLOCK, 0600);
     if (result_fd < 0)
     {
         print_error (ERROR_LEVEL,
@@ -244,7 +279,7 @@ int main (int argc, char *argv[])
     print_error (DEBUG_LEVEL, "command to be passed:\n%s\n", buf);
 
     /* try to open control file for writing */
-    int control_fd = open (control_filename, O_WRONLY, 0600);
+    int control_fd = open (control_filename, O_WRONLY | O_NONBLOCK, 0600);
     if (control_fd < 0)
     {
         int errorno = errno;
@@ -262,6 +297,14 @@ int main (int argc, char *argv[])
                 control_filename, strerror (errorno));
         }
         return -1;
+    }
+
+    /* turn off O_NONBLOCK */
+    if (fcntl (control_fd, F_SETFL, O_WRONLY) == -1) {
+        print_error (ERROR_LEVEL,
+            "Can not turn off nonblocking mode for control_fd: %s\n",
+            strerror(errno));
+        return -2;
     }
     
     /* pass command to control pipe */
@@ -281,12 +324,8 @@ int main (int argc, char *argv[])
     int command_result_code = read_result (
         result_fd, rbuf, CONTROL_PIPE_MESSAGE_SIZE
     );
-    printf ("%s", rbuf);
-    
-    /* cleaning up */
-    
-    close (result_fd);
-    unlink (result_filename);
+    /* rbuf contains a newline, make it double to form a boundary. */
+    print_error (DEBUG_LEVEL, "command response: \n%s\n", rbuf);
     
     return command_result_code;
 }
@@ -296,6 +335,7 @@ void print_error (int level, const char *fmt, ...)
     if (level > log_level) return;
     va_list args;
     va_start (args, fmt);
+    fprintf (stderr, "xl2tpd-control: ");
     vfprintf (stderr, fmt, args);
     va_end (args);
 }
@@ -306,23 +346,33 @@ int read_result(int result_fd, char* buf, ssize_t size)
     /*FIXME: there is a chance to hang up reading.
              Should I create watching thread with timeout?
      */
-    ssize_t readed;
+    ssize_t readed = 0;
+    ssize_t len;
+
     do
     {
-        readed = read (result_fd, buf, size);
-        if (readed < 0)
+        len = read (result_fd, buf + readed, size - readed);
+        if (len < 0)
         {
+            if (errno == EINTR)
+                continue;
             print_error (ERROR_LEVEL,
                 "error: can't read command result: %s\n", strerror (errno));
             break;
-        }
-    } while (readed == 0);
+        } else if (len == 0) {
+            break;
+        } else {
+            readed += len;
+            if ((size - readed) <= 0)
+                break;
+       }
+    } while (1);
     buf[readed] = '\0';
-    
+
     /* scan result code */
     int command_result_code = -3;
     sscanf (buf, "%i", &command_result_code);
-    
+
     return command_result_code;
 }
 
