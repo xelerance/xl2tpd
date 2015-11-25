@@ -30,6 +30,8 @@
 #include "ipsecmast.h"
 #include "misc.h"    /* for IPADDY macro */
 
+#include <math.h>
+
 char hostname[256];
 struct sockaddr_in server, from;        /* Server and transmitter structs */
 int server_socket;              /* Server socket */
@@ -135,7 +137,7 @@ int init_network (void)
     return 0;
 }
 
-inline void extract (void *buf, int *tunnel, int *call)
+static inline void extract (void *buf, int *tunnel, int *call)
 {
     /*
      * Extract the tunnel and call #'s, and fix the order of the
@@ -155,7 +157,7 @@ inline void extract (void *buf, int *tunnel, int *call)
     }
 }
 
-inline void fix_hdr (void *buf)
+static inline void fix_hdr (void *buf)
 {
     /*
      * Fix the byte order of the header
@@ -264,9 +266,9 @@ void control_xmit (void *b)
     else
     {
         /*
-           * FIXME:  How about adaptive timeouts?
+           * Adaptive timeout with exponential backoff
          */
-        tv.tv_sec = 1;
+        tv.tv_sec = 1*pow(2, buf->retries-1);
         tv.tv_usec = 0;
         schedule (tv, control_xmit, buf);
 #ifdef DEBUG_CONTROL_XMIT
