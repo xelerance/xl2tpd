@@ -371,7 +371,7 @@ void call_close (struct call *c)
              c->ourcid, IPADDY (c->container->peer.sin_addr));
     }
     /*
-       * Note that we're in the process of closing now
+     * Note that we're in the process of closing now
      */
     c->closing = -1;
 }
