@@ -596,6 +596,7 @@ void network_thread ()
 	    {
 		do_packet_dump (buf);
 	    }
+
         if (!(c = get_call (tunnel, call, from.sin_addr,
                 from.sin_port, refme, refhim)))
         {

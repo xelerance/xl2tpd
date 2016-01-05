@@ -151,6 +151,7 @@ struct global
     char pidfile[STRLEN];       /* File containing the pid number*/
     char controlfile[STRLEN];   /* Control file name (named pipe) */
     int daemon;                 /* Use daemon mode? */
+    int syslog;                 /* Use syslog for logging? */
     int accesscontrol;          /* Use access control? */
     int forceuserspace;         /* Force userspace? */
     int packet_dump;		/* Dump (print) all packets? */
