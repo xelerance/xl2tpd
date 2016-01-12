@@ -1641,6 +1641,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
     */
     while (len > 0)
     {
+        hidlen = 0;
         /* Go ahead and byte-swap the header */
         swaps (avp, sizeof (struct avp_hdr));
         if (avp->attr > AVP_MAX)
@@ -1778,16 +1779,21 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             }
         }
       next:
-        if (hidlen)
+        if (hidlen && ALENGTH(hidlen))
         {
             /* Skip over the complete length of the hidden AVP */
             len -= ALENGTH (hidlen);
             data += ALENGTH (hidlen);
         }
-        else
+        else if (ALENGTH(avp->length))
         {
             len -= ALENGTH (avp->length);
             data += ALENGTH (avp->length);      /* Next AVP, please */
+        }
+        else
+        {
+            l2tp_log (LOG_WARNING, "%s: broken avp->length zero %d\n", __FUNCTION__,avp->length);
+            break;
         }
         avp = (struct avp_hdr *) data;
         firstavp = 0;
