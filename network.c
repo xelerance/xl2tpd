@@ -612,7 +612,7 @@ void network_thread ()
                 * have already closed or some such nonsense.  To
                 * prevent this from closing the tunnel, if we get a
                 * call on a valid tunnel, but not with a valid CID,
-                * we'll just send a ZLB to ack receiving the packet.
+                * we'll just send a ZLB to ACK receiving the packet.
                 */
                 if (gconfig.debug_tunnel)
                 l2tp_log (LOG_DEBUG,

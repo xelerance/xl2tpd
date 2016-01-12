@@ -1479,7 +1479,7 @@ int parse_config (FILE * f)
 #ifdef DEBUG_FILE
             l2tp_log (LOG_DEBUG, "parse_config: field is %s, value is %s\n", s, t);
 #endif
-            /* Okay, bit twidling is done.  Let's handle this */
+            /* Okay, bit twiddling is done.  Let's handle this */
             
             switch (parse_one_option (s, t, context | def, data))
             {

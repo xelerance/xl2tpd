@@ -414,7 +414,7 @@ int control_finish (struct tunnel *t, struct call *c)
         /* FIXME: Do we need to be sure they specified a version number?
          *   Theoretically, yes, but we don't have anything in the code
          *   to actually *do* anything with it, so...why check at this point?
-         * We shouldn't be requiring a bearer capabilities avp to be present in
+         * We shouldn't be requiring a bearer capabilities AVP to be present in
          * SCCRQ and SCCRP as they aren't required
          if (t->bc < 0 ) {
          if (DEBUG) l2tp_log(LOG_DEBUG,
@@ -442,7 +442,7 @@ int control_finish (struct tunnel *t, struct call *c)
                 (y != t))
             {
                 /* This can happen if we get a duplicate
-                   StartCCN or if they don't get our ack packet */
+                   StartCCN or if they don't get our ACK packet */
                 /*
                  * But it is legitimate for two different remote systems
                  * to use the same tid
@@ -538,7 +538,7 @@ int control_finish (struct tunnel *t, struct call *c)
         /* FIXME: Do we need to be sure they specified a version number?
          *   Theoretically, yes, but we don't have anything in the code
          *   to actually *do* anything with it, so...why check at this point?
-         * We shouldn't be requiring a bearer capabilities avp to be present in
+         * We shouldn't be requiring a bearer capabilities AVP to be present in
          * SCCRQ and SCCRP as they aren't required
          if (t->bc < 0 ) {
          if (DEBUG) log(LOG_DEBUG,
@@ -746,7 +746,7 @@ int control_finish (struct tunnel *t, struct call *c)
             if (z->cid == p->cid)
             {
                 /* This can happen if we get a duplicate
-                   ICRQ or if they don't get our ack packet */
+                   ICRQ or if they don't get our ACK packet */
                 l2tp_log (LOG_DEBUG,
                      "%s: Peer requested call %d twice, ignoring second one.\n",
                      __FUNCTION__, p->cid);
@@ -1318,7 +1318,7 @@ static inline int check_payload (struct buffer *buf, struct tunnel *t,
     {
         if (DEBUG)
         {
-            l2tp_log (LOG_DEBUG, "%s: Aempted to send payload on tunnel\n",
+            l2tp_log (LOG_DEBUG, "%s: Attempted to send payload on tunnel\n",
                  __FUNCTION__);
         }
         return -EINVAL;
@@ -1329,7 +1329,7 @@ static inline int check_payload (struct buffer *buf, struct tunnel *t,
            no matter what.  we'll look more later */
         if (DEBUG)
         {
-            l2tp_log (LOG_DEBUG, "%s:Recieved to small of packet\n", __FUNCTION__);
+            l2tp_log (LOG_DEBUG, "%s:Received to small of packet\n", __FUNCTION__);
         }
         return -EINVAL;
     }
@@ -1577,7 +1577,7 @@ void send_zlb (void *data)
              __FUNCTION__);
         return;
     }
-    /* Update the counter so we know what Lr was when we last transmited a ZLB */
+    /* Update the counter so we know what Lr was when we last transmitted a ZLB */
     c->prx = c->data_rec_seq_num;
     buf = new_payload (t->peer);
     add_payload_hdr (t, c, buf);
@@ -1665,7 +1665,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
 
     /*
      * sync->async conversion if we're doing sync frames
-     * since the pppd driver will expect async frames
+     * since the PPPD driver will expect async frames
      * Write leading flag character
      */
 
