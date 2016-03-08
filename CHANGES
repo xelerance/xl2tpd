@@ -1,4 +1,11 @@
-v1.3.7rc1 (March 8, 2016)
+v1.3.7rc2 (March 8, 2016)
+* Refresh debian/ from Debian. Thanks! (Simon Deziel)
+* Update URL (Simon Deziel)
+* Update copyright year (Simon Deziel)
+* Add local ip range option. (Patch by by Peter W Morreale)
+* Drop RFC 2661 copy. (Simon Deziel)
+* debian/control drop legacy Replaces (Simon Deziel)
+* Typo fix (Simon Deziel)
 * Fix #98 by checking if a valid PID is being killed (Pieter Jordaan)
 * Avoid problems with bad avp lengths and remaining hidlen from previous
   iteration (Cristi Cimpianu)
