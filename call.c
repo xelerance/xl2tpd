@@ -401,6 +401,9 @@ void destroy_call (struct call *c)
 #ifdef IP_ALLOCATION
     if (c->addr)
         unreserve_addr (c->addr);
+
+    if (c->lns->localrange)
+        unreserve_addr (c->lns->localaddr);
 #endif
 
     /*
