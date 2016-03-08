@@ -1,8 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://github.com/xelerance/xl2tpd
 
-Upstream Author: Xelerance Corporation
-
 Files: *
 Copyright: (c) 2006-2016 Xelerance Corporation
 License: GPL-2+
