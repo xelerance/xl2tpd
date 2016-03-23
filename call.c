@@ -402,7 +402,7 @@ void destroy_call (struct call *c)
     if (c->addr)
         unreserve_addr (c->addr);
 
-    if (c->lns->localrange)
+    if (c->lns && c->lns->localrange)
         unreserve_addr (c->lns->localaddr);
 #endif
 
