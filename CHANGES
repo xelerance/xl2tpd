@@ -1,4 +1,4 @@
-v1.3.7rc4 (March 23, 2016)
+v1.3.7 (March 29, 2016)
 * Adding defensive code to deal with error when pppd exits (Samir Hussain)
 * Minor compilation fixes (Yousong Zhou)
 * Refresh debian/ from Debian. Thanks! (Simon Deziel)
