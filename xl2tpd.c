@@ -30,17 +30,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <time.h>
-#if (__GLIBC__ < 2)
-# if defined(FREEBSD) || defined(OPENBSD)
-#  include <sys/signal.h>
-# elif defined(LINUX)
-#  include <bsd/signal.h>
-# elif defined(SOLARIS) || defined(NETBSD)
-#  include <signal.h>
-# endif
-#else
-# include <signal.h>
-#endif
+#include <signal.h>
 #ifndef LINUX
 # include <sys/socket.h>
 #endif
