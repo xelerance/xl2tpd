@@ -280,7 +280,6 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
     struct msghdr msgh;
     int err;
     struct iovec iov;
-    struct in_pktinfo *pktinfo;
     int finallen;
 
     /*
@@ -308,7 +307,9 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 	finallen = cmsg->cmsg_len;
     }
 
+#ifdef LINUX
     if (t->my_addr.ipi_addr.s_addr){
+	struct in_pktinfo *pktinfo;
 
 	if ( ! cmsg) {
 		cmsg = CMSG_FIRSTHDR(&msgh);
@@ -326,6 +327,7 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 
 	finallen += cmsg->cmsg_len;
     }
+#endif
 
     msgh.msg_controllen = finallen;
 
@@ -554,13 +556,15 @@ void network_thread ()
 		for (cmsg = CMSG_FIRSTHDR(&msgh);
 			cmsg != NULL;
 			cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
+#ifdef LINUX
 			/* extract destination(our) addr */
 			if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO) {
 				struct in_pktinfo* pktInfo = ((struct in_pktinfo*)CMSG_DATA(cmsg));
 				to = *pktInfo;
-			}
+			} else
+#endif
 			/* extract IPsec info out */
-			else if (gconfig.ipsecsaref && cmsg->cmsg_level == IPPROTO_IP
+			if (gconfig.ipsecsaref && cmsg->cmsg_level == IPPROTO_IP
 			&& cmsg->cmsg_type == gconfig.sarefnum) {
 				unsigned int *refp;
 
