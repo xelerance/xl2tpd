@@ -1595,6 +1595,7 @@ void do_control ()
             }
         }else{
             resf = NULL;
+            res_filename = NULL; /* to avoid 'may be used unitialized' warning */
         }
 
         /* Search for a handler based on request type */
