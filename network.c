@@ -274,23 +274,18 @@ void control_xmit (void *b)
 
 void udp_xmit (struct buffer *buf, struct tunnel *t)
 {
-    struct cmsghdr *cmsg;
+    struct cmsghdr *cmsg = NULL;
     char cbuf[CMSG_SPACE(sizeof (unsigned int) + sizeof (struct in_pktinfo))];
     unsigned int *refp;
     struct msghdr msgh;
     int err;
     struct iovec iov;
-    int finallen;
+    int finallen = 0;
 
     /*
      * OKAY, now send a packet with the right SAref values.
      */
     memset(&msgh, 0, sizeof(struct msghdr));
-
-    cmsg = NULL;
-    msgh.msg_control = cbuf;
-    msgh.msg_controllen = sizeof(cbuf);
-    finallen = 0;
 
     if (gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
 	cmsg = CMSG_FIRSTHDR(&msgh);
@@ -329,7 +324,16 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
     }
 #endif
 
-    msgh.msg_controllen = finallen;
+    /*
+     * Some OS don't like assigned buffer with zero length (e.g. OpenBSD),
+     * some OS don't like empty buffer with non-zero length (e.g. Linux).
+     * So make them all happy by assigning control buffer only if we really
+     * have something there.
+     */
+    if (finallen) {
+        msgh.msg_control = cbuf;
+        msgh.msg_controllen = finallen;
+    }
 
     iov.iov_base = buf->start;
     iov.iov_len  = buf->len;
