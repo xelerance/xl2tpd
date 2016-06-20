@@ -99,15 +99,6 @@ int init_network (void)
 
 #endif
 
-#ifdef SO_NO_CHECK
-    /* turn off UDP checksums */
-    arg=1;
-    if (setsockopt(server_socket, SOL_SOCKET, SO_NO_CHECK , (void*)&arg,
-                   sizeof(arg)) ==-1) {
-      l2tp_log(LOG_INFO, "unable to turn off UDP checksums");
-    }
-#endif
-
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
     {
@@ -283,24 +274,18 @@ void control_xmit (void *b)
 
 void udp_xmit (struct buffer *buf, struct tunnel *t)
 {
-    struct cmsghdr *cmsg;
+    struct cmsghdr *cmsg = NULL;
     char cbuf[CMSG_SPACE(sizeof (unsigned int) + sizeof (struct in_pktinfo))];
     unsigned int *refp;
     struct msghdr msgh;
     int err;
     struct iovec iov;
-    struct in_pktinfo *pktinfo;
-    int finallen;
+    int finallen = 0;
 
     /*
      * OKAY, now send a packet with the right SAref values.
      */
     memset(&msgh, 0, sizeof(struct msghdr));
-
-    cmsg = NULL;
-    msgh.msg_control = cbuf;
-    msgh.msg_controllen = sizeof(cbuf);
-    finallen = 0;
 
     if (gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
 	cmsg = CMSG_FIRSTHDR(&msgh);
@@ -317,7 +302,9 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 	finallen = cmsg->cmsg_len;
     }
 
+#ifdef LINUX
     if (t->my_addr.ipi_addr.s_addr){
+	struct in_pktinfo *pktinfo;
 
 	if ( ! cmsg) {
 		cmsg = CMSG_FIRSTHDR(&msgh);
@@ -335,8 +322,18 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 
 	finallen += cmsg->cmsg_len;
     }
+#endif
 
-    msgh.msg_controllen = finallen;
+    /*
+     * Some OS don't like assigned buffer with zero length (e.g. OpenBSD),
+     * some OS don't like empty buffer with non-zero length (e.g. Linux).
+     * So make them all happy by assigning control buffer only if we really
+     * have something there.
+     */
+    if (finallen) {
+        msgh.msg_control = cbuf;
+        msgh.msg_controllen = finallen;
+    }
 
     iov.iov_base = buf->start;
     iov.iov_len  = buf->len;
@@ -563,13 +560,15 @@ void network_thread ()
 		for (cmsg = CMSG_FIRSTHDR(&msgh);
 			cmsg != NULL;
 			cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
+#ifdef LINUX
 			/* extract destination(our) addr */
 			if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO) {
 				struct in_pktinfo* pktInfo = ((struct in_pktinfo*)CMSG_DATA(cmsg));
 				to = *pktInfo;
-			}
+			} else
+#endif
 			/* extract IPsec info out */
-			else if (gconfig.ipsecsaref && cmsg->cmsg_level == IPPROTO_IP
+			if (gconfig.ipsecsaref && cmsg->cmsg_level == IPPROTO_IP
 			&& cmsg->cmsg_type == gconfig.sarefnum) {
 				unsigned int *refp;
 
