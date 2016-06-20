@@ -303,6 +303,9 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
     }
 
 #ifdef LINUX
+    msgh.msg_control = cbuf;
+    msgh.msg_controllen = sizeof(cbuf);
+
     if (t->my_addr.ipi_addr.s_addr){
 	struct in_pktinfo *pktinfo;
 
@@ -322,6 +325,8 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 
 	finallen += cmsg->cmsg_len;
     }
+
+    msgh.msg_controllen = finallen;
 #endif
 
     /*
