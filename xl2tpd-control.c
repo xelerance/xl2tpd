@@ -320,7 +320,7 @@ int main (int argc, char *argv[])
     close (control_fd);
     
     /* read result from pipe */
-    char rbuf[CONTROL_PIPE_MESSAGE_SIZE] = "";
+    char rbuf[CONTROL_PIPE_MESSAGE_SIZE];
     int command_result_code = read_result (
         result_fd, rbuf, CONTROL_PIPE_MESSAGE_SIZE
     );
