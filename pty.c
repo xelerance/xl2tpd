@@ -17,6 +17,7 @@
 #define _ISOC99_SOURCE
 #define _XOPEN_SOURCE
 #define _BSD_SOURCE
+#define _DEFAULT_SOURCE
 #define _XOPEN_SOURCE_EXTENDED
 
 #include <stdlib.h>
