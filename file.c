@@ -74,7 +74,6 @@ int init_config ()
     returnedValue = parse_config (f);
     fclose (f);
     return (returnedValue);
-    filerr[0] = 0;
 }
 
 struct lns *new_lns ()
