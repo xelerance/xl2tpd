@@ -1,4 +1,4 @@
-v1.3.8rc1 (July 11, 2016)
+v1.3.8 (August 11, 2016)
 * Another one fix for control buf handling in udp_xmit (Sergey Ryazanov)
 * Fixing minor bug in Linux that was introduced by 90368 (Samir Hussain)
 * Fix control buffer handling in udp_xmit (rsa9000)
