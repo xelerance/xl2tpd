@@ -65,7 +65,7 @@ void reserve_addr (unsigned int addr)
     if (ip_used (addr))
         return;
     tmp = uaddr[addr % ADDR_HASH_SIZE];
-    tmp2 = (struct addr_ent *) malloc (sizeof (struct addr_ent));
+    tmp2 = malloc (sizeof (struct addr_ent));
     uaddr[addr % ADDR_HASH_SIZE] = tmp2;
     tmp2->next = tmp;
     tmp2->addr = addr;

@@ -224,7 +224,7 @@ struct ppp_opts *add_opt (struct ppp_opts *option, char *fmt, ...)
 {
     va_list args;
     struct ppp_opts *new, *last;
-    new = (struct ppp_opts *) malloc (sizeof (struct ppp_opts));
+    new = malloc (sizeof (struct ppp_opts));
     if (!new)
     {
         l2tp_log (LOG_WARNING,
