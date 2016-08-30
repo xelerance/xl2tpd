@@ -1,0 +1,26 @@
+os:
+  - linux
+
+language: c
+compiler:
+  - gcc
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - make
+      - gcc-multilib
+      - libpcap0.8
+      - libpcap0.8-dev
+
+cache:
+  directories:
+  - $HOME/.ccache
+
+before_script:
+    make clean
+
+script:
+    make
