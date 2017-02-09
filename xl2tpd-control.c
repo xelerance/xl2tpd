@@ -35,6 +35,7 @@
 
 #define TUNNEL_REQUIRED 1
 #define TUNNEL_NOT_REQUIRED 0
+#define TIMEOUT 1000000  //timeout is 1s
 
 char result_filename[128];
 int result_fd = -1;
@@ -149,9 +150,9 @@ void help()
 void cleanup(void)
 {
     /* cleaning up */
-    if (result_fd >= 0)
-	    close (result_fd);
     unlink (result_filename);
+    if (result_fd >= 0)
+        close (result_fd);
 }
 
 int main (int argc, char *argv[])
@@ -320,7 +321,7 @@ int main (int argc, char *argv[])
     close (control_fd);
     
     /* read result from pipe */
-    char rbuf[CONTROL_PIPE_MESSAGE_SIZE];
+    char rbuf[CONTROL_PIPE_MESSAGE_SIZE] = "";
     int command_result_code = read_result (
         result_fd, rbuf, CONTROL_PIPE_MESSAGE_SIZE
     );
@@ -340,6 +341,7 @@ void print_error (int level, const char *fmt, ...)
     va_end (args);
 }
 
+
 int read_result(int result_fd, char* buf, ssize_t size)
 {
     /* read result from result_fd */
@@ -348,6 +350,11 @@ int read_result(int result_fd, char* buf, ssize_t size)
      */
     ssize_t readed = 0;
     ssize_t len;
+    int write_pipe = 0;
+    struct timeval tvs;
+    struct timeval tve;
+    unsigned long diff;
+    gettimeofday(&tvs, NULL);
 
     do
     {
@@ -360,8 +367,20 @@ int read_result(int result_fd, char* buf, ssize_t size)
                 "error: can't read command result: %s\n", strerror (errno));
             break;
         } else if (len == 0) {
+            if(!write_pipe) {
+                 gettimeofday(&tve, NULL);
+                 diff = (tve.tv_sec - tvs.tv_sec) * 1000000 + (tve.tv_usec - tvs.tv_usec);
+                 if (diff >= TIMEOUT) {
+                     print_error (DEBUG_LEVEL, "error: read timout\n");
+                     break;
+                 } else {
+                     usleep(10);
+                     continue;
+                 }
+            }
             break;
         } else {
+            write_pipe = 1;
             readed += len;
             if ((size - readed) <= 0)
                 break;
