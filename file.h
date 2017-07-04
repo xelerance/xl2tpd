@@ -16,7 +16,7 @@
 #ifndef _FILE_H
 #define _FILE_H
 
-#define STRLEN 80               /* Length of a string */
+#define STRLEN 100              /* Length of a string */
 
 /* Definition of a keyword */
 struct keyword
