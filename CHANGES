@@ -1,4 +1,4 @@
-v1.3.10rc1 (July 7, 2017)
+v1.3.10 (August 2, 2017)
 * Update STRLEN in file.h to 100 (from 80) [Samir Hussain]
 * xl2tpd-control: fix xl2tpd hanged up in "fopen" [wendy2001011]
 * Update version in spec and opewnrt Makefile. [Samir Hussain]
