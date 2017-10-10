@@ -462,7 +462,7 @@ void network_thread ()
             {
                 if (gconfig.debug_network)
                 {
-                    l2tp_log (LOG_DEBUG, "%s: select timeout\n", __FUNCTION__);
+                    l2tp_log (LOG_DEBUG, "%s: select timeout\n", __FUNCTION__, DEFAULT_MAX_RETRIES);
                 }
             }
             else
