@@ -1,3 +1,6 @@
+v1.3.10.1rc1 (October 12, 2017)
+* Upping DEFAULT_MAX_RETRIES (5 -> 15) and debug output [Samir Hussain]
+
 v1.3.10 (August 2, 2017)
 * Update STRLEN in file.h to 100 (from 80) [Samir Hussain]
 * xl2tpd-control: fix xl2tpd hanged up in "fopen" [wendy2001011]
