@@ -1,4 +1,4 @@
-xl2tpd (XL2TPDBASEVERSION-0xelerance1) trusty; urgency=low
+xl2tpd (XL2TPDBASEVERSION-0ubuntu0.16.04xelerance1) xenial; urgency=low
 
   * Update to XL2TPDBASEVERSION
 
