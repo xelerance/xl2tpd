@@ -1,3 +1,5 @@
+v1.3.11dev1 (October 16, 2017)
+
 v1.3.10.1rc2 (October 16, 2017)
 * Have max retries as a configuration [Samir Hussain]
 * Add more into to "select timeout" debug message [Samir Hussain]
