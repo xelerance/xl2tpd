@@ -204,6 +204,11 @@ If set, the receive bandwidth maximum will be set to this value
 .B tx bps
 If set, the transmit bandwidth maximum will be set to this value
 
+.TP
+.B max retries
+Specify how many retries before a tunnel is closed. If there is no
+tunnel, then stop re-transmitting. The default is 5.
+
 .SH "LAC SECTION"
 The following are LAC specific configuration flags. Most of those
 described in the LNS section may be used in a LAC context, where

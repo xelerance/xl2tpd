@@ -145,6 +145,7 @@ struct global
 {
     unsigned int listenaddr;    /* IP address to bind to */ 
     int port;                   /* Port number to listen to */
+
     char authfile[STRLEN];      /* File containing authentication info */
     char altauthfile[STRLEN];   /* File containing authentication info */
     char configfile[STRLEN];    /* File containing configuration info */
@@ -164,6 +165,8 @@ struct global
     int sarefnum;		/* Value of IPSEC_REFINFO used by kernel
 				 * (we used to pick 22, but 2.6.36+ took that, so now we pick 30)
 				 * Changed in SAref patch in openswan 2.6.36 for linux 2.6.36+ */
+    int max_retries;            /* Max retries before closing tunnel
+                                   or stop re-transmitting */
 };
 
 extern struct global gconfig;   /* Global configuration options */
