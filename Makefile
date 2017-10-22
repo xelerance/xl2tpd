@@ -103,7 +103,6 @@ OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.
 SRCS=${OBJS:.o=.c} ${HDRS}
 CONTROL_SRCS=xl2tpd-control.c
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
-LDLIBS+= -lm
 EXEC=xl2tpd
 CONTROL_EXEC=xl2tpd-control
 
@@ -137,6 +136,7 @@ install: ${EXEC} pfc ${CONTROL_EXEC}
 	install -d -m 0755 ${MANDIR}/man5
 	install -d -m 0755 ${MANDIR}/man8
 	install -m 0644 doc/xl2tpd.8 ${MANDIR}/man8/
+	install -m 0644 doc/xl2tpd-control.8 ${MANDIR}/man8/
 	install -m 0644 doc/xl2tpd.conf.5 doc/l2tp-secrets.5 \
 		 ${MANDIR}/man5/
 	# pfc

@@ -17,6 +17,7 @@
 #define _ISOC99_SOURCE
 #define _XOPEN_SOURCE
 #define _BSD_SOURCE
+#define _DEFAULT_SOURCE
 #define _XOPEN_SOURCE_EXTENDED	1
 #define _GNU_SOURCE
 
@@ -437,17 +438,17 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
        stropt[pos++] = strdup ("plugin");
        stropt[pos++] = strdup ("pppol2tp.so");
        stropt[pos++] = strdup ("pppol2tp");
-       stropt[pos] = (char *) malloc (10);
+       stropt[pos] = malloc (10);
        snprintf (stropt[pos], 10, "%d", fd2);
         pos++;
        if (c->container->lns) {
         stropt[pos++] = strdup ("pppol2tp_lns_mode");
         stropt[pos++] = strdup ("pppol2tp_tunnel_id");
-        stropt[pos] = (char *) malloc (10);
+        stropt[pos] = malloc (10);
         snprintf (stropt[pos], 10, "%d", c->container->ourtid);
             pos++;
         stropt[pos++] = strdup ("pppol2tp_session_id");
-        stropt[pos] = (char *) malloc (10);
+        stropt[pos] = malloc (10);
         snprintf (stropt[pos], 10, "%d", c->ourcid);
             pos++;
        }
@@ -920,7 +921,7 @@ struct tunnel *new_tunnel ()
     tmp->txspeed = DEFAULT_TX_BPS;
     memset (tmp->chal_us.reply, 0, MD_SIG_SIZE);
     memset (tmp->chal_them.reply, 0, MD_SIG_SIZE);
-    tmp->chal_them.vector = (unsigned char *) malloc (VECTOR_SIZE);
+    tmp->chal_them.vector = malloc (VECTOR_SIZE);
     return tmp;
 }
 

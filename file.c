@@ -74,7 +74,6 @@ int init_config ()
     returnedValue = parse_config (f);
     fclose (f);
     return (returnedValue);
-    filerr[0] = 0;
 }
 
 struct lns *new_lns ()
@@ -879,7 +878,7 @@ struct iprange *set_range (char *word, char *value, struct iprange *in)
                   "format is '%s <host or ip> - <host or ip>'\n", word);
         return NULL;
     }
-    ipr = (struct iprange *) malloc (sizeof (struct iprange));
+    ipr = malloc (sizeof (struct iprange));
     ipr->next = NULL;
     hp = gethostbyname (value);
     if (!hp)
