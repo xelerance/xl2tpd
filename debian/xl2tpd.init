@@ -20,6 +20,8 @@ DESC=xl2tpd
 
 test -x $DAEMON || exit 0
 
+. /lib/lsb/init-functions
+
 # Include xl2tpd defaults if available
 if [ -f /etc/default/xl2tpd ] ; then
 	. /etc/default/xl2tpd

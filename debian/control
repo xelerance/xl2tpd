@@ -3,13 +3,14 @@ Section: net
 Priority: optional
 Maintainer: Roberto C. Sanchez <roberto@connexer.com>
 Homepage: http://www.xelerance.com/software/xl2tpd/
-Build-Depends: debhelper (>= 5), libpcap0.8-dev
-Standards-Version: 3.9.2
+Vcs-Browser: https://github.com/xelerance/xl2tpd
+Vcs-Git: git://github.com/xelerance/xl2tpd.git
+Build-Depends: debhelper (>= 7.0.8), libpcap0.8-dev
+Standards-Version: 3.9.5
 
 Package: xl2tpd
 Architecture: any
 Provides: l2tpd
-Replaces: l2tpd (<< ${source:Version})
 Depends: ${shlibs:Depends}, ${misc:Depends}, ppp
 Description: layer 2 tunneling protocol implementation
  xl2tpd is an open source implementation of the L2TP tunneling

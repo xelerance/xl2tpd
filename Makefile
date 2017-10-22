@@ -62,7 +62,7 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 # are packages seperately (eg kernel-headers on Fedora)
 # Note: 2.6.23+ support still needs some changes in the xl2tpd source
 #
-#OSFLAGS+= -DUSE_KERNEL
+OSFLAGS+= -DUSE_KERNEL
 #
 #
 # Uncomment the next line for FreeBSD
@@ -75,7 +75,8 @@ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
 # include paths and cause problems.
 #
 #CC?=gcc
-#OSFLAGS?= -DSOLARIS
+# Change /opt/sfw/ to whereever your pcap library/include files are
+#OSFLAGS?= -DSOLARIS -DPPPD=\"/usr/bin/pppd\" -std=c99 -pedantic -D__EXTENSIONS__ -D_XPG4_2 -D_XPG6 -I/opt/sfw/include
 #OSLIBS?= -lnsl -lsocket
 
 # Uncomment the next two lines for OpenBSD
@@ -114,7 +115,7 @@ $(EXEC): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 $(CONTROL_EXEC): $(CONTROL_SRCS)
-	$(CC) $(CONTROL_SRCS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(CONTROL_SRCS) -o $@
 
 pfc:
 	$(CC) $(CFLAGS) -c contrib/pfc.c

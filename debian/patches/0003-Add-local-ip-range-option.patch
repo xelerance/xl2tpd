@@ -1,0 +1,79 @@
+From df7017d272f61ed1f835b637b85c943c641a6b41 Mon Sep 17 00:00:00 2001
+From: Peter W Morreale <pmorreal@brocade.com>
+Date: Fri, 21 Feb 2014 10:53:38 -0700
+Subject: [PATCH 3/5] Add local ip range option.
+
+Use the new 'local ip range' option, if present.
+
+Do this by creating a new routine to allocate the local ip
+address from the range, but only if we are invoked from
+an LNS standpoint.
+
+Note that we reserve the used addr in the same hash as
+the 'ip range' addrs.
+
+Signed-off-by: Peter W Morreale <pmorreal@brocade.com>
+---
+ call.c    |  3 +++
+ control.c | 24 ++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+)
+
+diff --git a/call.c b/call.c
+index b672f91..dc84279 100644
+--- a/call.c
++++ b/call.c
+@@ -416,6 +416,9 @@ void destroy_call (struct call *c)
+ #ifdef IP_ALLOCATION
+     if (c->addr)
+         unreserve_addr (c->addr);
++
++    if (c->lns->localrange)
++        unreserve_addr (c->lns->localaddr);
+ #endif
+ 
+     /*
+diff --git a/control.c b/control.c
+index da41258..c8631da 100644
+--- a/control.c
++++ b/control.c
+@@ -158,6 +158,28 @@ void control_zlb (struct buffer *buf, struct tunnel *t, struct call *c)
+     udp_xmit (buf, t);
+ }
+ 
++/*
++ * Get a local address from the local range, if configured.
++ */
++static int get_local_addr(struct tunnel *t, struct call *c)
++{
++#ifdef IP_ALLOCATION
++    if (t->lns->localrange) {
++        c->lns->localaddr = get_addr (t->lns->localrange);
++        if (!c->lns->localaddr)
++        {
++            set_error (c, ERROR_NORES, "No available local IP addresses");
++            call_close (c);
++            l2tp_log (LOG_DEBUG, "%s: Out of local IP addresses on tunnel %d!\n",
++                     __FUNCTION__, t->tid);
++            return -EINVAL;
++        }
++        reserve_addr (c->lns->localaddr);
++    }
++#endif
++    return 0;
++}
++
+ int control_finish (struct tunnel *t, struct call *c)
+ {
+     /*
+@@ -949,6 +971,8 @@ int control_finish (struct tunnel *t, struct call *c)
+             */
+         }
+         c->state = ICCN;
++        if (get_local_addr(t, c))
++            return -EINVAL;
+         strncpy (ip1, IPADDY (c->lns->localaddr), sizeof (ip1));
+         strncpy (ip2, IPADDY (c->addr), sizeof (ip2));
+         po = NULL;
+-- 
+1.8.4.5
+

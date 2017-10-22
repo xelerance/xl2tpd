@@ -1,0 +1,25 @@
+From d31ed508b2c31e72d35a51eba1f6eaa3230975ae Mon Sep 17 00:00:00 2001
+From: Peter W Morreale <pmorreal@brocade.com>
+Date: Fri, 21 Feb 2014 10:55:30 -0700
+Subject: [PATCH 5/5] Update example config
+
+Add the 'local ip range' to the example config
+---
+ doc/l2tpd.conf.sample | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/doc/l2tpd.conf.sample b/doc/l2tpd.conf.sample
+index 9f2f03a..c180b43 100644
+--- a/doc/l2tpd.conf.sample
++++ b/doc/l2tpd.conf.sample
+@@ -29,6 +29,7 @@
+ ; no lac = untrusted.marko.net			; * This guy can't connect
+ ; hidden bit = no						; * Use hidden AVP's?
+ ; local ip = 192.168.1.2				; * Our local IP to use
++; local ip range = 192.168.200.0-192.168.200.20   ; Alternatively, use a range for local addressing
+ ; length bit = yes						; * Use length bit in payload?
+ ; require chap = yes					; * Require CHAP auth. by peer
+ ; refuse pap = yes						; * Refuse PAP authentication
+-- 
+1.8.4.5
+

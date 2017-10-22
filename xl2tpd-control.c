@@ -96,7 +96,7 @@ int main (int argc, char *argv[])
     struct command_t* command = NULL;    
     int i; /* argv iterator */
 
-    if (!strncmp (argv[1], "--help", 6))
+    if (argv[1] && !strncmp (argv[1], "--help", 6))
     {
         help();
         return 0;
@@ -237,7 +237,15 @@ int main (int argc, char *argv[])
     }
     
     /* pass command to control pipe */
-    write (control_fd, buf, ftell (mesf));
+    if (write (control_fd, buf, ftell (mesf)) < 0)
+    {
+      int errorno = errno;
+      print_error (ERROR_LEVEL,
+                "Unable to write to %s: %s\n",
+                control_filename, strerror (errorno));
+      close (control_fd);
+      return -1;
+    }
     close (control_fd);
     
     /* read result from pipe */

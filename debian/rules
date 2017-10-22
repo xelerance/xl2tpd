@@ -27,7 +27,7 @@ build-arch: build-stamp
 build-indep: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
-	$(MAKE)
+	$(MAKE) CFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION $(shell dpkg-buildflags --get CFLAGS)" CPPFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION $(shell dpkg-buildflags --get CPPFLAGS)" LDFLAGS=" $(shell dpkg-buildflags --get LDFLAGS)"
 	touch $@
 
 clean:
@@ -40,7 +40,7 @@ clean:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_prep
 	dh_installdirs
 	$(MAKE) PREFIX=/usr DESTDIR=$(CURDIR)/debian/xl2tpd install
 	cp $(CURDIR)/doc/l2tpd.conf.sample $(CURDIR)/debian/xl2tpd/etc/xl2tpd/xl2tpd.conf

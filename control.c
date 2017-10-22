@@ -495,7 +495,7 @@ int control_finish (struct tunnel *t, struct call *c)
         c->cnu = 0;
         if (gconfig.debug_state)
             l2tp_log (LOG_DEBUG, "%s: sending SCCRP\n", __FUNCTION__);
-		sleep(2);
+
         control_xmit (buf);
         break;
     case SCCRP:
@@ -596,6 +596,11 @@ int control_finish (struct tunnel *t, struct call *c)
         if (gconfig.debug_state)
             l2tp_log (LOG_DEBUG, "%s: sending SCCCN\n", __FUNCTION__);
         control_xmit (buf);
+
+#ifdef USE_KERNEL
+        connect_pppol2tp(t);
+#endif
+
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;
         tv.tv_usec = 0;
@@ -608,6 +613,7 @@ int control_finish (struct tunnel *t, struct call *c)
 		  "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).\n",
 		  IPADDY (t->peer.sin_addr),
 		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim);
+
         if (t->lac)
         {
             /* This is part of a LAC, so we want to go ahead
@@ -635,6 +641,11 @@ int control_finish (struct tunnel *t, struct call *c)
 		  IPADDY (t->peer.sin_addr),
 		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim,
 		  t->lns->entname);
+
+#ifdef USE_KERNEL
+        connect_pppol2tp(t);
+#endif
+
         /* Schedule a HELLO */
         tv.tv_sec = HELLO_DELAY;
         tv.tv_usec = 0;
@@ -882,9 +893,10 @@ int control_finish (struct tunnel *t, struct call *c)
                 }
                 close (pppd_passwdfd[1]);
 
-                /* clear memory used for password, paranoid?  */
-                for (i = 0; i < STRLEN; i++)
-                    c->lac->password[i] = '\0';
+                /* clear password if not redialing: paranoid? */
+                if (!c->lac->redial)
+                    for (i = 0; i < STRLEN; i++)
+                        c->lac->password[i] = '\0';
 
                 po = add_opt (po, "plugin");
                 po = add_opt (po, "passwordfd.so");
@@ -898,8 +910,11 @@ int control_finish (struct tunnel *t, struct call *c)
                 po = add_opt (po, c->lac->pppoptfile);
             }
         };
-	po = add_opt (po, "ipparam");
-        po = add_opt (po, IPADDY (t->peer.sin_addr));
+        if (c->lac->pass_peer)
+        {
+            po = add_opt (po, "ipparam");
+            po = add_opt (po, IPADDY (t->peer.sin_addr));
+        }
         start_pppd (c, po);
         opt_destroy (po);
         if (c->lac)
@@ -974,8 +989,11 @@ int control_finish (struct tunnel *t, struct call *c)
             po = add_opt (po, "file");
             po = add_opt (po, c->lns->pppoptfile);
         }
-	po = add_opt (po, "ipparam");
-        po = add_opt (po, IPADDY (t->peer.sin_addr));
+        if (c->lns->pass_peer)
+        {
+            po = add_opt (po, "ipparam");
+            po = add_opt (po, IPADDY (t->peer.sin_addr));
+        }
         start_pppd (c, po);
         opt_destroy (po);
         l2tp_log (LOG_NOTICE,
@@ -1034,8 +1052,11 @@ int control_finish (struct tunnel *t, struct call *c)
                 po = add_opt (po, c->lac->pppoptfile);
             }
         };
-	po = add_opt (po, "ipparam");
-        po = add_opt (po, IPADDY (t->peer.sin_addr));
+        if (c->lac->pass_peer)
+        {
+            po = add_opt (po, "ipparam");
+            po = add_opt (po, IPADDY (t->peer.sin_addr));
+        }
         start_pppd (c, po);
 
         /*  jz: just show some information */
@@ -1685,7 +1706,6 @@ void handle_special (struct buffer *buf, struct call *c, _u16 call)
        * call if it was a CDN, otherwise, send a CDN to notify them
        * that this call has been terminated.
      */
-    struct buffer *outgoing;
     struct tunnel *t = c->container;
     /* Don't do anything unless it's a control packet */
     if (!CTBIT (*((_u16 *) buf->start)))
@@ -1705,7 +1725,6 @@ void handle_special (struct buffer *buf, struct call *c, _u16 call)
             return;
         }
         /* Make a packet with the specified call number */
-        outgoing = new_outgoing (t);
         /* FIXME: If I'm not a CDN, I need to send a CDN */
         control_zlb (buf, t, c);
         c->cid = 0;

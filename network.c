@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
+#include <sys/wait.h>
 #ifndef LINUX
 # include <sys/uio.h>
 #endif
@@ -36,7 +37,6 @@ int server_socket;              /* Server socket */
 int kernel_support;             /* Kernel Support there or not? */
 #endif
 
-
 int init_network (void)
 {
     long arg;
@@ -45,12 +45,19 @@ int init_network (void)
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = gconfig.listenaddr; 
     server.sin_port = htons (gconfig.port);
+    int flags;
     if ((server_socket = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
     {
         l2tp_log (LOG_CRIT, "%s: Unable to allocate socket. Terminating.\n",
              __FUNCTION__);
         return -EINVAL;
     };
+
+    flags = 1;
+    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
+#ifdef SO_NO_CHECK
+    setsockopt(server_socket, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
+#endif
 
     if (bind (server_socket, (struct sockaddr *) &server, sizeof (server)))
     {
@@ -78,10 +85,24 @@ int init_network (void)
 
 	    gconfig.ipsecsaref=0;
     }
+    
+    arg=1;
+    if(setsockopt(server_socket, IPPROTO_IP, IP_PKTINFO, (char*)&arg, sizeof(arg)) != 0) {
+	    l2tp_log(LOG_CRIT, "setsockopt IP_PKTINFO: %s\n", strerror(errno));
+    }
 #else
+    {
 	l2tp_log(LOG_INFO, "No attempt being made to use IPsec SAref's since we're not on a Linux machine.\n");
+    }
 
 #endif
+
+    /* turn off UDP checksums */
+    arg=1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_NO_CHECK , (void*)&arg,
+                   sizeof(arg)) ==-1) {
+      l2tp_log(LOG_INFO, "unable to turn off UDP checksums");
+    }
 
 #ifdef USE_KERNEL
     if (gconfig.forceuserspace)
@@ -94,7 +115,7 @@ int init_network (void)
         int kernel_fd = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
         if (kernel_fd < 0)
         {
-            l2tp_log (LOG_INFO, "L2TP kernel support not detected.\n");
+            l2tp_log (LOG_INFO, "L2TP kernel support not detected (try modprobing l2tp_ppp and pppol2tp)\n");
             kernel_support = 0;
         }
         else
@@ -259,23 +280,25 @@ void control_xmit (void *b)
 void udp_xmit (struct buffer *buf, struct tunnel *t)
 {
     struct cmsghdr *cmsg;
-    char cbuf[CMSG_SPACE(sizeof (unsigned int))];
+    char cbuf[CMSG_SPACE(sizeof (unsigned int) + sizeof (struct in_pktinfo))];
     unsigned int *refp;
     struct msghdr msgh;
     int err;
     struct iovec iov;
+    struct in_pktinfo *pktinfo;
+    int finallen;
     
     /*
      * OKAY, now send a packet with the right SAref values.
      */
     memset(&msgh, 0, sizeof(struct msghdr));
 
+    cmsg = NULL;
     msgh.msg_control = cbuf;
-    msgh.msg_controllen = 0;
+    msgh.msg_controllen = sizeof(cbuf);
+    finallen = 0;
 
-    if(gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
-	msgh.msg_controllen = sizeof(cbuf);
-
+    if (gconfig.ipsecsaref && t->refhim != IPSEC_SAREF_NULL) {
 	cmsg = CMSG_FIRSTHDR(&msgh);
 	cmsg->cmsg_level = IPPROTO_IP;
 	cmsg->cmsg_type  = gconfig.sarefnum;
@@ -286,9 +309,30 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 	}
 	refp = (unsigned int *)CMSG_DATA(cmsg);
 	*refp = t->refhim;
-
-	msgh.msg_controllen = cmsg->cmsg_len;
+	
+	finallen = cmsg->cmsg_len;
     }
+    
+    if (t->my_addr.ipi_addr.s_addr){
+
+	if ( ! cmsg) {
+		cmsg = CMSG_FIRSTHDR(&msgh);		
+	}
+	else {
+		cmsg = CMSG_NXTHDR(&msgh, cmsg);
+	}
+	
+	cmsg->cmsg_level = IPPROTO_IP;
+	cmsg->cmsg_type = IP_PKTINFO;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_pktinfo));
+
+	pktinfo = (struct in_pktinfo*) CMSG_DATA(cmsg);
+	*pktinfo = t->my_addr;
+	
+	finallen += cmsg->cmsg_len;
+    }
+    
+    msgh.msg_controllen = finallen;
     
     iov.iov_base = buf->start;
     iov.iov_len  = buf->len;
@@ -321,6 +365,11 @@ int build_fdset (fd_set *readfds)
 
 	while (tun)
 	{
+		if (tun->udp_fd > -1) {
+			if (tun->udp_fd > max)
+				max = tun->udp_fd;
+			FD_SET (tun->udp_fd, readfds);
+		}
 		call = tun->call_head;
 		while (call)
 		{
@@ -376,8 +425,9 @@ void network_thread ()
      * We loop forever waiting on either data from the ppp drivers or from
      * our network socket.  Control handling is no longer done here.
      */
-    struct sockaddr_in from, to;
-    unsigned int fromlen, tolen;
+    struct sockaddr_in from;
+    struct in_pktinfo to;
+    unsigned int fromlen;
     int tunnel, call;           /* Tunnel and call */
     int recvsize;               /* Length of data received */
     struct buffer *buf;         /* Payload buffer */
@@ -390,6 +440,8 @@ void network_thread ()
     struct iovec iov;
     char cbuf[256];
     unsigned int refme, refhim;
+    int * currentfd;
+    int server_socket_processed;
 
     /* This one buffer can be recycled for everything except control packets */
     buf = new_buf (MAX_RECV_SIZE);
@@ -428,7 +480,21 @@ void network_thread ()
         {
             do_control ();
         }
-        if (FD_ISSET (server_socket, &readfds))
+        server_socket_processed = 0;
+        currentfd = NULL;
+        st = tunnels.head;
+        while (st || !server_socket_processed) {
+            if (st && (st->udp_fd == -1)) {
+                st=st->next;
+                continue;
+            }
+            if (st) {
+                currentfd = &st->udp_fd;
+            } else {
+                currentfd = &server_socket;
+                server_socket_processed = 1;
+            }
+            if (FD_ISSET (*currentfd, &readfds))
         {
             /*
              * Okay, now we're ready for reading and processing new data.
@@ -443,7 +509,6 @@ void network_thread ()
 	    memset(&to,   0, sizeof(to));
 	    
 	    fromlen = sizeof(from);
-	    tolen   = sizeof(to);
 	    
 	    memset(&msgh, 0, sizeof(struct msghdr));
 	    iov.iov_base = buf->start;
@@ -457,12 +522,19 @@ void network_thread ()
 	    msgh.msg_flags = 0;
 	    
 	    /* Receive one packet. */
-	    recvsize = recvmsg(server_socket, &msgh, 0);
+	    recvsize = recvmsg(*currentfd, &msgh, 0);
 
             if (recvsize < MIN_PAYLOAD_HDR_LEN)
             {
                 if (recvsize < 0)
                 {
+                    if (errno == ECONNREFUSED) {
+                        close(*currentfd);
+                    }
+                    if ((errno == ECONNREFUSED) ||
+                        (errno == EBADF)) {
+                        *currentfd = -1;
+                    }
                     if (errno != EAGAIN)
                         l2tp_log (LOG_WARNING,
                              "%s: recvfrom returned error %d (%s)\n",
@@ -479,23 +551,27 @@ void network_thread ()
 
 	    refme=refhim=0;
 
-	    /* extract IPsec info out */
-	    if(gconfig.ipsecsaref) {
-		    struct cmsghdr *cmsg;
-		    /* Process auxiliary received data in msgh */
-		    for (cmsg = CMSG_FIRSTHDR(&msgh);
-			 cmsg != NULL;
-			 cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
-			    if (cmsg->cmsg_level == IPPROTO_IP
-				&& cmsg->cmsg_type == gconfig.sarefnum) {
-				    unsigned int *refp;
-				    
-				    refp = (unsigned int *)CMSG_DATA(cmsg);
-				    refme =refp[0];
-				    refhim=refp[1];
-			    }
-		    }
-	    }
+
+		struct cmsghdr *cmsg;
+		/* Process auxiliary received data in msgh */
+		for (cmsg = CMSG_FIRSTHDR(&msgh);
+			cmsg != NULL;
+			cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
+			/* extract destination(our) addr */
+			if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO) {
+				struct in_pktinfo* pktInfo = ((struct in_pktinfo*)CMSG_DATA(cmsg));
+				to = *pktInfo;
+			}
+			/* extract IPsec info out */
+			else if (gconfig.ipsecsaref && cmsg->cmsg_level == IPPROTO_IP
+			&& cmsg->cmsg_type == gconfig.sarefnum) {
+				unsigned int *refp;
+				
+				refp = (unsigned int *)CMSG_DATA(cmsg);
+				refme =refp[0];
+				refhim=refp[1];
+			}
+		}
 
 	    /*
 	     * some logic could be added here to verify that we only
@@ -551,6 +627,10 @@ void network_thread ()
 	    }
 	    else
 	    {
+		if (c->container) {
+			c->container->my_addr = to;
+		}
+
 		buf->peer = from;
 		/* Handle the packet */
 		c->container->chal_us.vector = NULL;
@@ -566,6 +646,8 @@ void network_thread ()
 		    c->cnu = 0;
 		}
 	    };
+	}
+	if (st) st=st->next;
 	}
 
 	/*
@@ -639,3 +721,82 @@ void network_thread ()
     }
 
 }
+
+#ifdef USE_KERNEL
+int connect_pppol2tp(struct tunnel *t) {
+        if (kernel_support) {
+            int ufd = -1, fd2 = -1;
+            int flags;
+            struct sockaddr_pppol2tp sax;
+
+            struct sockaddr_in server;
+            server.sin_family = AF_INET;
+            server.sin_addr.s_addr = gconfig.listenaddr;
+            server.sin_port = htons (gconfig.port);
+            if ((ufd = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
+            {
+                l2tp_log (LOG_CRIT, "%s: Unable to allocate UDP socket. Terminating.\n",
+                    __FUNCTION__);
+                return -EINVAL;
+            };
+
+            flags=1;
+            setsockopt(ufd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
+#ifdef SO_NO_CHECK
+            setsockopt(ufd, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
+#endif
+
+            if (bind (ufd, (struct sockaddr *) &server, sizeof (server)))
+            {
+                close (ufd);
+                l2tp_log (LOG_CRIT, "%s: Unable to bind UDP socket: %s. Terminating.\n",
+                     __FUNCTION__, strerror(errno), errno);
+                return -EINVAL;
+            };
+            server = t->peer;
+            flags = fcntl(ufd, F_GETFL);
+            if (flags == -1 || fcntl(ufd, F_SETFL, flags | O_NONBLOCK) == -1) {
+                l2tp_log (LOG_WARNING, "%s: Unable to set UDP socket nonblock.\n",
+                     __FUNCTION__);
+                return -EINVAL;
+            }
+            if (connect (ufd, (struct sockaddr *) &server, sizeof(server)) < 0) {
+                l2tp_log (LOG_CRIT, "%s: Unable to connect UDP peer. Terminating.\n",
+                 __FUNCTION__);
+                return -EINVAL;
+            }
+
+            t->udp_fd=ufd;
+
+            fd2 = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
+            if (fd2 < 0) {
+                l2tp_log (LOG_WARNING, "%s: Unable to allocate PPPoL2TP socket.\n",
+                     __FUNCTION__);
+                return -EINVAL;
+            }
+            flags = fcntl(fd2, F_GETFL);
+            if (flags == -1 || fcntl(fd2, F_SETFL, flags | O_NONBLOCK) == -1) {
+                l2tp_log (LOG_WARNING, "%s: Unable to set PPPoL2TP socket nonblock.\n",
+                     __FUNCTION__);
+                return -EINVAL;
+            }
+            memset(&sax, 0, sizeof(sax));
+            sax.sa_family = AF_PPPOX;
+            sax.sa_protocol = PX_PROTO_OL2TP;
+            sax.pppol2tp.fd = t->udp_fd;
+            sax.pppol2tp.addr.sin_addr.s_addr = t->peer.sin_addr.s_addr;
+            sax.pppol2tp.addr.sin_port = t->peer.sin_port;
+            sax.pppol2tp.addr.sin_family = AF_INET;
+            sax.pppol2tp.s_tunnel  = t->ourtid;
+            sax.pppol2tp.d_tunnel  = t->tid;
+            if ((connect(fd2, (struct sockaddr *)&sax, sizeof(sax))) < 0) {
+                l2tp_log (LOG_WARNING, "%s: Unable to connect PPPoL2TP socket. %d %s\n",
+                     __FUNCTION__, errno, strerror(errno));
+                close(fd2);
+                return -EINVAL;
+            }
+            t->pppox_fd = fd2;
+        }
+    return 0;
+}
+#endif
