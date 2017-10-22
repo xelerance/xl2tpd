@@ -1,3 +1,26 @@
+xl2tpd (1.3.8+dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Package adopted by Samir (Closes: #786810)
+  * control:
+    - Bump policy version (no change).
+    - Add missing lsb-base dependency.
+
+ -- Samuel Thibault <sthibault@debian.org>  Sun, 04 Dec 2016 21:17:35 +0100
+
+xl2tpd (1.3.6+dfsg-4) unstable; urgency=medium
+
+  * QA upload.
+  * rules: Enable USE_KERNEL, like upstream now does (Closes: #542521)
+
+ -- Samuel Thibault <sthibault@debian.org>  Fri, 27 Nov 2015 22:40:47 +0100
+
+xl2tpd (1.3.6+dfsg-3) unstable; urgency=low
+
+  * Orphan package, set maintainer to Debian QA Group
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Mon, 25 May 2015 14:40:47 -0400
+
 xl2tpd (1.3.6+dfsg-2) unstable; urgency=low
 
   * Update to debhelper compatibility level 7
@@ -141,3 +164,6 @@ xl2tpd (1.1.11.dfsg.1-1) unstable; urgency=low
 
  -- Roberto C. Sanchez <roberto@connexer.com>  Tue, 31 Jul 2007 20:57:23 -0400
 
+Local variables:
+mode: debian-changelog
+End:

@@ -69,6 +69,12 @@ OSFLAGS+= -DUSE_KERNEL
 #
 #OSFLAGS?= -DFREEBSD
 #
+# Uncomment the next three lines for NetBSD
+#
+#OSFLAGS?= -DNETBSD
+#CFLAGS+= -D_NETBSD_SOURCE
+#LDLIBS?= -lutil
+#
 # Uncomment the next line for Solaris. For solaris, at least,
 # we don't want to specify -I/usr/include because it is in
 # the basic search path, and will over-ride some gcc-specific
@@ -91,12 +97,13 @@ OSFLAGS+= -DUSE_KERNEL
 
 IPFLAGS?= -DIP_ALLOCATION
 
-CFLAGS+= $(DFLAGS) -O2 -fno-builtin -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
+CFLAGS+= $(DFLAGS) -Os -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
 SRCS=${OBJS:.o=.c} ${HDRS}
 CONTROL_SRCS=xl2tpd-control.c
 #LIBS= $(OSLIBS) # -lefence # efence for malloc checking
+LDLIBS+= -lm
 EXEC=xl2tpd
 CONTROL_EXEC=xl2tpd-control
 
