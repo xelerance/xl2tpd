@@ -22,7 +22,9 @@ configure-stamp:
 	dh_testdir
 	touch configure-stamp
 
-build: build-stamp
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 	$(MAKE)
@@ -38,7 +40,7 @@ clean:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_prep
+	dh_clean -k 
 	dh_installdirs
 	$(MAKE) PREFIX=/usr DESTDIR=$(CURDIR)/debian/xl2tpd install
 	cp $(CURDIR)/doc/l2tpd.conf.sample $(CURDIR)/debian/xl2tpd/etc/xl2tpd/xl2tpd.conf
@@ -46,7 +48,7 @@ install: build
 
 # Build architecture-independent files here.
 binary-indep: build install
-	dh_link -pl2tpd usr/share/doc/xl2tpd usr/share/doc/l2tpd
+	# Nothing to do here
 
 # Build architecture-dependent files here.
 binary-arch: build install
