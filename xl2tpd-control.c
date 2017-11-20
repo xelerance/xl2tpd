@@ -309,7 +309,8 @@ int main (int argc, char *argv[])
     }
     
     /* pass command to control pipe */
-    if (write (control_fd, buf, ftell (mesf)) < 0)
+    ssize_t size = strlen(buf) + 1;
+    if (write (control_fd, buf, size) != size)
     {
       int errorno = errno;
       print_error (ERROR_LEVEL,
