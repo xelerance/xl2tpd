@@ -42,6 +42,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <event.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "l2tp.h"
 
 struct tunnel_list tunnels;
@@ -1639,7 +1641,7 @@ void handle_control_event (int fd, short ev, void *arg)
 void usage(void) {
     printf("\nxl2tpd version:  %s\n", SERVER_VERSION);
     printf("Usage: xl2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]\n"
-            "              [-C <control file>] [-D] [-l]\n"
+            "              [-C <control file>] [-D] [-l] [-L <FD limit>]\n"
             "              [-v, --version]\n");
     printf("\n");
     exit(1);
@@ -1670,6 +1672,7 @@ void init_args(int argc, char *argv[])
     strncpy(gconfig.controlfile,CONTROL_PIPE,
             sizeof(gconfig.controlfile) - 1);
     gconfig.ipsecsaref = 0;
+    gconfig.set_file_limit = 0;
 
     for (i = 1; i < argc; i++) {
         if ((! strncmp(argv[i],"--version",9))
@@ -1711,6 +1714,13 @@ void init_args(int argc, char *argv[])
             else
                 strncpy(gconfig.controlfile,argv[i],
                         sizeof(gconfig.controlfile) - 1);
+        }
+        else if ((! strcmp(argv[i],"--set-open-file-limit"))
+                 || (! strcmp(argv[i],"-L"))) {
+            if(++i == argc)
+                usage();
+            else
+                gconfig.set_file_limit = atoi(argv[i]);
         }
         else {
             usage();
@@ -1827,6 +1837,37 @@ static void open_controlfd()
     }
 }
 
+void set_file_limit(void)
+{
+	struct rlimit lim;
+	int rc;
+
+	if (!gconfig.set_file_limit)
+		return;
+
+	rc = getrlimit(RLIMIT_NOFILE, &lim);
+	if(rc<0) {
+		l2tp_log(LOG_CRIT, "failed getrlimit(RLIMIT_NOFILE): %s\n",
+			 strerror(errno));
+		exit(1);
+	}
+
+	l2tp_log(LOG_DEBUG, "getrlimit(RLIMIT_NOFILE): %u / %u\n",
+		 lim.rlim_cur, lim.rlim_max);
+
+	lim.rlim_cur = gconfig.set_file_limit;
+
+	rc = setrlimit(RLIMIT_NOFILE, &lim);
+	if(rc<0) {
+		l2tp_log(LOG_CRIT, "failed getrlimit(RLIMIT_NOFILE, %u): %s\n",
+			 lim.rlim_cur, strerror(errno));
+		exit(1);
+	}
+
+	l2tp_log(LOG_INFO, "setrlimit(RLIMIT_NOFILE): %u / %u\n",
+		 lim.rlim_cur, lim.rlim_max);
+}
+
 void event_log(int severity, const char *msg)
 {
     /* map libevent severity levels to LOG_ severities */
@@ -1923,6 +1964,8 @@ void init (int argc,char *argv[])
     mkfifo (gconfig.controlfile, 0600);
 
     open_controlfd();
+
+    set_file_limit();
 
     l2tp_log (LOG_INFO, "xl2tpd version " SERVER_VERSION " started on %s PID:%d\n",
             hostname, getpid ());
