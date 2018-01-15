@@ -85,6 +85,13 @@ OSFLAGS+= -DUSE_KERNEL
 #OSFLAGS?= -DSOLARIS -DPPPD=\"/usr/bin/pppd\" -std=c99 -pedantic -D__EXTENSIONS__ -D_XPG4_2 -D_XPG6 -I/opt/sfw/include
 #OSLIBS?= -lnsl -lsocket
 
+#
+# Configure libevent
+#
+EV_CFLAGS  += $(shell pkg-config --cflags libevent)
+EV_LDFLAGS += $(shell pkg-config --libs-only-L libevent)
+EV_LDLIBS  += $(shell pkg-config --libs-only-l libevent)
+
 # Uncomment the next two lines for OpenBSD
 #
 #OSFLAGS?= -DOPENBSD
@@ -120,10 +127,10 @@ clean:
 	rm -f $(OBJS) $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) $(LDFLAGS) $@ $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(EV_LDFLAGS) -o $@ $(OBJS) $(LDLIBS) $(EV_LDLIBS)
 
 $(OBJS): %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(EV_CFLAGS) -c -o $@ $<
 
 
 $(CONTROL_EXEC): $(CONTROL_SRCS)
