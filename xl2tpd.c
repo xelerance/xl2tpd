@@ -477,7 +477,8 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
 
         fd2 = open (tty, O_RDWR);
         if (fd2 < 0) {
-            l2tp_log (LOG_WARNING, "unable to open tty %s, cannot start pppd", tty);
+            l2tp_log (LOG_WARNING, "unable to open tty %s, cannot start pppd: %s",
+		      tty, strerror(errno));
             return -EINVAL;
         }
         stropt[pos++] = strdup(tty);
@@ -1590,8 +1591,8 @@ void do_control ()
 
             resf = fopen (res_filename, "w");
             if (!resf) {
-                l2tp_log (LOG_DEBUG, "%s: Can't open result file %s\n",
-                        __FUNCTION__, res_filename);
+                l2tp_log (LOG_DEBUG, "%s: Can't open result file %s: %s\n",
+                        __FUNCTION__, res_filename, strerror(errno));
                 continue;
             }
         }else{
@@ -1740,12 +1741,15 @@ void daemonize() {
     close(0);
     i = open("/dev/null", O_RDWR);
     if (i == -1) {
-        l2tp_log(LOG_INFO, "Redirect of stdin to /dev/null failed\n");
+        l2tp_log(LOG_INFO, "Redirect of stdin to /dev/null failed: %s\n",
+		 strerror(errno));
     } else {
         if (dup2(0, 1) == -1)
-            l2tp_log(LOG_INFO, "Redirect of stdout to /dev/null failed\n");
+            l2tp_log(LOG_INFO, "Redirect of stdout to /dev/null failed: %s\n",
+		     strerror(errno));
         if (dup2(0, 2) == -1)
-            l2tp_log(LOG_INFO, "Redirect of stderr to /dev/null failed\n");
+            l2tp_log(LOG_INFO, "Redirect of stderr to /dev/null failed: %s\n",
+		     strerror(errno));
         close(i);
     }
 #endif
@@ -1759,8 +1763,8 @@ static void consider_pidfile() {
     /* Read previous pid file. */
     i = open(gconfig.pidfile,O_RDONLY);
     if (i < 0) {
-        /* l2tp_log(LOG_DEBUG, "%s: Unable to read pid file [%s]\n",
-           __FUNCTION__, gconfig.pidfile);
+        /* l2tp_log(LOG_DEBUG, "%s: Unable to read pid file [%s]: %s\n",
+           __FUNCTION__, gconfig.pidfile, strerror(errno));
          */
     } else
     {
@@ -1805,8 +1809,8 @@ static void open_controlfd()
     control_fd = open (gconfig.controlfile, O_RDONLY | O_NONBLOCK, 0600);
     if (control_fd < 0)
     {
-        l2tp_log (LOG_CRIT, "%s: Unable to open %s for reading.\n",
-                __FUNCTION__, gconfig.controlfile);
+        l2tp_log (LOG_CRIT, "%s: Unable to open %s for reading: %s.\n",
+                __FUNCTION__, gconfig.controlfile, strerror(errno));
         exit (1);
     }
 

@@ -142,8 +142,8 @@ static int get_secret (char *us, char *them, unsigned char *secret, int size)
     f = fopen (gconfig.authfile, "r");
     if (!f)
     {
-        l2tp_log (LOG_WARNING, "%s : Unable to open '%s' for authentication\n",
-             __FUNCTION__, gconfig.authfile);
+        l2tp_log (LOG_WARNING, "%s : Unable to open '%s' for authentication: %s\n",
+             __FUNCTION__, gconfig.authfile, strerror(errno));
         return 0;
     }
     while (!feof (f))

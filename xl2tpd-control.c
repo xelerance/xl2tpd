@@ -237,7 +237,8 @@ int main (int argc, char *argv[])
     if (result_fd < 0)
     {
         print_error (ERROR_LEVEL,
-            "error: unable to open %s for reading.\n", result_filename);
+            "error: unable to open %s for reading: %s.\n", result_filename,
+	    strerror(errno));
         return -2;
     }
    

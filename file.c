@@ -22,6 +22,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <errno.h>
 
 #include "l2tp.h"
 
@@ -59,8 +60,9 @@ int init_config ()
         f = fopen (gconfig.altconfigfile, "r");
         if (f)
         {
-	     l2tp_log (LOG_WARNING, "%s: Using old style config files %s and %s\n",
-		__FUNCTION__, gconfig.altconfigfile, gconfig.altauthfile);
+	     l2tp_log (LOG_WARNING, "%s: Using old style config files %s and %s: %s\n",
+		__FUNCTION__, gconfig.altconfigfile, gconfig.altauthfile,
+		strerror(errno));
             strncpy (gconfig.authfile, gconfig.altauthfile, 
             	sizeof (gconfig.authfile));
         }

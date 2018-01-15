@@ -71,7 +71,8 @@ int getPtyMaster_pty (char *tty10, char *tty01)
             }
         }
     }
-    l2tp_log (LOG_CRIT, "%s: No more free pseudo-tty's\n", __FUNCTION__);
+    l2tp_log (LOG_CRIT, "%s: No more free pseudo-tty's: %s\n", __FUNCTION__,
+	      strerror(errno));
     return -1;
 }
 
@@ -83,8 +84,8 @@ int getPtyMaster_ptmx(char *ttybuf, int ttybuflen)
     fd = open("/dev/ptmx", O_RDWR);
     if (fd == -1)
     {
-	l2tp_log (LOG_WARNING, "%s: unable to open /dev/ptmx to allocate pty\n",
-		  __FUNCTION__);
+	l2tp_log (LOG_WARNING, "%s: unable to open /dev/ptmx to allocate pty: %s\n",
+		  __FUNCTION__, strerror(errno));
 	return -EINVAL;
     }
 
