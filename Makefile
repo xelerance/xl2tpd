@@ -106,31 +106,36 @@ CONTROL_SRCS=xl2tpd-control.c
 EXEC=xl2tpd
 CONTROL_EXEC=xl2tpd-control
 
+PFC_EXEC=pfc
+
 PREFIX?=/usr/local
 SBINDIR?=$(DESTDIR)${PREFIX}/sbin
 BINDIR?=$(DESTDIR)${PREFIX}/bin
 MANDIR?=$(DESTDIR)${PREFIX}/share/man
 
 
-all: $(EXEC) pfc $(CONTROL_EXEC)
+all: $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 
 clean:
-	rm -f $(OBJS) $(EXEC) pfc.o pfc $(CONTROL_EXEC)
+	rm -f $(OBJS) $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) $@ $(OBJS) $(LDLIBS)
+
+$(OBJS): %.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 
 $(CONTROL_EXEC): $(CONTROL_SRCS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(CONTROL_SRCS) -o $@
 
-pfc:
-	$(CC) $(CFLAGS) -c contrib/pfc.c
-	$(CC) $(LDFLAGS) -o pfc pfc.o -lpcap $(LDLIBS)
+$(PFC_EXEC): contrib/pfc.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(PFC_EXEC) $< -lpcap $(LDLIBS)
 
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
 
-install: ${EXEC} pfc ${CONTROL_EXEC}
+install: ${EXEC} $(PFC_EXEC) ${CONTROL_EXEC}
 	install -d -m 0755 ${SBINDIR}
 	install -m 0755 $(EXEC) ${SBINDIR}/$(EXEC)
 	install -d -m 0755 ${MANDIR}/man5
@@ -141,7 +146,7 @@ install: ${EXEC} pfc ${CONTROL_EXEC}
 		 ${MANDIR}/man5/
 	# pfc
 	install -d -m 0755 ${BINDIR}
-	install -m 0755 pfc ${BINDIR}/pfc
+	install -m 0755 $(PFC_EXEC) ${BINDIR}/$(PFC_EXEC)
 	install -d -m 0755 ${MANDIR}/man1
 	install -m 0644 contrib/pfc.1 ${MANDIR}/man1/
 	# control exec
