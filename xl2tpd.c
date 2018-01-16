@@ -1563,6 +1563,11 @@ void handle_control_event (int fd, short ev, void *arg)
     int handler_found = 0;
     struct control_requests_handler* handler = NULL;
 
+#ifdef DEBUG_EVENTS
+    l2tp_log(LOG_DEBUG, "EVENT: %s: fd=%d event=%hd arg=%p\n",
+             __FUNCTION__, fd, ev, arg);
+#endif
+
     bzero(buf, sizeof(buf));
     buf[0]='\0';
 

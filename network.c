@@ -526,6 +526,11 @@ void receive_message_from_socket(int *fdp)
 
 void handle_server_event (int fd, short ev, void *arg)
 {
+#ifdef DEBUG_EVENTS
+    l2tp_log(LOG_DEBUG, "EVENT: %s: fd=%d event=%hd arg=%p\n",
+             __FUNCTION__, fd, ev, arg);
+#endif
+
     receive_message_from_socket(&server_socket);
 }
 
@@ -572,6 +577,11 @@ void handle_call_event (int fd, short ev, void *arg)
     struct call *sc = arg;
     struct tunnel *st = sc->container;   /* Tunnel we belong to */
 
+#ifdef DEBUG_EVENTS
+    l2tp_log(LOG_DEBUG, "EVENT: %s: fd=%d event=%hd arg=%p\n",
+             __FUNCTION__, fd, ev, arg);
+#endif
+
     process_call(st, sc);
 }
 
@@ -605,6 +615,11 @@ void handle_tunnel_event (int fd, short ev, void *arg)
 {
     struct tunnel *st = arg;
 
+#ifdef DEBUG_EVENTS
+    l2tp_log(LOG_DEBUG, "EVENT: %s: fd=%d event=%hd arg=%p\n",
+             __FUNCTION__, fd, ev, arg);
+#endif
+
     receive_message_from_socket(&st->udp_fd);
 
     process_tunnel_calls(st);
@@ -622,6 +637,27 @@ void deregister_from_tunnel_events(struct tunnel *st)
     event_del(&st->ev_udp_fd);
 }
 
+void event_log(int severity, const char *msg)
+{
+    /* map libevent severity levels to LOG_ severities */
+    switch (severity) {
+    case EVENT_LOG_DEBUG:
+        severity = LOG_DEBUG;
+        break;
+    default:
+    case EVENT_LOG_MSG:
+        severity = LOG_INFO;
+        break;
+    case EVENT_LOG_WARN:
+        severity = LOG_WARNING;
+        break;
+    case EVENT_LOG_ERR:
+        severity = LOG_ERR;
+        break;
+    }
+    l2tp_log(severity, "libevent: %s\n", msg);
+}
+
 void network_thread ()
 {
     /*
@@ -632,13 +668,19 @@ void network_thread ()
      * handle_control_event() processes control commands control_fd.
      * handle_tunnel_event() processes tunnel packets from tunnel->udp_fd.
      * handle_call_event() processes call packets from call->fd.
+     * handle_schedule_event() processes timers.
      */
 
     struct event ev_server, ev_control;
 
     /* configure event processing */
 
+#ifdef DEBUG_EVENTS
+    event_enable_debug_mode();
+#endif
+
     event_init();
+    event_set_log_callback(event_log);
 
     if ( event_get_struct_event_size() > sizeof (ev_server) ) {
         l2tp_log (LOG_CRIT, "%s: libevent uses %u struct size, "
