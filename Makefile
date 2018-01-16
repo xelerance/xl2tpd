@@ -122,12 +122,28 @@ SBINDIR?=$(DESTDIR)${PREFIX}/sbin
 BINDIR?=$(DESTDIR)${PREFIX}/bin
 MANDIR?=$(DESTDIR)${PREFIX}/share/man
 
+SERVER_VERSION = $(shell sed -rn 's/\#define *SERVER_VERSION *//p' l2tp.h || echo "unknown" )
+
 Q = $(if ${V},,@)
 
-all: $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
+.PHONY: all clean config install
+all: config $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 
 clean:
 	rm -f $(OBJS) $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
+
+config:
+	@echo "  version"
+	@echo "    ${SERVER_VERSION}"
+	@echo "  general config"
+	@echo "    CFLAGS  = ${CFLAGS}"
+	@echo "    LDFLAGS = ${LDFLAGS}"
+	@echo "    LDLIBS  = ${LDLIBS}"
+	@echo "  libevent config"
+	@echo "    CFLAGS  = ${EV_CFLAGS}"
+	@echo "    LDFLAGS = ${EV_LDFLAGS}"
+	@echo "    LDLIBS  = ${EV_LDLIBS}"
+	@echo "---- 8< ----"
 
 $(EXEC): $(OBJS) $(HDRS)
 	@echo " LINK $@"
