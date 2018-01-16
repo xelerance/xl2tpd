@@ -21,7 +21,7 @@
 #include <errno.h>
 #include "l2tp.h"
 
-extern void bufferDump (char *, int);
+extern void bufferDump (void *, int);
 
 /* FIXME: Accounting? */
 

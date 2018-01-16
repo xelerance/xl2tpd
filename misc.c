@@ -109,8 +109,9 @@ inline void recycle_buf (struct buffer *b)
 }
 
 #define bufferDumpWIDTH 16
-void bufferDump (unsigned char *buf, int buflen)
+void bufferDump (void *_buf, int buflen)
 {
+    unsigned char *buf = _buf;
     int i = 0, j = 0;
     /* we need TWO characters to DISPLAY ONE byte */
     char line[2 * bufferDumpWIDTH + 1], *c;
