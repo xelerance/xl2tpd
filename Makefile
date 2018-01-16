@@ -145,20 +145,20 @@ config:
 	@echo "    LDLIBS  = ${EV_LDLIBS}"
 	@echo "---- 8< ----"
 
-$(EXEC): $(OBJS) $(HDRS)
+$(EXEC): $(OBJS) $(HDRS) Makefile
 	@echo " LINK $@"
 	${Q}$(CC) $(LDFLAGS) $(EV_LDFLAGS) -o $@ $(OBJS) $(LDLIBS) $(EV_LDLIBS)
 
-$(OBJS): %.o: %.c
+$(OBJS): %.o: %.c Makefile
 	@echo "   CC $@"
 	${Q}$(CC) $(CFLAGS) $(EV_CFLAGS) -c -o $@ $<
 
 
-$(CONTROL_EXEC): $(CONTROL_SRCS)
+$(CONTROL_EXEC): $(CONTROL_SRCS) Makefile
 	@echo "BUILD $@"
 	${Q}$(CC) $(CFLAGS) $(LDFLAGS) $(CONTROL_SRCS) -o $@
 
-$(PFC_EXEC): contrib/pfc.c
+$(PFC_EXEC): contrib/pfc.c Makefile
 	@echo "BUILD $@"
 	${Q}$(CC) $(CFLAGS) $(LDFLAGS) -o $(PFC_EXEC) $< -lpcap $(LDLIBS)
 
