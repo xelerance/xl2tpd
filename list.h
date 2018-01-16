@@ -2,11 +2,29 @@
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 
-#include <linux/types.h>
-#include <linux/stddef.h>
-#include <linux/poison.h>
-#include <linux/const.h>
-#include <linux/kernel.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+/* this file comes from the Linux kernel v4.15-rc8, but the following defines
+ * are added to make the code works */
+#define container_of(ptr, type, member) ({                      \
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+	(type *)( (char *)__mptr - offsetof(type,member) );})
+#define barrier() __asm__ __volatile__("": : :"memory")
+#define WRITE_ONCE(a,b) ({ \
+	barrier(); \
+	memcpy(&a,&b,sizeof(a)); \
+	barrier(); })
+#define READ_ONCE(a) ({ \
+	typeof(a) __v; \
+	barrier(); \
+	memcpy((void*)&__v,&a,sizeof(__v)); \
+	barrier(); \
+	__v; })
+#define LIST_POISON1 ((void *) 0x00100100)
+#define LIST_POISON2 ((void *) 0x00200200)
 
 /*
  * Simple doubly linked list implementation.
@@ -17,6 +35,10 @@
  * generate better code by using them directly rather than
  * using the generic single-entry routines.
  */
+
+struct list_head {
+	struct list_head *next, *prev;
+};
 
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
 
@@ -621,6 +643,14 @@ static inline void list_splice_tail_init(struct list_head *list,
  * too wasteful.
  * You lose the ability to access the tail in O(1).
  */
+
+struct hlist_head {
+	struct hlist_node *first;
+};
+
+struct hlist_node {
+	struct hlist_node *next, **pprev;
+};
 
 #define HLIST_HEAD_INIT { .first = NULL }
 #define HLIST_HEAD(name) struct hlist_head name = {  .first = NULL }
