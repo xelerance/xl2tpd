@@ -1,7 +1,17 @@
 *.o
 *~
 *.bak
+.*.sw*
 xl2tpd
 xl2tpd-control
 pfc
+cscope.files
 tags
+build-stamp
+configure-stamp
+debian/files
+debian/xl2tpd.debhelper.log
+debian/xl2tpd.postinst.debhelper
+debian/xl2tpd.postrm.debhelper
+debian/xl2tpd.prerm.debhelper
+debian/xl2tpd.substvars
