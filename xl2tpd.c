@@ -279,6 +279,7 @@ void child_handler (int signal)
 #ifdef USE_KERNEL
                  if (!kernel_support)
 #endif
+                    deregister_from_call_events(c);
                     close (c->fd);
                     c->fd = -1;
                     /*
@@ -463,6 +464,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
                       __FUNCTION__);
             return -EINVAL;
         }
+        register_for_call_events(c);
 
         /* set fd opened above to not echo so we don't see read our own packets
            back of the file descriptor that we just wrote them to */
@@ -540,8 +542,11 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
         {
 #ifdef USE_KERNEL
              if (kernel_support) {
-                if(st->udp_fd!=-1)
+                if(st->udp_fd!=-1) {
+                    deregister_from_tunnel_events(st);
                     close(st->udp_fd); /* tunnel UDP fd */
+                    st->udp_fd = -1;
+                }
                 if(st->pppox_fd!=-1)
                     close(st->pppox_fd); /* tunnel PPPoX fd */
              } else
@@ -679,8 +684,11 @@ void destroy_tunnel (struct tunnel *t)
         free (t->chal_them.vector);
     if (t->pppox_fd > -1 )
         close (t->pppox_fd);
-    if (t->udp_fd > -1 )
+    if (t->udp_fd > -1 ) {
+        deregister_from_tunnel_events(t);
         close (t->udp_fd);
+        t->udp_fd = -1;
+    }
     destroy_call (me);
     free (t);
 }
@@ -1901,3 +1909,6 @@ int main (int argc, char *argv[])
     return 0;
 }
 
+/*
+ * vim: :set sw=4 ts=4 et
+ */

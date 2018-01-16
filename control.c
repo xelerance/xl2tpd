@@ -1713,6 +1713,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
                * I guess pppd died.  we'll pretend
                * everything ended normally
              */
+            deregister_from_call_events(c);
             c->needclose = -1;
             c->fd = -1;
             return -EIO;

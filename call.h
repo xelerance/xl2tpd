@@ -12,6 +12,7 @@
  * Handle a call as a separate thread (header file)
  */
 #include <sys/time.h>
+#include <event.h>
 #include "misc.h"
 #include "common.h"
 #include "ipsecmast.h"
@@ -96,6 +97,8 @@ struct call
     struct lns *lns;            /* LNS that owns us */
     struct lac *lac;            /* LAC that owns us */
     char dial_no[128];          /* jz: dialing number for outgoing call */
+
+    struct event ev_fd;
 };
 
 

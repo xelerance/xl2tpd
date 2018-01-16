@@ -390,6 +390,7 @@ void destroy_call (struct call *c)
      */
     if (c->fd > 0)
     {
+        deregister_from_call_events(c);
         close (c->fd);
         c->fd = -1;
     }

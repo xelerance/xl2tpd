@@ -567,7 +567,6 @@ void process_call(struct tunnel *st, struct call *sc)
     }
 }
 
-// attached to call->fd
 void handle_call_event (int fd, short ev, void *arg)
 {
     struct call *sc = arg;
@@ -575,6 +574,19 @@ void handle_call_event (int fd, short ev, void *arg)
 
     process_call(st, sc);
 }
+
+void register_for_call_events(struct call *sc)
+{
+    event_set(&sc->ev_fd, sc->fd, EV_READ|EV_PERSIST,
+              handle_call_event, sc);
+    event_add(&sc->ev_fd, NULL);
+}
+
+void deregister_from_call_events(struct call *sc)
+{
+    event_del(&sc->ev_fd);
+}
+
 
 void process_tunnel_calls(struct tunnel *st)
 {
@@ -589,7 +601,6 @@ void process_tunnel_calls(struct tunnel *st)
     }
 }
 
-// attached to tunnel->udp_fd
 void handle_tunnel_event (int fd, short ev, void *arg)
 {
     struct tunnel *st = arg;
@@ -597,6 +608,18 @@ void handle_tunnel_event (int fd, short ev, void *arg)
     receive_message_from_socket(&st->udp_fd);
 
     process_tunnel_calls(st);
+}
+
+void register_for_tunnel_events(struct tunnel *st)
+{
+    event_set(&st->ev_udp_fd, st->udp_fd, EV_READ|EV_PERSIST,
+              handle_tunnel_event, st);
+    event_add(&st->ev_udp_fd, NULL);
+}
+
+void deregister_from_tunnel_events(struct tunnel *st)
+{
+    event_del(&st->ev_udp_fd);
 }
 
 void network_thread ()
@@ -616,6 +639,14 @@ void network_thread ()
     /* configure event processing */
 
     event_init();
+
+    if ( event_get_struct_event_size() > sizeof (ev_server) ) {
+        l2tp_log (LOG_CRIT, "%s: libevent uses %u struct size, "
+                  "but we are compiled for %u.  Terminating\n",
+                  event_get_struct_event_size(), sizeof(ev_server),
+                  __FUNCTION__);
+        exit(EXIT_FAILURE);
+    }
 
     event_set(&ev_server, server_socket, EV_READ|EV_PERSIST, handle_server_event, NULL);
     event_add(&ev_server, NULL);
@@ -675,6 +706,7 @@ int connect_pppol2tp(struct tunnel *t) {
             }
 
             t->udp_fd=ufd;
+            register_for_tunnel_events(t);
 
             fd2 = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
             if (fd2 < 0) {
@@ -709,3 +741,6 @@ int connect_pppol2tp(struct tunnel *t) {
     return 0;
 }
 #endif
+/*
+ * vim: :set sw=4 ts=4 et
+ */

@@ -28,6 +28,7 @@ typedef unsigned long long _u64;
 #ifdef OPENBSD
 # include <util.h>
 #endif
+#include <event.h>
 #include "osport.h"
 #include "scheduler.h"
 #include "misc.h"
@@ -188,6 +189,8 @@ struct tunnel
     struct challenge chal_us;   /* Their Challenge to us */
     struct challenge chal_them; /* Our challenge to them */
     char secret[MAXSTRLEN];     /* Secret to use */
+
+    struct event ev_udp_fd;
 };
 
 struct tunnel_list
@@ -221,7 +224,6 @@ struct tunnel_list
 /* Error Values */
 
 extern struct tunnel_list tunnels;
-extern void tunnel_close (struct tunnel *t);
 extern void network_thread ();
 extern int init_network ();
 extern int server_socket;
@@ -234,6 +236,10 @@ extern void add_payload_hdr (struct tunnel *, struct call *, struct buffer *);
 extern int read_packet (struct call *);
 extern void udp_xmit (struct buffer *buf, struct tunnel *t);
 extern void control_xmit (void *);
+extern void register_for_tunnel_events(struct tunnel *st);
+extern void deregister_from_tunnel_events(struct tunnel *st);
+extern void register_for_call_events(struct call *st);
+extern void deregister_from_call_events(struct call *st);
 extern int ppd;
 extern int switch_io;           /* jz */
 extern int control_fd;
