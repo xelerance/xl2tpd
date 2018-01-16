@@ -103,54 +103,63 @@ void init_tunnel_list (struct tunnel_list *t)
     t->calls = 0;
 }
 
+static int show_status_schedule_iterator(struct schedule_entry *se, void *data)
+{
+    int *counter = data;
+    struct tunnel *t;
+    struct lac *tlac;
+    struct call *c;
+    int s;
+
+    s = ++ (*counter);
+
+    t = (struct tunnel *) se->data;
+    tlac = (struct lac *) se->data;
+    c = (struct call *) se->data;
+    if (se->func == &hello)
+    {
+        l2tp_log (LOG_WARNING, "%d: HELLO to %d\n", s, t->tid);
+    }
+    else if (se->func == &magic_lac_dial)
+    {
+        l2tp_log (LOG_WARNING, "%d: Magic dial on %s\n", s, tlac->entname);
+    }
+    else if (se->func == &send_zlb)
+    {
+        l2tp_log (LOG_WARNING, "%d: Send payload ZLB on call %d:%d\n", s,
+                  c->container->tid, c->cid);
+    }
+    else if (se->func == &dethrottle)
+    {
+        l2tp_log (LOG_WARNING, "%d: Dethrottle call %d:%d\n", s, c->container->tid,
+                  c->cid);
+    }
+    else if (se->func == &control_xmit)
+    {
+        l2tp_log (LOG_WARNING, "%d: Control xmit on %d\n", s,((struct buffer *)se->data)->tunnel->tid);
+    }
+    else
+        l2tp_log (LOG_WARNING, "%d: Unknown event\n", s);
+
+    return 0;
+}
+
 /* Now sends to syslog instead - MvO */
 void show_status (void)
 {
-    struct schedule_entry *se;
     struct tunnel *t;
     struct call *c;
     struct lns *tlns;
     struct lac *tlac;
     struct host *h;
     unsigned long cnt = 0;
+    int schedule_counter = 0;
 
-    int s = 0;
     l2tp_log (LOG_WARNING, "====== xl2tpd statistics ========\n");
     l2tp_log (LOG_WARNING, " Scheduler entries:\n");
-    se = events;
-    while (se)
-    {
-        s++;
-        t = (struct tunnel *) se->data;
-        tlac = (struct lac *) se->data;
-        c = (struct call *) se->data;
-        if (se->func == &hello)
-        {
-            l2tp_log (LOG_WARNING, "%d: HELLO to %d\n", s, t->tid);
-        }
-        else if (se->func == &magic_lac_dial)
-        {
-            l2tp_log (LOG_WARNING, "%d: Magic dial on %s\n", s, tlac->entname);
-        }
-        else if (se->func == &send_zlb)
-        {
-            l2tp_log (LOG_WARNING, "%d: Send payload ZLB on call %d:%d\n", s,
-                     c->container->tid, c->cid);
-        }
-        else if (se->func == &dethrottle)
-        {
-            l2tp_log (LOG_WARNING, "%d: Dethrottle call %d:%d\n", s, c->container->tid,
-                     c->cid);
-        }
-        else if (se->func == &control_xmit)
-        {
-            l2tp_log (LOG_WARNING, "%d: Control xmit on %d\n", s,((struct buffer *)se->data)->tunnel->tid);
-        }
-        else
-            l2tp_log (LOG_WARNING, "%d: Unknown event\n", s);
-        se = se->next;
-    };
-    l2tp_log (LOG_WARNING, "Total Events scheduled: %d\n", s);
+    iterate_schedule(show_status_schedule_iterator, &schedule_counter);
+    l2tp_log (LOG_WARNING, "Total Events scheduled: %d\n", schedule_counter);
+
     l2tp_log (LOG_WARNING, "Number of tunnels open: %d\n", tunnels.count);
     t = tunnels.head;
     while (t)

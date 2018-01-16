@@ -205,10 +205,35 @@ int read_packet (struct call *c)
     return -EINVAL;
 }
 
+static int call_close_schedule_iterator(struct schedule_entry *se, void *data)
+{
+    struct tunnel *match_tunnel = data;
+
+    if (se->func == control_xmit) {
+        /* this event was on a buffer, so treat it as a buffer */
+        struct buffer *buf = se->data;
+        if (buf->tunnel != match_tunnel)
+            /* not matching */
+            return 0;
+
+    } else if (se->func == hello) {
+
+        if (se->data != match_tunnel)
+            /* not matching */
+            return 0;
+    }
+
+#ifdef DEBUG_CLOSE
+    l2tp_log (LOG_DEBUG, "%s: Descheduling event\n", __FUNCTION__);
+#endif
+    deschedule(se);
+
+    return 0;
+}
+
 void call_close (struct call *c)
 {
     struct buffer *buf;
-    struct schedule_entry *se, *ose;
     struct call *tmp, *tmp2;
     if (!c || !c->container)
     {
@@ -227,40 +252,7 @@ void call_close (struct call *c)
            for this tunnel.  That means Hello's and any remaining
            packets scheduled for transmission.  This is a very
            nasty little piece of code here. */
-
-        se = events;
-        ose = NULL;
-        while (se)
-        {
-            if ((((struct buffer *) se->data)->tunnel == c->container)
-                || ((struct tunnel *) se->data == c->container))
-            {
-#ifdef DEBUG_CLOSE
-                l2tp_log (LOG_DEBUG, "%s: Descheduling event\n", __FUNCTION__);
-#endif
-                if (ose)
-                {
-                    ose->next = se->next;
-                    if ((struct tunnel *) se->data != c->container)
-                        toss ((struct buffer *) (se->data));
-                    free (se);
-                    se = ose->next;
-                }
-                else
-                {
-                    events = se->next;
-                    if ((struct tunnel *) se->data != c->container)
-                        toss ((struct buffer *) (se->data));
-                    free (se);
-                    se = events;
-                }
-            }
-            else
-            {
-                ose = se;
-                se = se->next;
-            }
-        }
+        iterate_schedule(call_close_schedule_iterator, c->container);
 
         if (c->closing)
         {
@@ -683,3 +675,6 @@ struct call *get_call (int tunnel, int call,  struct in_addr addr, int port,
         return st->self;
     }
 }
+/*
+ * vim: :set sw=4 ts=4 et
+ */
