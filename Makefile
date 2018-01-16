@@ -133,6 +133,9 @@ all: config $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 clean:
 	rm -f $(OBJS) $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 
+distclean: clean
+	rm -f tags TAGS cscope.files cscope.out
+
 config:
 	@echo "  version"
 	@echo "    ${SERVER_VERSION}"
@@ -188,6 +191,21 @@ install: ${EXEC} $(PFC_EXEC) ${CONTROL_EXEC}
 #	install -d -m 0755 /var/run/xl2tpd
 #	mkfifo /var/run/l2tp-control
 
+.PHONY: tags cscope TAGS
+
+TAG_DIRS             = .
+IGNORE_DIRS          ?= .svn BitKeeper CVS SCCS .hg .git
+EXISTING_IGNORE_DIRS = $(wildcard ${IGNORE_DIRS})
+TAG_FILTER           = $(shell for d in ${EXISTING_IGNORE_DIRS} ; do echo ! -path "\"*/$$d/*\"" -a ; done)
+
+cscope: cscope.out
+cscope.out: cscope.files
+	cscope -b
+tags: cscope.files
+	@rm -f tags
+	ctags -L cscope.files
+cscope.files:
+	find ${TAG_DIRS} ${TAG_FILTER} -name '*.[ch]' -o -name '*.cc' > cscope.files
 
 TAGS:	${SRCS}
 	etags ${SRCS}
