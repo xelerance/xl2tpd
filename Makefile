@@ -122,6 +122,7 @@ SBINDIR?=$(DESTDIR)${PREFIX}/sbin
 BINDIR?=$(DESTDIR)${PREFIX}/bin
 MANDIR?=$(DESTDIR)${PREFIX}/share/man
 
+Q = $(if ${V},,@)
 
 all: $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 
@@ -129,17 +130,21 @@ clean:
 	rm -f $(OBJS) $(EXEC) $(PFC_EXEC) $(CONTROL_EXEC)
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) $(LDFLAGS) $(EV_LDFLAGS) -o $@ $(OBJS) $(LDLIBS) $(EV_LDLIBS)
+	@echo " LINK $@"
+	${Q}$(CC) $(LDFLAGS) $(EV_LDFLAGS) -o $@ $(OBJS) $(LDLIBS) $(EV_LDLIBS)
 
 $(OBJS): %.o: %.c
-	$(CC) $(CFLAGS) $(EV_CFLAGS) -c -o $@ $<
+	@echo "   CC $@"
+	${Q}$(CC) $(CFLAGS) $(EV_CFLAGS) -c -o $@ $<
 
 
 $(CONTROL_EXEC): $(CONTROL_SRCS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(CONTROL_SRCS) -o $@
+	@echo "BUILD $@"
+	${Q}$(CC) $(CFLAGS) $(LDFLAGS) $(CONTROL_SRCS) -o $@
 
 $(PFC_EXEC): contrib/pfc.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(PFC_EXEC) $< -lpcap $(LDLIBS)
+	@echo "BUILD $@"
+	${Q}$(CC) $(CFLAGS) $(LDFLAGS) -o $(PFC_EXEC) $< -lpcap $(LDLIBS)
 
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
