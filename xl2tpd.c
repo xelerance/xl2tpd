@@ -1867,7 +1867,6 @@ void init (int argc,char *argv[])
     signal (SIGUSR1, &sigusr1_handler);
     signal (SIGHUP, &sighup_handler);
     signal (SIGPIPE, SIG_IGN);
-    init_scheduler ();
 
     unlink(gconfig.controlfile);
     mkfifo (gconfig.controlfile, 0600);

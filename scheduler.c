@@ -15,150 +15,72 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <event.h>
+#include <assert.h>
 #include "l2tp.h"
 #include "scheduler.h"
 
-struct schedule_entry *events;
+static LIST_HEAD(schedule_list);
 
-void init_scheduler (void)
+static void __schedule_append(struct schedule_entry *se)
 {
-    events = NULL;
+    list_add_tail(&se->link, &schedule_list);
+}
+static void __schedule_remove(struct schedule_entry *se)
+{
+    list_del(&se->link);
 }
 
-struct timeval *process_schedule (struct timeval *ptv)
+void handle_schedule_event(int fd, short event, void *arg)
 {
-    /* Check queue for events which should be
-       executed right now.  Execute them, then
-       see how long we should set the next timer
-     */
-    struct schedule_entry *p = events;
-    struct timeval now;
-    struct timeval then;
-    while (events)
-    {
-        gettimeofday (&now, NULL);
-        p = events;
-        if (TVLESSEQ (p->tv, now))
-        {
-            events = events->next;
-            /* This needs to be executed, as it has expired.
-               It is expected that p->func will free p->data
-               if it is necessary */
-            (*p->func) (p->data);
-            free (p);
-        }
-        else
-            break;
-    }
-    /* When we get here, either there are no more events
-       in the queue, or the remaining events need to happen
-       in the future, so we should schedule another alarm */
-    if (events)
-    {
-        then.tv_sec = events->tv.tv_sec - now.tv_sec;
-        then.tv_usec = events->tv.tv_usec - now.tv_usec;
-        if (then.tv_usec < 0)
-        {
-            then.tv_sec -= 1;
-            then.tv_usec += 1000000;
-        }
-        if ((then.tv_sec <= 0) && (then.tv_usec <= 0))
-        {
-            l2tp_log (LOG_WARNING, "%s: Whoa...  Scheduling for <=0 time???\n",
-                 __FUNCTION__);
-            then.tv_sec = 1;
-            then.tv_usec = 0;
-        }
-        *ptv = then;
-        return ptv;
-    }
-    else
-    {
-        return NULL;
-    }
+    struct schedule_entry *se = arg;
+
+    __schedule_remove(se);
+    se->func(se->data);
+    free(se);
 }
 
 struct schedule_entry *schedule (struct timeval tv, void (*func) (void *),
                                  void *data)
 {
-    /* Schedule func to be run at relative time tv with data
-       as arguments.  If it has already expired, run it 
-       immediately.  The queue should be in order of
-       increasing time */
-    struct schedule_entry *p = events, *q = NULL;
-    struct timeval diff;
-    diff = tv;
-    gettimeofday (&tv, NULL);
-    tv.tv_sec += diff.tv_sec;
-    tv.tv_usec += diff.tv_usec;
-    if (tv.tv_usec > 1000000)
-    {
-        tv.tv_sec++;
-        tv.tv_usec -= 1000000;
-    }
-    while (p)
-    {
-        if (TVLESS (tv, p->tv))
-            break;
-        q = p;
-        p = p->next;
-    };
-    if (q)
-    {
-        q->next = malloc (sizeof (struct schedule_entry));
-        q = q->next;
-    }
-    else
-    {
-        q = malloc (sizeof (struct schedule_entry));
-        events = q;
-    }
-    q->tv = tv;
-    q->func = func;
-    q->data = data;
-    q->next = p;
-    return q;
+    struct schedule_entry *se;
 
+    se = calloc(1, sizeof(struct schedule_entry));
+    assert(se);
+
+    se->tv = tv;
+    se->func = func;
+    se->data = data;
+
+    __schedule_append(se);
+
+    evtimer_set(&se->ev, handle_schedule_event, se);
+    evtimer_add(&se->ev, &se->tv);
+
+    return se;
 }
 
-inline struct schedule_entry *aschedule (struct timeval tv,
-                                         void (*func) (void *), void *data)
+void deschedule (struct schedule_entry *se)
 {
-    /* Schedule func to be run at absolute time tv in the future with data
-       as arguments */
-    struct timeval now;
-    gettimeofday (&now, NULL);
-    tv.tv_usec -= now.tv_usec;
-    if (tv.tv_usec < 0)
-    {
-        tv.tv_usec += 1000000;
-        tv.tv_sec--;
-    }
-    tv.tv_sec -= now.tv_sec;
-    return schedule (tv, func, data);
+    evtimer_del(&se->ev);
+    __schedule_remove(se);
+    free(se);
 }
 
-void deschedule (struct schedule_entry *s)
+int iterate_schedule(schedule_iterator_t iterator, void *data)
 {
-    struct schedule_entry *p = events, *q = NULL;
-    if (!s)
-        return;
-    while (p)
-    {
-        if (p == s)
-        {
-            if (q)
-            {
-                q->next = p->next;
-            }
-            else
-            {
-                events = events->next;
-            }
-            free (p);
+    struct schedule_entry *se, *tmp;
+    int bail = 0;
+
+    list_for_each_entry_safe(se, tmp, &schedule_list, link) {
+        bail = iterator(se, data);
+        if (bail)
             break;
-        }
-        q = p;
-        p = p->next;
     }
+
+    return bail;
 }
+
+/*
+ * vim: :set sw=4 ts=4 et
+ */
