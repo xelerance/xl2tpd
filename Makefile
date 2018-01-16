@@ -106,7 +106,8 @@ EV_LDLIBS  += $(shell pkg-config --libs-only-l libevent)
 
 IPFLAGS?= -DIP_ALLOCATION
 
-CFLAGS+= $(DFLAGS) -Os -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
+CFLAGS+= $(DFLAGS) -Os -Wall -DSANITY $(OSFLAGS) $(IPFLAGS) \
+	 -Wno-strict-aliasing -Wno-pointer-sign
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
 SRCS=${OBJS:.o=.c} ${HDRS}
