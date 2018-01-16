@@ -41,6 +41,7 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <event.h>
 #include "l2tp.h"
 
 struct tunnel_list tunnels;
@@ -1535,7 +1536,7 @@ int control_handle_lac_status(FILE* resf, char* bufp){
     return 1;
 }
 
-void do_control ()
+void handle_control_event (int fd, short ev, void *arg)
 {
     char buf[CONTROL_PIPE_MESSAGE_SIZE];
     char *bufp; /* current buffer pointer */

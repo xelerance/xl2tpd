@@ -70,7 +70,7 @@ extern void do_packet_dump (struct buffer *);
 extern void status (const char *fmt, ...);
 extern void status_handler (int signal);
 extern int getPtyMaster(char *, int);
-extern void do_control (void);
+extern void handle_control_event (int fd, short ev, void *arg);
 extern void recycle_buf (struct buffer *);
 extern void safe_copy (char *, char *, int);
 extern void opt_destroy (struct ppp_opts *);
