@@ -1638,13 +1638,40 @@ void handle_control_event (int fd, short ev, void *arg)
 }
 
 
-void usage(void) {
+void print_usage(void) {
     printf("\nxl2tpd version:  %s\n", SERVER_VERSION);
     printf("Usage: xl2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]\n"
             "              [-C <control file>] [-D] [-l] [-L <FD limit>]\n"
-            "              [-v, --version]\n");
+            "              [-v --version] [-h --help]\n");
     printf("\n");
+}
+
+void usage(void) {
+    print_usage();
     exit(1);
+}
+
+void help(void) {
+    print_usage();
+    printf("  -c <config file>       - configuration file to read\n"
+           "                           default: %s\n",
+           DEFAULT_CONFIG_FILE);
+    printf("  -s <secret file>       - secrets file to read\n"
+           "                           default: %s\n",
+           DEFAULT_AUTH_FILE);
+    printf("  -p <pid file>          - file holding the pid of the running daemon\n"
+           "                           default: %s\n",
+           DEFAULT_PID_FILE);
+    printf("  -C <control file>      - location of the control pipe\n"
+           "                           default: %s\n",
+           CONTROL_PIPE);
+    printf("  -D                     - debug mode, runs in foreground\n"
+           "  -l                     - enable syslog logging\n"
+           "  -L --set-open-file-limit <FD limit>\n"
+           "                         - set the open file descriptor limit\n"
+           "  -v  --version          - print version and exit\n"
+           "  -h  --help             - print this help and exit\n"
+           "\n");
 }
 
 void init_args(int argc, char *argv[])
@@ -1680,8 +1707,11 @@ void init_args(int argc, char *argv[])
             printf("\nxl2tpd version:  %s\n",SERVER_VERSION);
             exit(1);
         }
-
-        if(! strncmp(argv[i],"-c",2)) {
+        else if ((! strcmp(argv[i],"--help"))
+                 || (! strcmp(argv[i],"-h"))) {
+            help();
+        }
+        else if(! strncmp(argv[i],"-c",2)) {
             if(++i == argc)
                 usage();
             else
