@@ -123,7 +123,20 @@ int read_packet (struct call *c)
                  */
                 return 0;
             }
-            else if ((errno == EIO) || (errno == EINTR) || (errno == EAGAIN))
+            else if (errno == EIO)
+            {
+                /* our pppd may be dead, let's find out */
+                res = check_on_child (c->pppd);
+                if (res) {
+                    l2tp_log (LOG_DEBUG, "%s: PPP pid=%d fd=%d has died.\n",
+                              __FUNCTION__, c->pppd, c->fd);
+                    return -EIO;
+                }
+
+                /* nope, it's still there */
+                return 0;
+            }
+            else if ((errno == EINTR) || (errno == EAGAIN))
             {
 
                 /*
