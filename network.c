@@ -637,27 +637,6 @@ void deregister_from_tunnel_events(struct tunnel *st)
     event_del(&st->ev_udp_fd);
 }
 
-void event_log(int severity, const char *msg)
-{
-    /* map libevent severity levels to LOG_ severities */
-    switch (severity) {
-    case EVENT_LOG_DEBUG:
-        severity = LOG_DEBUG;
-        break;
-    default:
-    case EVENT_LOG_MSG:
-        severity = LOG_INFO;
-        break;
-    case EVENT_LOG_WARN:
-        severity = LOG_WARNING;
-        break;
-    case EVENT_LOG_ERR:
-        severity = LOG_ERR;
-        break;
-    }
-    l2tp_log(severity, "libevent: %s\n", msg);
-}
-
 void network_thread ()
 {
     /*
@@ -670,25 +649,9 @@ void network_thread ()
      * handle_call_event() processes call packets from call->fd.
      * handle_schedule_event() processes timers.
      */
-
-    struct event ev_server, ev_control;
+    static struct event ev_server, ev_control;
 
     /* configure event processing */
-
-#ifdef DEBUG_EVENTS
-    event_enable_debug_mode();
-#endif
-
-    event_init();
-    event_set_log_callback(event_log);
-
-    if ( event_get_struct_event_size() > sizeof (ev_server) ) {
-        l2tp_log (LOG_CRIT, "%s: libevent uses %u struct size, "
-                  "but we are compiled for %u.  Terminating\n",
-                  event_get_struct_event_size(), sizeof(ev_server),
-                  __FUNCTION__);
-        exit(EXIT_FAILURE);
-    }
 
     event_set(&ev_server, server_socket, EV_READ|EV_PERSIST, handle_server_event, NULL);
     event_add(&ev_server, NULL);

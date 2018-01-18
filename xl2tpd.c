@@ -55,12 +55,6 @@ int switch_io = 0;              /* jz: Switch for Incoming or Outgoing Call */
 
 static void open_controlfd(void);
 
-volatile sig_atomic_t sigterm_received;
-volatile sig_atomic_t sigint_received;
-volatile sig_atomic_t sigchld_received;
-volatile sig_atomic_t sigusr1_received;;
-volatile sig_atomic_t sighup_received;
-
 struct control_requests_handler {
     char type;
     int (*handler) (FILE* resf, char* bufp);
@@ -349,39 +343,27 @@ void death_handler (int signal)
     exit (1);
 }
 
-void sigterm_handler(int sig)
-{
-    sigterm_received = 1;
+#ifdef DEBUG_EVENTS
+#define __define_signal_handler(SIGNAME,call)                         \
+void handle_##SIGNAME(int fd, short ev, void *arg)                    \
+{                                                                     \
+    l2tp_log(LOG_DEBUG, "SIGNAL: %s: fd=%d event=%hd arg=%p\n",       \
+             __FUNCTION__, fd, ev, arg);                              \
+    call(SIGNAME);                                                    \
 }
+#else
+#define __define_signal_handler(SIGNAME,call)                         \
+void handle_##SIGNAME(int fd, short ev, void *arg)                    \
+{                                                                     \
+    call(SIGNAME);                                                    \
+}
+#endif
 
-void sigint_handler(int sig)
-{
-    sigint_received = 1;
-}
-
-void sigchld_handler(int sig)
-{
-    sigchld_received = 1;
-}
-
-void sigusr1_handler(int sig)
-{
-    sigusr1_received = 1;
-}
-
-void sighup_handler(int sig)
-{
-    sighup_received = 1;
-}
-
-void process_signal(void)
-{
-    if (sigterm_received) { sigterm_received = 0; death_handler(SIGTERM); }
-    if (sigint_received) { sigint_received = 0; death_handler(SIGINT); }
-    if (sigchld_received) { sigchld_received = 0; child_handler(SIGCHLD); }
-    if (sigusr1_received) { sigusr1_received = 0; status_handler(SIGUSR1); }
-    if (sighup_received) { sighup_received = 0; null_handler(SIGHUP); }
-}
+__define_signal_handler(SIGTERM, death_handler);
+__define_signal_handler(SIGINT, death_handler);
+__define_signal_handler(SIGCHLD, child_handler);
+__define_signal_handler(SIGUSR1, status_handler);
+__define_signal_handler(SIGHUP, null_handler);
 
 int start_pppd (struct call *c, struct ppp_opts *opts)
 {
@@ -1845,6 +1827,66 @@ static void open_controlfd()
     }
 }
 
+void event_log(int severity, const char *msg)
+{
+    /* map libevent severity levels to LOG_ severities */
+    switch (severity) {
+    case EVENT_LOG_DEBUG:
+        severity = LOG_DEBUG;
+        break;
+    default:
+    case EVENT_LOG_MSG:
+        severity = LOG_INFO;
+        break;
+    case EVENT_LOG_WARN:
+        severity = LOG_WARNING;
+        break;
+    case EVENT_LOG_ERR:
+        severity = LOG_ERR;
+        break;
+    }
+    l2tp_log(severity, "libevent: %s\n", msg);
+}
+
+
+void init_libevent(void)
+{
+
+    /* initialize the libevent library */
+
+#ifdef DEBUG_EVENTS
+    event_enable_debug_mode();
+#endif
+
+    event_init();
+    event_set_log_callback(event_log);
+
+    if ( event_get_struct_event_size() > sizeof (struct event) ) {
+        l2tp_log (LOG_CRIT, "%s: libevent uses %u struct size, "
+                  "but we are compiled for %u.  Terminating\n",
+                  event_get_struct_event_size(), sizeof(struct event),
+                  __FUNCTION__);
+        exit(EXIT_FAILURE);
+    }
+
+    /* now signals */
+
+    signal (SIGPIPE, SIG_IGN);
+
+#define __add_signal_handler_event(SIGNAME) { \
+    static struct event ev_##SIGNAME; \
+    event_set(&ev_##SIGNAME, SIGNAME, EV_SIGNAL|EV_PERSIST, handle_##SIGNAME, NULL); \
+    event_add(&ev_##SIGNAME, NULL); }
+
+    __add_signal_handler_event(SIGTERM);
+    __add_signal_handler_event(SIGINT);
+    __add_signal_handler_event(SIGCHLD);
+    __add_signal_handler_event(SIGUSR1);
+    __add_signal_handler_event(SIGHUP);
+
+#undef __add_signal_handler_event
+}
+
 void init (int argc,char *argv[])
 {
     struct lac *lac;
@@ -1875,12 +1917,7 @@ void init (int argc,char *argv[])
 
     consider_pidfile();
 
-    signal (SIGTERM, &sigterm_handler);
-    signal (SIGINT, &sigint_handler);
-    signal (SIGCHLD, &sigchld_handler);
-    signal (SIGUSR1, &sigusr1_handler);
-    signal (SIGHUP, &sighup_handler);
-    signal (SIGPIPE, SIG_IGN);
+    init_libevent();
 
     unlink(gconfig.controlfile);
     mkfifo (gconfig.controlfile, 0600);
