@@ -121,12 +121,11 @@ void add_control_hdr (struct tunnel *t, struct call *c, struct buffer *buf)
 
 void hello (void *tun)
 {
+    struct tunnel *t = tun;
     struct buffer *buf;
-    struct tunnel *t;
     struct timeval tv;
     tv.tv_sec = HELLO_DELAY;
     tv.tv_usec = 0;
-    t = (struct tunnel *) tun;
     buf = new_outgoing (t);
     add_message_type_avp (buf, Hello);
     add_control_hdr (t, t->self, buf);
@@ -143,7 +142,8 @@ void hello (void *tun)
     l2tp_log (LOG_DEBUG, "%s: scheduling another Hello on %d\n", __FUNCTION__,
          t->ourtid);
 #endif
-    t->hello = schedule (tv, hello, (void *) t);
+    if (!check_tunnel_closing(t))
+        t->hello = schedule (tv, hello, (void *) t);
 }
 
 void control_zlb (struct buffer *buf, struct tunnel *t, struct call *c)
@@ -1931,3 +1931,6 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
         }
     }
 }
+/*
+ * vim: :set sw=4 ts=4 et
+ */

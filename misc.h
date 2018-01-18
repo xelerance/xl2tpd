@@ -17,6 +17,7 @@
 
 #include <syslog.h>
 
+struct call;
 struct tunnel;
 struct buffer
 {
@@ -77,4 +78,6 @@ extern void opt_destroy (struct ppp_opts *);
 extern struct ppp_opts *add_opt (struct ppp_opts *, char *, ...);
 extern void process_signal (void);
 extern int check_on_child (pid_t pid);
+extern int check_call_closing(struct call *c);
+extern int check_tunnel_closing(struct tunnel *t);
 #endif

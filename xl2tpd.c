@@ -227,6 +227,64 @@ void status_handler (int sig)
     show_status ();
 }
 
+// returns true if the call is going away
+int __check_call_closing(struct call *c)
+{
+
+    if (c->needclose ^ c->closing)
+        call_close (c);
+
+    return c->fd < 0
+        || c->needclose
+        || c->closing;
+}
+
+// returns true if the tunnel is going away
+int __check_tunnel_closing(struct tunnel *t)
+{
+    if (t->self->needclose ^ t->self->closing) {
+        if (gconfig.debug_tunnel)
+            l2tp_log (LOG_DEBUG, "%s: closing down tunnel %d\n",
+                      __FUNCTION__, t->ourtid);
+        call_close (t->self);
+    }
+
+    return t->self->needclose
+        || t->self->closing;
+}
+
+// check this call for closing events, if it's closing check the tunnel
+// returns true if call is closing
+int check_call_closing(struct call *c)
+{
+    int cc;
+
+    cc = __check_call_closing(c);
+
+    if (cc && c->container)
+        __check_tunnel_closing(c->container);
+
+    return cc;
+}
+
+// check all contained calls, then check tunnel for closing
+// returns true if tunnel is closing
+int check_tunnel_closing(struct tunnel *t)
+{
+    struct call *c;
+    int tc;
+
+    // check all the calls in the tunnel
+    for (c = t->call_head; c; c = c->next) {
+        (void)check_call_closing(c);
+    }
+
+    tc = __check_tunnel_closing(t);
+
+    return tc;
+}
+
+
 /* check on a PID (or any if -1) to see if it's dead, cleanup tunnels and calls,
  * related to the PID, and return PID of process that died. */
 int check_on_child (pid_t check_pid)
@@ -811,6 +869,7 @@ struct call *lac_call (int tid, struct lac *lac, struct lns *lns)
 void magic_lac_dial (void *data)
 {
     struct lac *lac;
+    struct call *c;
     lac = (struct lac *) data;
     if (!lac)
     {
@@ -837,7 +896,9 @@ void magic_lac_dial (void *data)
         magic_lac_tunnel (lac);
         return;
     }
-    lac_call (lac->t->ourtid, lac, NULL);
+    c = lac_call (lac->t->ourtid, lac, NULL);
+    if (c)
+        check_call_closing(c);
 }
 
 void lac_hangup (int cid)
@@ -1244,6 +1305,7 @@ int control_handle_lac_connect(FILE* resf, char* bufp){
     int tunl = 0;
     char delims[] = " ";
     struct lac* lac;
+    struct call *c;
 
     switch_io = 1;  /* jz: Switch for Incoming - Outgoing Calls */
     tunstr = strtok (&bufp[1], delims);
@@ -1290,10 +1352,12 @@ int control_handle_lac_connect(FILE* resf, char* bufp){
     l2tp_log (LOG_DEBUG, "%s: Attempting to call on tunnel %d\n",
             __FUNCTION__, tunl);
 #endif
-    if (lac_call (tunl, NULL, NULL))
+    if ((c = lac_call (tunl, NULL, NULL))) {
         write_res (resf, "%02i OK\n", 0);
-    else
+        check_call_closing(c);
+    } else {
         write_res (resf, "%02i Error\n", 1);
+    }
 
     return 1;
 }
@@ -1304,6 +1368,7 @@ int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
     char* tmp_ptr;
     struct lac* lac;
     int tunl;
+    struct call *c;
 
     switch_io = 0;  /* jz: Switch for incoming - outgoing Calls */
 
@@ -1346,10 +1411,12 @@ int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
     l2tp_log (LOG_DEBUG, "%s: Attempting to call on tunnel %d\n",
             __FUNCTION__, tunl);
 #endif
-    if (lac_call (tunl, NULL, NULL))
+    if ((c = lac_call (tunl, NULL, NULL))) {
         write_res (resf, "%02i OK\n", 0);
-    else
+        check_call_closing(c);
+    } else {
         write_res (resf, "%02i Error\n", 1);
+    }
     return 1;
 }
 

@@ -97,6 +97,9 @@ int read_packet (struct call *c)
     int res;
     int errors = 0;
 
+    if (check_call_closing(c))
+        return 0;
+
     p = buf->start + buf->len;
     while (1)
     {

@@ -521,6 +521,8 @@ void receive_message_from_socket(int *fdp)
             control_zlb (buf, c->container, c);
             c->cnu = 0;
         }
+
+        check_call_closing(c);
     }
 }
 
@@ -583,6 +585,8 @@ void handle_call_event (int fd, short ev, void *arg)
 #endif
 
     process_call(st, sc);
+
+    check_call_closing(sc);
 }
 
 void register_for_call_events(struct call *sc)
@@ -623,6 +627,8 @@ void handle_tunnel_event (int fd, short ev, void *arg)
     receive_message_from_socket(&st->udp_fd);
 
     process_tunnel_calls(st);
+
+    check_tunnel_closing(st);
 }
 
 void register_for_tunnel_events(struct tunnel *st)
