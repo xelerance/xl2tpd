@@ -221,7 +221,8 @@ void control_xmit (void *b)
         if (ns < t->cLr)
         {
 #ifdef DEBUG_CONTROL_XMIT
-            l2tp_log (LOG_DEBUG, "%s: Tossing packet %d\n", __FUNCTION__, ns);
+            l2tp_log (LOG_DEBUG, "%s: Packet %d/%d confirmed received.\n",
+                      __FUNCTION__, ns, t->cLr);
 #endif
             /* Okay, it's been received.  Let's toss it now */
             toss (buf);
@@ -256,6 +257,11 @@ void control_xmit (void *b)
         }
         toss (buf);
     }
+    else if ( t->self->needclose || t->self->closing ) {
+        l2tp_log (LOG_DEBUG, "%s: Giving up on transmit since tunnel is closing.\n",
+             __FUNCTION__);
+        toss (buf);
+    }
     else
     {
         /*
@@ -265,8 +271,9 @@ void control_xmit (void *b)
         tv.tv_usec = 0;
         schedule (tv, control_xmit, buf);
 #ifdef DEBUG_CONTROL_XMIT
-        l2tp_log (LOG_DEBUG, "%s: Scheduling and transmitting packet %d\n",
-             __FUNCTION__, ns);
+        l2tp_log (LOG_DEBUG, "%s: Scheduling and transmitting packet %d/%d "
+                  "attempt %d/%d\n", __FUNCTION__, ns, t->cLr,
+                  buf->retries, gconfig.max_retries);
 #endif
         udp_xmit (buf, t);
     }

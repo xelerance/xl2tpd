@@ -97,8 +97,11 @@ int read_packet (struct call *c)
     int res;
     int errors = 0;
 
-    if (check_call_closing(c))
+    if (c->needclose || c->closing) {
+        l2tp_log (LOG_DEBUG, "%s: Giving up on read since call is closing.\n",
+             __FUNCTION__);
         return 0;
+    }
 
     p = buf->start + buf->len;
     while (1)

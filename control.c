@@ -142,7 +142,8 @@ void hello (void *tun)
     l2tp_log (LOG_DEBUG, "%s: scheduling another Hello on %d\n", __FUNCTION__,
          t->ourtid);
 #endif
-    if (!check_tunnel_closing(t))
+    t->hello = NULL;
+    if (!t->self->needclose && !t->self->closing)
         t->hello = schedule (tv, hello, (void *) t);
 }
 
