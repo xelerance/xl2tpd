@@ -227,6 +227,76 @@ void status_handler (int sig)
     show_status ();
 }
 
+/* check on a PID (or any if -1) to see if it's dead, cleanup tunnels and calls,
+ * related to the PID, and return PID of process that died. */
+int check_on_child (pid_t check_pid)
+{
+    struct tunnel *t;
+    struct call *c;
+    int status;
+    pid_t pid;
+
+    pid = waitpid (check_pid, &status, WNOHANG);
+    if (pid < 1)
+    {
+        /*
+         * Oh well, nobody there.  Maybe we reaped it
+         * somewhere else already
+         */
+        return 0;
+    }
+    /* find the call that "owned" the pppd which just died */
+    t = tunnels.head;
+    while (t)
+    {
+        c = t->call_head;
+        t = t->next;
+        while (c)
+        {
+            if (c->pppd == pid)
+            {
+                if ( WIFEXITED( status ) )
+                {
+                    l2tp_log (LOG_DEBUG, "%s : pppd exited for call %d with code %d\n", __FUNCTION__,
+                              c->cid, WEXITSTATUS( status ) );
+                }
+                else if( WIFSIGNALED( status ) )
+                {
+                    l2tp_log (LOG_DEBUG, "%s : pppd terminated for call %d by signal %d\n", __FUNCTION__,
+                              c->cid, WTERMSIG( status ) );
+                }
+                else
+                {
+                    l2tp_log (LOG_DEBUG, "%s : pppd exited for call %d for unknown reason\n", __FUNCTION__,
+                              c->cid );
+                }
+                c->needclose = -1;
+                /*
+                 * OK...pppd died, we can go ahead and close the pty for
+                 * it
+                 */
+#ifdef USE_KERNEL
+                if (!kernel_support)
+#endif
+                {
+                    deregister_from_call_events(c);
+                    close (c->fd);
+                    c->fd = -1;
+                }
+                /*
+                 * terminate tunnel and call loops, returning to the
+                 * for(;;) loop (and possibly get the next pid)
+                 */
+                t = NULL;
+                break;
+            }
+            c = c->next;
+        }
+    }
+
+    return pid;
+}
+
 void child_handler (int signal)
 {
     /*
@@ -235,69 +305,9 @@ void child_handler (int signal)
      * But first, we have to find out what PID died.
      * unfortunately, pppd will
      */
-    struct tunnel *t;
-    struct call *c;
-    pid_t pid;
-    int status;
+
     /* Keep looping until all are cleared */
-    for(;;)
-    {
-        pid = waitpid (-1, &status, WNOHANG);
-        if (pid < 1)
-        {
-            /*
-             * Oh well, nobody there.  Maybe we reaped it
-             * somewhere else already
-             */
-            return;
-        }
-        /* find the call that "owned" the pppd which just died */
-        t = tunnels.head;
-        while (t)
-        {
-            c = t->call_head;
-            t = t->next;
-            while (c)
-            {
-                if (c->pppd == pid)
-                {
-                    if ( WIFEXITED( status ) )
-                    {
-                        l2tp_log (LOG_DEBUG, "%s : pppd exited for call %d with code %d\n", __FUNCTION__,
-                         c->cid, WEXITSTATUS( status ) );
-                    }
-                    else if( WIFSIGNALED( status ) )
-                    {
-                        l2tp_log (LOG_DEBUG, "%s : pppd terminated for call %d by signal %d\n", __FUNCTION__,
-                         c->cid, WTERMSIG( status ) );
-                    }
-                    else
-                    {
-                        l2tp_log (LOG_DEBUG, "%s : pppd exited for call %d for unknown reason\n", __FUNCTION__,
-                         c->cid );
-                    }
-                    c->needclose = -1;
-                    /*
-                     * OK...pppd died, we can go ahead and close the pty for
-                     * it
-                     */
-#ifdef USE_KERNEL
-                 if (!kernel_support)
-#endif
-                    deregister_from_call_events(c);
-                    close (c->fd);
-                    c->fd = -1;
-                    /*
-                     * terminate tunnel and call loops, returning to the
-                     * for(;;) loop (and possibly get the next pid)
-                     */
-                    t = NULL;
-                    break;
-                }
-                c = c->next;
-            }
-        }
-    }
+    while ( check_on_child(-1) ) ;
 }
 
 void death_handler (int signal)
