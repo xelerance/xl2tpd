@@ -258,11 +258,16 @@ int __check_tunnel_closing(struct tunnel *t)
 int check_call_closing(struct call *c)
 {
     int cc;
+    struct tunnel *t;
+
+    /* make sure to read the container before the call is potentially reused */
+    t = c->container;
+    __sync_synchronize();
 
     cc = __check_call_closing(c);
 
-    if (cc && c->container)
-        __check_tunnel_closing(c->container);
+    if (cc && t)
+        __check_tunnel_closing(t);
 
     return cc;
 }
