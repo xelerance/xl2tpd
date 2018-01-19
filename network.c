@@ -561,11 +561,7 @@ void process_call(struct tunnel *st, struct call *sc)
 
 
         sc->prx = sc->data_rec_seq_num;
-        if (sc->zlb_xmit)
-        {
-            deschedule (sc->zlb_xmit);
-            sc->zlb_xmit = NULL;
-        }
+        deschedule_and_set_to_null(&sc->zlb_xmit);
         sc->tx_bytes += sc->ppp_buf->len;
         sc->tx_pkts++;
         udp_xmit (sc->ppp_buf, st);

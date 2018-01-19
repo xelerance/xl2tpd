@@ -338,8 +338,7 @@ void call_close (struct call *c)
         /*
            * Just close a call
          */
-        if (c->zlb_xmit)
-            deschedule (c->zlb_xmit);
+        deschedule_and_set_to_null(&c->zlb_xmit);
 /*		if (c->dethrottle) deschedule(c->dethrottle); */
         if (c->closing)
         {
@@ -406,8 +405,7 @@ void destroy_call (struct call *c)
         c->fd = -1;
     }
 /*	if (c->dethrottle) deschedule(c->dethrottle); */
-    if (c->zlb_xmit)
-        deschedule (c->zlb_xmit);
+    deschedule_and_set_to_null(&c->zlb_xmit);
     toss(c->ppp_buf);
 
 #ifdef IP_ALLOCATION

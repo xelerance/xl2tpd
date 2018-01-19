@@ -1866,8 +1866,7 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
 #endif
 							if (c->zlb_xmit) {
 							Deschedule any existing zlb_xmit's
-								deschedule(c->zlb_xmit);
-								c->zlb_xmit = NULL;
+								deschedule_and_set_to_null(&c->zlb_xmit);
 							}
 							send_zlb((void *)c);
 						} else {
@@ -1878,7 +1877,7 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
 							tv.tv_sec = 0;
 							tv.tv_usec = 500000;
 							if (c->zlb_xmit)
-								deschedule(c->zlb_xmit);
+								deschedule_and_set_to_null(&c->zlb_xmit);
 #ifdef DEBUG_ZLB
 							l2tp_log(LOG_DEBUG, "%s: scheduling ZLB\n",__FUNCTION__);
 #endif

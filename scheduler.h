@@ -63,6 +63,12 @@ extern struct schedule_entry *__schedule (struct timeval tv,
 extern void __deschedule (struct schedule_entry * SCHEDULE_DEBUG_OPT_ARGS);
 #define deschedule(se) __deschedule(se \
 				    SCHEDULE_DEBUG_OPT_VALS)
+#define deschedule_and_set_to_null(sep) ({ \
+	if (*(sep)) { \
+		deschedule(*(sep)); \
+		*(sep) = NULL; \
+	} \
+})
 
 extern void handle_schedule_event(int fd, short event, void *arg);
 
