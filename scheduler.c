@@ -64,6 +64,7 @@ void handle_schedule_event(int fd, short event, void *arg)
     __schedule_remove(se);
     se->func(se->data);
     __schedule_list_op(se, "ran", __FUNCTION__, __LINE__);
+    free_poison(se, 'S', sizeof(*se));
     free(se);
 }
 
@@ -103,6 +104,7 @@ void __deschedule (struct schedule_entry *se SCHEDULE_DEBUG_OPT_ARGS)
     evtimer_del(&se->ev);
     __schedule_remove(se);
     __schedule_list_op(se, "del", caller_fn, caller_ln);
+    free_poison(se, 's', sizeof(*se));
     free(se);
 }
 

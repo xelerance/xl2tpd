@@ -751,6 +751,7 @@ void destroy_tunnel (struct tunnel *t)
         t->udp_fd = -1;
     }
     destroy_call (me);
+    free_poison(t, 't', sizeof(*t));
     free (t);
 }
 
@@ -986,6 +987,7 @@ struct tunnel *new_tunnel ()
     tmp->bc = -1;               /* And we want to know if they forgot */
     if (!(tmp->self = new_call (tmp)))
     {
+        free_poison(tmp, 'T', sizeof(*tmp));
         free (tmp);
         return NULL;
     };
@@ -1221,6 +1223,7 @@ int control_handle_lns_remove(FILE* resf, char* bufp){
         prev_lns->next = lns->next;
     }
 
+    free_poison(lns, 'l', sizeof(*lns));
     free(lns);
     write_res (resf, "%02i OK\n", 0);
     return 1;
@@ -1593,6 +1596,7 @@ int control_handle_lac_remove(FILE* resf, char* bufp){
         while (h)
         {
             t = h->next;
+            free_poison(h, 'l', sizeof(*h));
             free(h);
             h = t;
         }
@@ -1604,6 +1608,7 @@ int control_handle_lac_remove(FILE* resf, char* bufp){
     else
         prev_lac->next = lac->next;
 
+    free_poison(lac, 'L', sizeof(*lac));
     free(lac);
     write_res (resf, "%02i OK\n", 0);
     return 1;

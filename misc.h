@@ -59,6 +59,12 @@ struct ppp_opts
 #define ntohs(a) SWAPS(a)
 #endif
 
+#ifdef DEBUG_FREE_POISON
+#define free_poison(ptr,ch,size) memset(ptr,ch,size)
+#else
+#define free_poison(ptr,ch,size) ({})
+#endif
+
 #define halt() printf("Halted.\n") ; for(;;)
 
 extern char hostname[];

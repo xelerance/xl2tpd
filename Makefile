@@ -26,6 +26,7 @@
 # -DDEBUG_AUTH
 # -DDEBUG_SCHEDULE debugs scheduler code
 # -DDEBUG_EVENTS debugs libevent callbacks
+# -DDEBUG_FREE_POISON before we free() buffers, poinson the contents to catch usage after free().
 #
 # -DTEST_HIDDEN makes Assigned Call ID sent as a hidden AVP
 #

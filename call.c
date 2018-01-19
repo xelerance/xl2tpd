@@ -495,6 +495,7 @@ void destroy_call (struct call *c)
     if(c->oldptyconf)
         free(c->oldptyconf);
 
+    free_poison(c, 'c', sizeof(*c));
     free (c);
 }
 
