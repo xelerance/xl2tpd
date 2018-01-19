@@ -492,8 +492,10 @@ void destroy_call (struct call *c)
             c->lac->rsched = schedule (tv, magic_lac_dial, c->lac);
         }
     }
-    if(c->oldptyconf)
+    if(c->oldptyconf) {
         free(c->oldptyconf);
+        c->oldptyconf = NULL;
+    }
 
     free_poison(c, 'c', sizeof(*c));
     free (c);
