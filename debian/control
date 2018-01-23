@@ -5,7 +5,7 @@ Maintainer: Simon Deziel <simon@xelerance.com>
 Homepage: https://www.xelerance.com/software/xl2tpd/
 Vcs-Browser: https://github.com/xelerance/xl2tpd
 Vcs-Git: git://github.com/xelerance/xl2tpd.git
-Build-Depends: debhelper (>= 7.0.8), libpcap0.8-dev
+Build-Depends: debhelper (>= 7.0.8), libpcap0.8-dev, libevent-dev
 Standards-Version: 3.9.5
 
 Package: xl2tpd

@@ -1,6 +1,6 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.3.10.1
+Version: 1.4.0dev2
 Release: 1%{?dist}
 License: GPLv2
 Url: http://www.xelerance.com/software/xl2tpd/
@@ -9,6 +9,7 @@ Source0: https://github.com/xelerance/xl2tpd/archive/v%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: ppp 
 BuildRequires: kernel-headers => 2.6.23
+BuildRequires: libevent-devel
 %if 0%{?el3}%{?el4}
 BuildRequires: libpcap
 %else

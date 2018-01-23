@@ -1,3 +1,12 @@
+v1.4.0dev2 (January 23, 2018)
+* Add --set-open-file-limit option (to increase ulimit value) [Bart Trojanowski]
+* Add --help option to describe command line arguments [Bart Trojanowski]
+* Use libevent for event handling (previously using select) [Bart Trojanowski]
+* Pretty up the build output [Bart Trojanowski]
+* Various minor build cleanup [Bart Trojanowski]
+* Various minor style/comment/typo fixes [Bart Trojanowski]
+* Various new DEBUG_ macros suppored (see Makefile) [Bart Trojanowski]
+
 v1.3.10.1 (November 16, 2017)
 * Have max retries as a configuration [Samir Hussain]
 * Add more into to "select timeout" debug message [Samir Hussain]
