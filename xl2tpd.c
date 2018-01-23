@@ -242,11 +242,32 @@ int __check_call_closing(struct call *c)
 // returns true if the tunnel is going away
 int __check_tunnel_closing(struct tunnel *t)
 {
+    /* this is a safty check to avoid accessing a tunnel that was already
+     * cleaned up.  it would be far better if tunnel and call objects were
+     * reference counted. */
+    struct tunnel *tmp;
+    bool still_have_it = false;
+
+    for (tmp=tunnels.head; tmp; tmp = tmp->next) {
+        if (tmp != t)
+            continue;
+        still_have_it = true;
+        break;
+    }
+
+    if (!still_have_it)
+        /* we return true, since the tunnel is gone */
+        return 1;
+
+    /* the tunnel is still around, but it may be closing */
+
     if (t->self->needclose ^ t->self->closing) {
         if (gconfig.debug_tunnel)
             l2tp_log (LOG_DEBUG, "%s: closing down tunnel %d\n",
                       __FUNCTION__, t->ourtid);
         call_close (t->self);
+        /* we return true, since we know we are closing this tunnel */
+        return 1;
     }
 
     return t->self->needclose
