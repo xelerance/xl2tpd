@@ -1455,8 +1455,13 @@ int control_handle_lac_hangup(FILE* resf, char* bufp){
     char* callstr;
     int call;
 
-    callstr = strchr (bufp, ' ') + 1;
-    call = atoi (callstr);
+    callstr = strchr (bufp, ' ');
+    if (!callstr) {
+        l2tp_log (LOG_DEBUG, "Misformatted message '%s'\n", bufp);
+        write_res (resf, "%02i Misformatted message '%s'\n", 1, bufp);
+        return 0;
+    }
+    call = atoi (callstr+1);
 #ifdef DEBUG_CONTROL
     l2tp_log (LOG_DEBUG, "%s: Attempting to hangup call %d\n", __FUNCTION__,
             call);
