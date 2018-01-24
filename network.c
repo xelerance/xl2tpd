@@ -658,15 +658,12 @@ void network_thread ()
      * handle_call_event() processes call packets from call->fd.
      * handle_schedule_event() processes timers.
      */
-    static struct event ev_server, ev_control;
+    static struct event ev_server;
 
     /* configure event processing */
 
     event_set(&ev_server, server_socket, EV_READ|EV_PERSIST, handle_server_event, NULL);
     event_add(&ev_server, NULL);
-
-    event_set(&ev_control, control_fd, EV_READ|EV_PERSIST, handle_control_event, NULL);
-    event_add(&ev_control, NULL);
 
     /* the loop */
     event_dispatch();

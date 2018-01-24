@@ -49,13 +49,15 @@
 struct tunnel_list tunnels;
 int rand_source;
 int ppd = 1;                    /* Packet processing delay */
-int control_fd;                 /* descriptor of control area */
+int control_fd = -1;            /* descriptor of control area */
+static struct event ev_control; /* event for control_fd */
 char *args;
 
 char *dial_no_tmp;              /* jz: Dialnumber for Outgoing Call */
 int switch_io = 0;              /* jz: Switch for Incoming or Outgoing Call */
 
 static void open_controlfd(void);
+static void close_controlfd(void);
 
 struct control_requests_handler {
     char type;
@@ -433,7 +435,8 @@ void death_handler (int signal)
     unlink (gconfig.controlfile);
     free(dial_no_tmp);
     close(server_socket);
-    close(control_fd);
+    server_socket = -1;
+    close_controlfd();
     closelog();
 
     exit (1);
@@ -655,8 +658,7 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             close (server_socket);
 
         /* close the control pipe fd */
-        if(control_fd!=-1)
-            close (control_fd);
+        close_controlfd();
 
         if( c->dialing[0] )
         {
@@ -1741,7 +1743,7 @@ void handle_control_event (int fd, short ev, void *arg)
     }
 
     /* Otherwise select goes nuts. Yeah, this just seems wrong */
-    close (control_fd);
+    close_controlfd();
     open_controlfd();
 }
 
@@ -1957,6 +1959,15 @@ static void consider_pidfile() {
     }
 }
 
+static void close_controlfd()
+{
+    if (control_fd >= 0) {
+        event_del(&ev_control);
+        close (control_fd);
+        control_fd = -1;
+    }
+}
+
 static void open_controlfd()
 {
     control_fd = open (gconfig.controlfile, O_RDONLY | O_NONBLOCK, 0600);
@@ -1973,6 +1984,9 @@ static void open_controlfd()
                 strerror(errno));
         exit(1);
     }
+
+    event_set(&ev_control, control_fd, EV_READ|EV_PERSIST, handle_control_event, NULL);
+    event_add(&ev_control, NULL);
 }
 
 void set_file_limit(void)
