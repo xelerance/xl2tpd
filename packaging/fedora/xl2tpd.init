@@ -21,19 +21,31 @@
 
 #Servicename
 SERVICE=xl2tpd
-
+PATHTOSERV=/usr/sbin/
 # Source function library.
 . /etc/rc.d/init.d/functions
 
 # Source networking configuration.
 . /etc/sysconfig/network
 
-if [ ${NETWORKING} = "no" ]
+if [ "${NETWORKING}" = "no" ]
 then
+	echo -n "No Networking"
 	exit 0
 fi
 
-[ -x /usr/sbin/$SERVICE ] || exit 0
+if [ ! -x $PATHTOSERV$SERVICE ]
+then
+	echo -n "No bin $SERVICE found, try to find auto"
+	SERVICE=$(find / -name $SERVICE | grep bin)
+	if [ ! -x $SERVICE ] 
+	then
+		echo -n "No bin $SERVICE auto found, please check this"
+		exit 0
+	fi
+else
+	SERVICE=$PATHTOSERV$SERVICE
+fi
 
 RETVAL=0
 
