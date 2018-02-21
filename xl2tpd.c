@@ -492,40 +492,135 @@ static char *get_proc_ent(int pid, const char *what, char *out, size_t size)
     return out;
 }
 
-#define __define_siginfo_signal_handler(SIGNAME,function)                     \
-void handle_siginfo_##SIGNAME(int signal, siginfo_t *si, void *ucontext)      \
-{                                                                             \
-    const char *name = #SIGNAME;                                  \
-    l2tp_log(LOG_DEBUG, "SIGNAL: %s: signal=%d siginfo=%p ucontext=%p\n",     \
-             __FUNCTION__, signal, si, ucontext);                             \
-    if (si) {                                                                 \
-        char bcm[1024], *killer_cm, bcl[4096], *killer_cl;                    \
-        killer_cm = get_proc_ent(si->si_pid, "comm", bcm, sizeof(bcm));       \
-        killer_cl = get_proc_ent(si->si_pid, "cmdline", bcl, sizeof(bcl));    \
-        l2tp_log(LOG_DEBUG, "%s: si_signo=%d\n",      name, si->si_signo);    \
-        l2tp_log(LOG_DEBUG, "%s: si_errno=%d\n",      name, si->si_errno);    \
-        l2tp_log(LOG_DEBUG, "%s: si_code=%d\n",       name, si->si_code);     \
-        l2tp_log(LOG_DEBUG, "%s: si_pid=%d \"%s\" \"%s\"\n", name, si->si_pid,\
-                                         killer_cm ?: "", killer_cl ?: "");   \
-        l2tp_log(LOG_DEBUG, "%s: si_uid=%d\n",       name, si->si_uid);       \
-        l2tp_log(LOG_DEBUG, "%s: si_status=%#x %d\n", name, si->si_status,    \
-                                                            si->si_status);    \
-        l2tp_log(LOG_DEBUG, "%s: si_addr=%p\n",       name, si->si_addr);     \
-        l2tp_log(LOG_DEBUG, "%s: si_fd=%p\n",         name, si->si_fd);       \
-        l2tp_log(LOG_DEBUG, "%s: si_call_addr=%p\n",  name, si->si_call_addr);\
-        l2tp_log(LOG_DEBUG, "%s: si_syscall=%p\n",    name, si->si_syscall);  \
-        l2tp_log(LOG_DEBUG, "%s: si_arch=%p\n",       name, si->si_arch);     \
-    }                                                                         \
-    function(SIGNAME);                                                        \
+static struct siginfo_signal_info {
+    const char *sig_name;
+    void (*handler) (int sig_num);
+    siginfo_t last_siginfo;
+} siginfo_signal_map[_NSIG] = {
+#define __define_siginfo_signal_map(SIGNAME,function) \
+    [ SIGNAME ] = { \
+        .sig_name = #SIGNAME, \
+        .handler = function, \
+    }
+__define_siginfo_signal_map(SIGTERM, death_handler),
+__define_siginfo_signal_map(SIGINT, death_handler),
+__define_siginfo_signal_map(SIGCHLD, child_handler),
+__define_siginfo_signal_map(SIGUSR1, status_handler),
+__define_siginfo_signal_map(SIGHUP, null_handler),
+#undef __define_siginfo_signal_map
+};
+
+static uint8_t pending_siginfo_signals[_NSIG] = {0, };
+static int pending_siginfo_pipe[2] = {-1,-1};
+static struct event ev_pending_siginfo; /* event for signals */
+
+static void log_siginfo(const char *name, siginfo_t *si)
+{
+    char bcm[1024], *killer_cm, bcl[4096], *killer_cl;
+    killer_cm = get_proc_ent(si->si_pid, "comm", bcm, sizeof(bcm));
+    killer_cl = get_proc_ent(si->si_pid, "cmdline", bcl, sizeof(bcl));
+    l2tp_log(LOG_DEBUG, "%s: si_signo=%d\n",      name, si->si_signo);
+    l2tp_log(LOG_DEBUG, "%s: si_errno=%d\n",      name, si->si_errno);
+    l2tp_log(LOG_DEBUG, "%s: si_code=%d\n",       name, si->si_code);
+    l2tp_log(LOG_DEBUG, "%s: si_pid=%d \"%s\" \"%s\"\n", name, si->si_pid,
+             killer_cm ?: "", killer_cl ?: "");
+    l2tp_log(LOG_DEBUG, "%s: si_uid=%d\n",       name, si->si_uid);
+    l2tp_log(LOG_DEBUG, "%s: si_status=%#x %d\n", name, si->si_status,
+             si->si_status);
+    l2tp_log(LOG_DEBUG, "%s: si_addr=%p\n",       name, si->si_addr);
+    l2tp_log(LOG_DEBUG, "%s: si_fd=%p\n",         name, si->si_fd);
+    l2tp_log(LOG_DEBUG, "%s: si_call_addr=%p\n",  name, si->si_call_addr);
+    l2tp_log(LOG_DEBUG, "%s: si_syscall=%p\n",    name, si->si_syscall);
+    l2tp_log(LOG_DEBUG, "%s: si_arch=%p\n",       name, si->si_arch);
 }
 
-__define_siginfo_signal_handler(SIGTERM, death_handler);
-__define_siginfo_signal_handler(SIGINT, death_handler);
-__define_siginfo_signal_handler(SIGCHLD, child_handler);
-__define_siginfo_signal_handler(SIGUSR1, status_handler);
-__define_siginfo_signal_handler(SIGHUP, null_handler);
+void handle_siginfo_signal(int signal, siginfo_t *si, void *ucontext)
+{
+    uint8_t was_pending;
+    l2tp_log(LOG_DEBUG, "SIGNAL: %s: signal=%d siginfo=%p ucontext=%p\n",
+             __FUNCTION__, signal, si, ucontext);
 
-#undef __define_siginfo_signal_handler
+    if (signal<0 || signal>=_NSIG) {
+        l2tp_log(LOG_DEBUG, "SIGNAL: %s: signal=%d out of range\n",
+                 __FUNCTION__, signal);
+        exit(1);
+    }
+
+    /* already pending? skip */
+
+    if (pending_siginfo_signals[signal])
+        return;
+
+    /* stash the siginfo */
+
+    if (si)
+        memcpy(&siginfo_signal_map[signal].last_siginfo, si, sizeof(siginfo_t));
+    else
+        memset(&siginfo_signal_map[signal].last_siginfo, 0, sizeof(siginfo_t));
+    __sync_synchronize();
+
+    /* make signal pending */
+
+    was_pending = __sync_lock_test_and_set(pending_siginfo_signals+signal, 1);
+    if (!was_pending) {
+        /* wake up the process */
+        int rc = write(pending_siginfo_pipe[1], &signal, 1);
+        if (rc<0) {
+            l2tp_log(LOG_DEBUG, "SIGNAL: %s: write to pipe returned %d\n",
+                     __FUNCTION__, rc);
+            exit(1);
+        }
+    }
+}
+
+void handle_pending_siginfo_signals(int fd, short ev, void *arg)
+{
+    uint8_t pending, buff[_NSIG] = {0,};
+    int signal;
+    siginfo_t si;
+    int rc;
+
+    rc = read(pending_siginfo_pipe[0], buff, sizeof(buff));
+    (void)rc;
+
+    for (signal = 0; signal < _NSIG; signal++) {
+        const char *name;
+        void (*func) (int signum);
+
+        pending = __sync_lock_test_and_set(pending_siginfo_signals+signal, 0);
+        if (!pending)
+            continue;
+
+        name = siginfo_signal_map[signal].sig_name ?: "?";
+        memcpy(&si, &siginfo_signal_map[signal].last_siginfo, sizeof(siginfo_t));
+        if (si.si_signo == signal)
+            log_siginfo(name, &si);
+
+        func = siginfo_signal_map[signal].handler;
+        if (!func) {
+            l2tp_log(LOG_DEBUG, "SIGNAL: %s: signal=%d no handler function\n",
+                     __FUNCTION__, signal);
+            exit(1);
+        }
+
+        func(signal);
+    }
+}
+
+static void setup_siginfo_pipe(void)
+{
+    int rc;
+    rc = pipe(pending_siginfo_pipe);
+    if (rc<0) {
+        l2tp_log(LOG_DEBUG, "SIGNAL: %s: failed to open pipe: %s\n",
+                 __FUNCTION__, strerror(errno));
+        exit(1);
+    }
+
+    event_set(&ev_pending_siginfo, pending_siginfo_pipe[0], EV_READ|EV_PERSIST,
+              handle_pending_siginfo_signals, NULL);
+    event_add(&ev_pending_siginfo, NULL);
+}
 
 /* --- */
 
@@ -2168,7 +2263,7 @@ void init_debug_signals(void)
 #define __add_siginfo_signal_handler(SIGNAME) { \
     static struct sigaction action_##SIGNAME; \
     memset(&action_##SIGNAME, 0, sizeof(action_##SIGNAME)); \
-    action_##SIGNAME.sa_sigaction = handle_siginfo_##SIGNAME; \
+    action_##SIGNAME.sa_sigaction = handle_siginfo_signal; \
     action_##SIGNAME.sa_flags = SA_SIGINFO; \
     rc = sigaction(SIGNAME, &action_##SIGNAME, NULL); \
     if (rc<0) { \
@@ -2184,6 +2279,8 @@ void init_debug_signals(void)
     __add_siginfo_signal_handler(SIGHUP);
 
 #undef __add_siginfo_signal_handler
+
+    setup_siginfo_pipe();
 }
 
 void init_signals(void)
