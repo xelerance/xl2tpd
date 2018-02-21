@@ -1,6 +1,11 @@
-v1.3.11dev1 (October 16, 2017)
+v1.3.11rc1 (February 21, 2018)
+* Build packages for Xenial by default (Simon Deziel)
+* Bump d/compat to 9 (Simon Deziel)
+* Drop d/repack.sh script and refresh d/watch (Simon Deziel)
+* Refresh d/control by partly sync'ing from Debian (Simon Deziel)
+* Use HTTPS URL in d/copyright (Simon Deziel)
 
-v1.3.10.1rc2 (October 16, 2017)
+v1.3.10.1 (November 16, 2017)
 * Have max retries as a configuration [Samir Hussain]
 * Add more into to "select timeout" debug message [Samir Hussain]
 
