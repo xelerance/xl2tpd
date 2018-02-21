@@ -1,3 +1,7 @@
+v1.4.0dev4 (February 21, 2018)
+* make --debug-signals handle signals asynchronously [Bart Trojanowski]
+* add --debug-libevent to enable event_enable_debug_mode [Bart Trojanowski]
+
 v1.4.0dev3 (February 12, 2018)
 * Add --set-open-file-limit option (to increase ulimit value) [Bart Trojanowski]
 * Add --debug-signals option [Bart Trojanowski]
