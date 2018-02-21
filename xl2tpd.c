@@ -1862,6 +1862,7 @@ void init_args(int argc, char *argv[])
     gconfig.daemon=1;
     gconfig.syslog=-1;
     gconfig.debug_signals=0;
+    gconfig.debug_libevent=0;
     memset(gconfig.altauthfile,0,STRLEN);
     memset(gconfig.altconfigfile,0,STRLEN);
     memset(gconfig.authfile,0,STRLEN);
@@ -1936,6 +1937,9 @@ void init_args(int argc, char *argv[])
         }
         else if (! strcmp(argv[i],"--debug-signals")) {
             gconfig.debug_signals=1;
+        }
+        else if (! strcmp(argv[i],"--debug-libevent")) {
+            gconfig.debug_libevent=1;
         }
         else {
             usage();
@@ -2122,9 +2126,8 @@ void init_libevent(void)
 
     /* initialize the libevent library */
 
-#ifdef DEBUG_EVENTS
-    event_enable_debug_mode();
-#endif
+    if (gconfig.debug_libevent)
+        event_enable_debug_mode();
 
     event_init();
     event_set_log_callback(event_log);

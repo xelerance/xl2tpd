@@ -155,6 +155,7 @@ struct global
     int daemon;                 /* Use daemon mode? */
     int syslog;                 /* Use syslog for logging? */
     int debug_signals;          /* Verbose signal logging? */
+    int debug_libevent;         /* Verbose libevent logging? */
     int accesscontrol;          /* Use access control? */
     int forceuserspace;         /* Force userspace? */
     int packet_dump;		/* Dump (print) all packets? */
