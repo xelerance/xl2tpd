@@ -45,6 +45,12 @@ case "$1" in
 		--exec $DAEMON
 	echo "$NAME."
 	;;
+  force-stop)
+	# don't pass --exec flag to --stop
+	echo -n "Stopping $DESC: "
+	start-stop-daemon --oknodo --stop --quiet --pidfile $PIDFILE
+	echo "$NAME."
+	;;
   force-reload)
 	test -d ${XL2TPD_RUN_DIR:-/var/run/xl2tpd} || mkdir -p ${XL2TPD_RUN_DIR:-/var/run/xl2tpd}
 	# check whether $DAEMON is running. If so, restart
@@ -65,7 +71,7 @@ case "$1" in
 	;;
   *)
 	N=/etc/init.d/$NAME
-	echo "Usage: $N {start|stop|restart|force-reload}" >&2
+	echo "Usage: $N {start|stop|force-stop|restart|force-reload}" >&2
 	exit 1
 	;;
 esac
