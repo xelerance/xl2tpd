@@ -191,6 +191,7 @@ struct tunnel
     char secret[MAXSTRLEN];     /* Secret to use */
 
     struct event ev_udp_fd;
+    int registered_udp_fd;
 };
 
 struct tunnel_list

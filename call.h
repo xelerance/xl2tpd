@@ -99,6 +99,7 @@ struct call
     char dial_no[128];          /* jz: dialing number for outgoing call */
 
     struct event ev_fd;
+    int registered_fd;
 };
 
 

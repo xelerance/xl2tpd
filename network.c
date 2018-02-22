@@ -597,11 +597,17 @@ void register_for_call_events(struct call *sc)
     event_set(&sc->ev_fd, sc->fd, EV_READ|EV_PERSIST,
               handle_call_event, sc);
     event_add(&sc->ev_fd, NULL);
+    sc->registered_fd = 1;
 }
 
 void deregister_from_call_events(struct call *sc)
 {
-    event_del(&sc->ev_fd);
+    if (sc->registered_fd) {
+        event_del(&sc->ev_fd);
+        sc->registered_fd = 0;
+    } else
+        l2tp_log(LOG_DEBUG, "%s: registered=%d",
+                 __func__, sc->registered_fd);
 }
 
 
@@ -639,11 +645,17 @@ void register_for_tunnel_events(struct tunnel *st)
     event_set(&st->ev_udp_fd, st->udp_fd, EV_READ|EV_PERSIST,
               handle_tunnel_event, st);
     event_add(&st->ev_udp_fd, NULL);
+    st->registered_udp_fd = 1;
 }
 
 void deregister_from_tunnel_events(struct tunnel *st)
 {
-    event_del(&st->ev_udp_fd);
+    if (st->registered_udp_fd) {
+        event_del(&st->ev_udp_fd);
+        st->registered_udp_fd = 0;
+    } else
+        l2tp_log(LOG_DEBUG, "%s: registered=%d",
+                 __func__, st->registered_udp_fd);
 }
 
 void network_thread ()
