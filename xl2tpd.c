@@ -537,8 +537,11 @@ static void log_siginfo(const char *name, siginfo_t *si)
 void handle_siginfo_signal(int signal, siginfo_t *si, void *ucontext)
 {
     uint8_t was_pending;
+#if 0
+    /* calling l2tp_log in signal handler can lead to lockups in glibc */
     l2tp_log(LOG_DEBUG, "SIGNAL: %s: signal=%d siginfo=%p ucontext=%p\n",
              __FUNCTION__, signal, si, ucontext);
+#endif
 
     if (signal<0 || signal>=_NSIG) {
         l2tp_log(LOG_DEBUG, "SIGNAL: %s: signal=%d out of range\n",
@@ -578,10 +581,14 @@ void handle_pending_siginfo_signals(int fd, short ev, void *arg)
     uint8_t pending, buff[_NSIG] = {0,};
     int signal;
     siginfo_t si;
-    int rc;
+    int rc, i;
 
     rc = read(pending_siginfo_pipe[0], buff, sizeof(buff));
-    (void)rc;
+    for (i=0; rc>0 && i<rc; i++) {
+        int signal = buff[i];
+        l2tp_log(LOG_DEBUG, "SIGNAL: %s: signal=%d\n",
+                 __FUNCTION__, signal);
+    }
 
     for (signal = 0; signal < _NSIG; signal++) {
         const char *name;
