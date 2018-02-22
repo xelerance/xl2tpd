@@ -50,6 +50,7 @@ int init_config ()
     gconfig.debug_tunnel = 0;
     gconfig.debug_state = 0;
     gconfig.max_retries = DEFAULT_MAX_RETRIES;
+    gconfig.cap_backoff = 0;
     lnslist = NULL;
     laclist = NULL;
     deflac = (struct lac *) calloc (1, sizeof (struct lac));
@@ -360,10 +361,30 @@ int set_maxretries (char *word, char *value, int context, void *item)
     {
     case CONTEXT_GLOBAL:
 #ifdef DEBUG_FILE
-        l2tp_log (LOG_DEBUG, "set_port: Setting global max retries to %s\n",
+        l2tp_log (LOG_DEBUG, "set_maxretries: Setting global max retries to %s\n",
              value);
 #endif
         set_int (word, value, &(((struct global *) item)->max_retries));
+        break;
+    default:
+        snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
+                  word);
+        return -1;
+    }
+    return 0;
+
+}
+
+int set_capbackoff (char *word, char *value, int context, void *item)
+{
+    switch (context & ~CONTEXT_DEFAULT)
+    {
+    case CONTEXT_GLOBAL:
+#ifdef DEBUG_FILE
+        l2tp_log (LOG_DEBUG, "set_capbackoff: Setting global cap backoff to %s\n",
+             value);
+#endif
+        set_int (word, value, &(((struct global *) item)->cap_backoff));
         break;
     default:
         snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
@@ -1595,5 +1616,6 @@ struct keyword words[] = {
     {"rx bps", &set_speed},
     {"bps", &set_speed},
     {"max retries" , &set_maxretries},
+    {"cap backoff" , &set_capbackoff},
     {NULL, NULL}
 };
