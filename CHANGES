@@ -1,3 +1,8 @@
+v1.4.0dev5 (February 22, 2018)
+* avoid caling syslog from signal handler [Bart Trojanowski]
+* prevent deleting events that were never registered [Bart Trojanowski]
+* add force-stop to init script [Bart Trojanowski]
+
 v1.4.0dev4 (February 21, 2018)
 * make --debug-signals handle signals asynchronously [Bart Trojanowski]
 * add --debug-libevent to enable event_enable_debug_mode [Bart Trojanowski]
