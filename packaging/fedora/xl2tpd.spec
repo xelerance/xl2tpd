@@ -1,13 +1,13 @@
 Summary: Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Name: xl2tpd
-Version: 1.3.10.1
+Version: 1.3.11rc1
 Release: 1%{?dist}
 License: GPLv2
 Url: http://www.xelerance.com/software/xl2tpd/
 Group: System Environment/Daemons
 Source0: https://github.com/xelerance/xl2tpd/archive/v%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: ppp 
+Requires: ppp
 BuildRequires: kernel-headers => 2.6.23
 %if 0%{?el3}%{?el4}
 BuildRequires: libpcap
@@ -80,7 +80,7 @@ then
 	mv /etc/ppp/options.l2tpd /etc/ppp/options.xl2tpd
 	mv /etc/xl2tpd/l2tp-secrets /etc/xl2tpd/l2tpd-secrets.rpmsave
 	cp -pa /etc/l2tpd/l2tp-secrets /etc/xl2tpd/l2tp-secrets
-	
+
 fi
 
 
@@ -168,10 +168,10 @@ fi
 
 * Sat Jun 4 2005 Jacco de Leeuw <jacco2@dds.nl>
 - l2tpd.org has been hijacked. Project moved back to SourceForge:
-  http://l2tpd.sourceforge.net 
+  http://l2tpd.sourceforge.net
 
 * Tue May 3 2005 Jacco de Leeuw <jacco2@dds.nl>
-- Small Makefile fixes. Explicitly use gcc instead of cc. 
+- Small Makefile fixes. Explicitly use gcc instead of cc.
   Network services library was not linked on Solaris due to typo.
 
 * Thu Mar 17 2005 Jacco de Leeuw <jacco2@dds.nl> 0.69-11jdl
@@ -180,7 +180,7 @@ fi
 
 * Fri Feb 4 2005 Jacco de Leeuw <jacco2@dds.nl>
 - Added code from Roaring Penguin (rp-l2tp) to support SysV-style ptys.
-  Requires the N_HDLC kernel module. 
+  Requires the N_HDLC kernel module.
 
 * Fri Nov 26 2004 Jacco de Leeuw <jacco2@dds.nl>
 - Updated the README.
@@ -236,7 +236,7 @@ fi
 - Renamed the example Openswan .conf files to better reflect
   the situation. There are two variants using different portselectors.
   Previously I thought Windows 2000/XP used portselector 17/0
-  and the rest used 17/1701. But with the release of an updated 
+  and the rest used 17/1701. But with the release of an updated
   IPsec client by Microsoft, it turns out that 17/0 must have
   been a mistake: the updated client now also uses 17/1701.
 
@@ -250,7 +250,7 @@ fi
 
 * Thu Mar 6 2003 Jacco de Leeuw <jacco2@dds.nl> 0.69-5jdl
 - Replaced Dominique's patch by Damion de Soto's, which does not
-  depend on the N_HDLC kernel module. 
+  depend on the N_HDLC kernel module.
 
 * Wed Feb 26 2003 Jacco de Leeuw <jacco2@dds.nl> 0.69-4jdl
 - Seperate example config files for Win9x (MSL2TP) and Win2K/XP
@@ -284,7 +284,7 @@ fi
 - Specfile adapted from Mandrake Cooker. The original RPM can be
   retrieved through:
   http://www.rpmfind.net/linux/rpm2html/search.php?query=l2tpd
-- Config path changed from /etc/l2tp/ to /etc/l2tpd/ 
+- Config path changed from /etc/l2tp/ to /etc/l2tpd/
   (Seems more logical and rp-l2tp already uses /etc/l2tp/).
 - Do not run at boot or install. The original RPM uses a config file
   which is completely commented out, but it still starts l2tpd on all
