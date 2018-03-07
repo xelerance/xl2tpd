@@ -1,4 +1,4 @@
-v1.3.11rc1 (February 21, 2018)
+v1.3.11 (March 7, 2018)
 * Build packages for Xenial by default (Simon Deziel)
 * Bump d/compat to 9 (Simon Deziel)
 * Drop d/repack.sh script and refresh d/watch (Simon Deziel)
