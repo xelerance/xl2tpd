@@ -76,6 +76,11 @@ Set this to yes to enable syslog output of FSM debugging information.
 .B debug tunnel
 Set this to yes to enable syslog output of tunnel debugging information.
 
+.TP
+.B max retries
+Specify how many retries before a tunnel is closed. If there is no
+tunnel, then stop re-transmitting. The default is 5.
+
 .SH "LNS SECTION"
 .TP 
 .B exclusive

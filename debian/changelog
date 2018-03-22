@@ -1,3 +1,14 @@
+xl2tpd (1.3.11) unstable; urgency=medium
+
+  * New upstream release.
+  * Use HTTPS URL in d/copyright
+  * Refresh d/control by partly sync'ing from Debian
+  * Drop d/repack.sh script and refresh d/watch
+  * Bump d/compat to 9
+  * Build packages for Xenial by default
+
+ -- Samir Hussain <shussain@xelerance.com>  Wed, 07 Mar 2018 14:37:21 -0500
+
 xl2tpd (1.3.10-1) unstable; urgency=medium
 
   * New upstream release.
@@ -91,7 +102,7 @@ xl2tpd (1.2.7+dfsg-1) unstable; urgency=low
 xl2tpd (1.2.6+dfsg-1) unstable; urgency=low
 
   * New upstream release
-  * Switch to dpkg-source 3.0 (quilt) format 
+  * Switch to dpkg-source 3.0 (quilt) format
   * Update to Standards-Version 3.8.4 (no changes)
   * Add $remote_fs to Required-Start/Required-Stop in init script
 
