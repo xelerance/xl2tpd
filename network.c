@@ -78,23 +78,27 @@ int init_network (void)
      * For L2TP/IPsec with KLIPSng, set the socket to receive IPsec REFINFO
      * values.
      */
-    arg=1;
-    if(setsockopt(server_socket, IPPROTO_IP, gconfig.sarefnum,
-		  &arg, sizeof(arg)) != 0) {
-	    l2tp_log(LOG_CRIT, "setsockopt recvref[%d]: %s\n", gconfig.sarefnum, strerror(errno));
-
-	    gconfig.ipsecsaref=0;
+    if (!gconfig.ipsecsaref)
+    {
+        l2tp_log (LOG_INFO, "Not looking for kernel SAref support.\n");
     }
-
-    arg=1;
-    if(setsockopt(server_socket, IPPROTO_IP, IP_PKTINFO, (char*)&arg, sizeof(arg)) != 0) {
-	    l2tp_log(LOG_CRIT, "setsockopt IP_PKTINFO: %s\n", strerror(errno));
+    else
+    {
+        arg=1;
+        if(setsockopt(server_socket, IPPROTO_IP, gconfig.sarefnum,  &arg, sizeof(arg)) != 0) {
+            l2tp_log(LOG_CRIT, "setsockopt recvref[%d]: %s\n", gconfig.sarefnum, strerror(errno));
+            gconfig.ipsecsaref=0;
+        }
+        else
+        {
+            arg=1;
+            if(setsockopt(server_socket, IPPROTO_IP, IP_PKTINFO, (char*)&arg, sizeof(arg)) != 0) {
+                l2tp_log(LOG_CRIT, "setsockopt IP_PKTINFO: %s\n", strerror(errno));
+            }
+        }
     }
 #else
-    {
-	l2tp_log(LOG_INFO, "No attempt being made to use IPsec SAref's since we're not on a Linux machine.\n");
-    }
-
+    l2tp_log(LOG_INFO, "No attempt being made to use IPsec SAref's since we're not on a Linux machine.\n");
 #endif
 
 #ifdef USE_KERNEL
