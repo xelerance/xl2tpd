@@ -42,6 +42,8 @@ int init_config ()
 
     gconfig.port = UDP_LISTEN_PORT;
     gconfig.sarefnum = IP_IPSEC_REFINFO; /* default use the latest we know */
+    gconfig.ipsecsaref = 0; /* default off - requires patched KLIPS kernel module */
+    gconfig.forceuserspace = 0; /* default off - allow kernel decap of data packets */
     gconfig.listenaddr = htonl(INADDR_ANY); /* Default is to bind (listen) to all interfaces */
     gconfig.debug_avp = 0;
     gconfig.debug_network = 0;
