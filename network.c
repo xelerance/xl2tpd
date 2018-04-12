@@ -270,6 +270,20 @@ void control_xmit (void *b)
     }
 }
 
+unsigned char* get_inner_tos_byte (struct buffer *buf)
+{
+	int tos_offset = 10;
+	unsigned char *tos_byte = buf->start+tos_offset;
+	return tos_byte;
+}
+
+unsigned char* get_inner_ppp_type (struct buffer *buf)
+{
+	int ppp_type_offset = 8;
+	unsigned char *ppp_type_byte = buf->start+ppp_type_offset;
+	return ppp_type_byte;
+}
+
 void udp_xmit (struct buffer *buf, struct tunnel *t)
 {
     struct cmsghdr *cmsg = NULL;
@@ -683,6 +697,18 @@ void network_thread ()
                         }
                         sc->tx_bytes += sc->ppp_buf->len;
                         sc->tx_pkts++;
+
+                        unsigned char* tosval,typeval;
+                        tosval = *get_inner_tos_byte(sc->ppp_buf);
+                        typeval = *get_inner_ppp_type(sc->ppp_buf);
+
+                        int tosval_dec = (int)tosval;
+                        int typeval_dec = (int)typeval;
+
+                        if (typeval_dec != 33 )
+                        	tosval_dec=atoi(gconfig.controltos);
+                        setsockopt(server_socket, IPPROTO_IP, IP_TOS, &tosval_dec, sizeof(tosval_dec));
+
                         udp_xmit (sc->ppp_buf, st);
                         recycle_payload (sc->ppp_buf, sc->container->peer);
                     }

@@ -1633,7 +1633,7 @@ void do_control ()
 void usage(void) {
     printf("\nxl2tpd version:  %s\n", SERVER_VERSION);
     printf("Usage: xl2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]\n"
-            "              [-C <control file>] [-D] [-l]\n"
+            "              [-C <control file>] [-D] [-l] [-q <tos decimal value for control>]\n"
             "              [-v, --version]\n");
     printf("\n");
     exit(1);
@@ -1651,6 +1651,7 @@ void init_args(int argc, char *argv[])
     memset(gconfig.configfile,0,STRLEN);
     memset(gconfig.pidfile,0,STRLEN);
     memset(gconfig.controlfile,0,STRLEN);
+    memset(gconfig.controltos,0,STRLEN);
     strncpy(gconfig.altauthfile,ALT_DEFAULT_AUTH_FILE,
             sizeof(gconfig.altauthfile) - 1);
     strncpy(gconfig.altconfigfile,ALT_DEFAULT_CONFIG_FILE,
@@ -1705,6 +1706,19 @@ void init_args(int argc, char *argv[])
             else
                 strncpy(gconfig.controlfile,argv[i],
                         sizeof(gconfig.controlfile) - 1);
+        }
+        else if (! strncmp(argv[i],"-q",2)) {
+            if(++i == argc)
+                usage();
+            else {
+            	strncpy(gconfig.controltos,argv[i],
+            	                        sizeof(gconfig.controltos) - 1);
+            	if (atoi(gconfig.controltos)<0 || atoi(gconfig.controltos)>255)
+            	{
+	            	printf ("TOS value %s out of range(0-255)!\n", gconfig.controltos);
+	            	usage();
+                }
+            }
         }
         else {
             usage();
