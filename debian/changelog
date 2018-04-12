@@ -1,14 +1,186 @@
-xl2tpd (XL2TPDBASEVERSION-0ubuntu0.16.04xelerance1) xenial; urgency=low
+xl2tpd (1.3.11-1) unstable; urgency=medium
 
-  * Update to XL2TPDBASEVERSION
+  * New upstream release.
+  * Use HTTPS URL in d/copyright
+  * Refresh d/control by partly sync'ing from Debian
+  * Drop d/repack.sh script and refresh d/watch
+  * Bump d/compat to 9
+  * Build packages for Xenial by default
 
-  The real changelog is in /usr/share/doc/xl2tpd/changelog.gz
+ -- Samir Hussain <shussain@xelerance.com>  Wed, 07 Mar 2018 14:37:21 -0500
 
-  This package is NOT an official Debian/Ubuntu package. Please do
-  not file any Debian/Ubuntu bug reports for this package but contact
-  <simon@xelerance.com> if you have a problem.
+xl2tpd (1.3.10-1) unstable; urgency=medium
 
- -- Simon Deziel <simon@xelerance.com>  Tue, 08 Mar 2016 15:51:48 -0500
+  * New upstream release.
+    - Drops the non-free RFC, so no need for +dfsg suffix any more.
+
+ -- Samuel Thibault <sthibault@debian.org>  Sun, 22 Oct 2017 19:26:04 +0200
+
+xl2tpd (1.3.8+dfsg-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Package adopted by Samir (Closes: #786810)
+  * control:
+    - Bump policy version (no change).
+    - Add missing lsb-base dependency.
+
+ -- Samuel Thibault <sthibault@debian.org>  Sun, 04 Dec 2016 21:17:35 +0100
+
+xl2tpd (1.3.6+dfsg-4) unstable; urgency=medium
+
+  * QA upload.
+  * rules: Enable USE_KERNEL, like upstream now does (Closes: #542521)
+
+ -- Samuel Thibault <sthibault@debian.org>  Fri, 27 Nov 2015 22:40:47 +0100
+
+xl2tpd (1.3.6+dfsg-3) unstable; urgency=low
+
+  * Orphan package, set maintainer to Debian QA Group
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Mon, 25 May 2015 14:40:47 -0400
+
+xl2tpd (1.3.6+dfsg-2) unstable; urgency=low
+
+  * Update to debhelper compatibility level 7
+  * Add patch series for local ip range option in the configuration, thanks
+    to Pete Morreale.
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Thu, 08 May 2014 11:57:42 -0400
+
+xl2tpd (1.3.6+dfsg-1) unstable; urgency=low
+
+  * New upstream release
+    + Drop Build-Depends on libssl-dev (reverted by upstream)
+  * Drop OpenSSL exception from debian/copyright (dropped by upstream)
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Wed, 15 Jan 2014 22:08:27 -0500
+
+xl2tpd (1.3.3+dfsg-1) unstable; urgency=low
+
+  * New upstream release (Closes: #680146, #635472, #693316)
+    + Now Build-Depends on libssl-dev for MD5 function
+  * Update debian/copyright with OpenSSL linking exception
+  * Update watch file to point to new github location
+  * Add Vcs-Browser and Vcs-Git tags to control file
+  * Update years in copyright file
+  * Update copyright to conform to copyright-format 1.0
+  * Update to Standards-Version 3.9.5 (no changes)
+  * Build with hardening options
+  * Drop obselete Replaces of l2tpd
+  * Drop 01_apply_build_flags_to_all_binaries.patch (incorporated upstream)
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Fri, 03 Jan 2014 17:50:43 -0500
+
+xl2tpd (1.3.1+dfsg-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Mon, 10 Oct 2011 11:57:19 -0400
+
+xl2tpd (1.3.0+dfsg-1) unstable; urgency=low
+
+  * New upstream release (Closes: #611829)
+  * Update debian/watch to account for upstream's RC numbering
+  * Update to Standards-Version 3.9.2 (no changes)
+  * Start when service is stopped and restart is attempted (Closes: #631369)
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Tue, 13 Sep 2011 18:22:42 -0400
+
+xl2tpd (1.2.8+dfsg-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Thu, 03 Mar 2011 13:31:28 -0500
+
+xl2tpd (1.2.7+dfsg-1) unstable; urgency=low
+
+  * New upstream release (Closes: #578070, #589306)
+  * Update to Standards-Version 3.9.1 (no changes)
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Sat, 07 Aug 2010 21:50:55 -0400
+
+xl2tpd (1.2.6+dfsg-1) unstable; urgency=low
+
+  * New upstream release
+  * Switch to dpkg-source 3.0 (quilt) format
+  * Update to Standards-Version 3.8.4 (no changes)
+  * Add $remote_fs to Required-Start/Required-Stop in init script
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Sat, 05 Jun 2010 21:10:17 -0400
+
+xl2tpd (1.2.5+dfsg-1) unstable; urgency=low
+
+  * New upstream release
+  * Remove unnecessary README.source since dpatch was dropped
+  * Update to Standards-Version 3.8.3
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Sun, 24 Jan 2010 15:23:17 -0500
+
+xl2tpd (1.2.4+dfsg-1) unstable; urgency=low
+
+  * New upstream release (Closes: #494795)
+  * Update to Standards-Version 3.8.1
+    + Add README.source
+    + Fix watch file to use dversionmangle instead of uversionmangle
+  * Update copyright file to new proposed format
+  * Drop debian/patches/02_trust_pppd_to_die.dpatch (included upstream)
+  * Add build-time dependency on libpcap0.8-dev
+  * Make lintian happy:
+    + Move creation of directory in /var/run to daemon start time
+  * Drop l2tpd transitional package
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Fri, 13 Mar 2009 09:58:54 -0400
+
+xl2tpd (1.2.0+dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/01_fix_makefile_bashism.dpatch: Remove, included upstream
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Mon, 31 Mar 2008 17:02:47 -0400
+
+xl2tpd (1.1.12.dfsg.1-4) unstable; urgency=low
+
+  * Ship examples (Closes: #466512)
+  * Trust pppd to die properly (Closes: #466057)
+  * Update watch file and automate repacking upstream tarball.
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Sat, 08 Mar 2008 21:25:41 -0500
+
+xl2tpd (1.1.12.dfsg.1-3) unstable; urgency=low
+
+  * Update to Standards-Version 3.7.3 (no changes required)
+  * Fix Makefile bashism, thanks to Luca Falavigna (Closes: #453046)
+  * Make sure conffiles are not left behind (Closes: #455023)
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Sun, 20 Jan 2008 21:13:52 -0500
+
+xl2tpd (1.1.12.dfsg.1-2) unstable; urgency=low
+
+  * debian/control: Switch Homepage to be a proper control field.
+  * debian/xl2tpd.init: Add --oknodo for stop action (Closes: #447990)
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Sun,  4 Nov 2007 14:47:30 -0500
+
+xl2tpd (1.1.12.dfsg.1-1) unstable; urgency=low
+
+  * New upstream release
+  * Repack upsteam tarball: remove non-free RFC and shipped debian/ directory
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Sat, 20 Oct 2007 09:46:16 -0400
+
+xl2tpd (1.1.11.dfsg.1-2) unstable; urgency=low
+
+  * Added missing copyright notices.
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Fri,  3 Aug 2007 14:13:23 -0400
+
+xl2tpd (1.1.11.dfsg.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #427113, 402660)
+  * Make l2tpd obsolete (Closes: #358799)
+  * Repackage upstream tarball to remove non-free RFC (Closes: #393381)
+
+ -- Roberto C. Sanchez <roberto@connexer.com>  Tue, 31 Jul 2007 20:57:23 -0400
 
 Local variables:
 mode: debian-changelog

@@ -1,11 +1,12 @@
 Source: xl2tpd
 Section: net
 Priority: optional
-Maintainer: Simon Deziel <simon@xelerance.com>
+Maintainer: Samir Hussain <shussain@xelerance.com>
+Uploaders: Samuel Thibault <sthibault@debian.org>
 Homepage: https://www.xelerance.com/software/xl2tpd/
 Vcs-Browser: https://github.com/xelerance/xl2tpd
 Vcs-Git: git://github.com/xelerance/xl2tpd.git
-Build-Depends: debhelper (>= 9.20120115), libpcap0.8-dev
+Build-Depends: debhelper (>= 10), libpcap0.8-dev
 Standards-Version: 3.9.8
 
 Package: xl2tpd
