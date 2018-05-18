@@ -1,3 +1,10 @@
+v1.3.12 (May 18, 2018)
+* TOS value to copy to the tunnel header (Yurkovskyy)
+* Fix for ENODEV (No such device) error with Linux kernel 4.15 (Douglas Kosovic)
+* Update xl2tpd.init (bogdik)
+* fix version number and upload (Samuel Thibault)
+* import wheezy changes  (Samuel Thibault)
+
 v1.3.11 (March 7, 2018)
 * Build packages for Xenial by default (Simon Deziel)
 * Bump d/compat to 9 (Simon Deziel)

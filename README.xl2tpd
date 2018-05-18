@@ -1,6 +1,7 @@
 URL         : https://www.xelerance.com/software/xl2tpd/
 Summary     : Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 Description :
+
 xl2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
 L2TP allows you to tunnel PPP over UDP. Some ISPs use L2TP to tunnel user
 sessions from dial-in servers (modem banks, ADSL DSLAMs) to back-end PPP
@@ -12,7 +13,7 @@ implementations such as Openswan.
 Example configuration files for such a setup are included in this RPM.
 
 xl2tpd works by opening a pseudo-tty for communicating with pppd.
-It runs completely in userspace but supports kernel mode L2TP. 
+It runs completely in userspace but supports kernel mode L2TP.
 
 xl2tpd supports IPsec SA Reference tracking to enable overlapping internak
 NAT'ed IP's by different clients (eg all clients connecting from their
@@ -25,6 +26,11 @@ IPsec SA Reference tracking do not yet work together.
 
 Xl2tpd is based on the 0.69 L2TP by Jeff McAdams <jeffm@iglou.com>
 It was de-facto maintained by Jacco de Leeuw <jacco2@dds.nl> in 2002 and 2003.
+
+NOTE: In Linux kernel 4.15+ there is a kernel bug with ancillary IP_PKTINFO.
+      As such, for Linux kernel 4.15+ we recommend the community use the
+      1.3.12 branch as a temporary solution until the branch is merged into
+      the master branch.
 
 Mailing Lists :
     https://lists.openswan.org/cgi-bin/mailman/listinfo/xl2tpd is home of the

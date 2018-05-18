@@ -152,6 +152,7 @@ struct global
     char altconfigfile[STRLEN]; /* File containing configuration info */
     char pidfile[STRLEN];       /* File containing the pid number*/
     char controlfile[STRLEN];   /* Control file name (named pipe) */
+    char controltos[STRLEN];    /* Control TOS value */
     int daemon;                 /* Use daemon mode? */
     int syslog;                 /* Use syslog for logging? */
     int accesscontrol;          /* Use access control? */
