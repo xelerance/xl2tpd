@@ -1,3 +1,8 @@
+xl2tpd (1.3.12-1) unstable; urgency=medium
+  * New upstream release.
+
+ -- Samir Hussain <shussain@xelerance.com>  Fri, 18 May 2018 17:08:21 -0500
+
 xl2tpd (1.3.11-1) unstable; urgency=medium
 
   * New upstream release.

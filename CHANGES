@@ -1,4 +1,4 @@
-v1.3.12rc1 (April 29, 2018)
+v1.3.12 (May 18, 2018)
 * TOS value to copy to the tunnel header (Yurkovskyy)
 * Fix for ENODEV (No such device) error with Linux kernel 4.15 (Douglas Kosovic)
 * Update xl2tpd.init (bogdik)
