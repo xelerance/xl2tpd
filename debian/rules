@@ -27,7 +27,7 @@ build-arch: build-stamp
 build-indep: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
-	$(MAKE) CFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION -DUSE_KERNEL $(shell dpkg-buildflags --get CFLAGS)" CPPFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION $(shell dpkg-buildflags --get CPPFLAGS)" LDFLAGS=" $(shell dpkg-buildflags --get LDFLAGS)"
+	dh_auto_build -- CFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION -DUSE_KERNEL $(shell dpkg-buildflags --get CFLAGS)" CPPFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION $(shell dpkg-buildflags --get CPPFLAGS)" LDFLAGS=" $(shell dpkg-buildflags --get LDFLAGS)"
 	touch $@
 
 clean:
