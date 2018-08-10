@@ -841,10 +841,12 @@ int control_finish (struct tunnel *t, struct call *c)
         add_frame_avp (buf, c->frame);
 /*		if (c->ourrws >= 0)
 			add_avp_rws(buf, c->ourrws); */
+#ifndef CONFIG_WATCHDOG_FIREWALL
         /* FIXME: Packet Processing Delay */
         /* We don't need any kind of proxy PPP stuff */
         /* Can we proxy authenticate ourselves??? */
         add_rxspeed_avp (buf, t->rxspeed);
+#endif
 /* add_seqreqd_avp (buf); *//* We don't have sequencing code, so
  * don't ask for sequencing */
         add_control_hdr (t, c, buf);
