@@ -42,12 +42,15 @@ int init_config ()
 
     gconfig.port = UDP_LISTEN_PORT;
     gconfig.sarefnum = IP_IPSEC_REFINFO; /* default use the latest we know */
+    gconfig.ipsecsaref = 0; /* default off - requires patched KLIPS kernel module */
+    gconfig.forceuserspace = 0; /* default off - allow kernel decap of data packets */
     gconfig.listenaddr = htonl(INADDR_ANY); /* Default is to bind (listen) to all interfaces */
     gconfig.debug_avp = 0;
     gconfig.debug_network = 0;
     gconfig.packet_dump = 0;
     gconfig.debug_tunnel = 0;
     gconfig.debug_state = 0;
+    gconfig.max_retries = DEFAULT_MAX_RETRIES;
     lnslist = NULL;
     laclist = NULL;
     deflac = (struct lac *) calloc (1, sizeof (struct lac));
@@ -74,7 +77,6 @@ int init_config ()
     returnedValue = parse_config (f);
     fclose (f);
     return (returnedValue);
-    filerr[0] = 0;
 }
 
 struct lns *new_lns ()
@@ -103,6 +105,7 @@ struct lns *new_lns ()
     tmp->hostname[0] = 0;
     tmp->entname[0] = 0;
     tmp->range = NULL;
+    tmp->localrange = NULL;
     tmp->assign_ip = 1;                /* default to 'yes' */
     tmp->lacs = NULL;
     tmp->passwdauth = 0;
@@ -349,6 +352,26 @@ int set_speed (char *word, char *value, int context, void *item)
         return -1;
     }
     return 0;
+}
+
+int set_maxretries (char *word, char *value, int context, void *item)
+{
+    switch (context & ~CONTEXT_DEFAULT)
+    {
+    case CONTEXT_GLOBAL:
+#ifdef DEBUG_FILE
+        l2tp_log (LOG_DEBUG, "set_port: Setting global max retries to %s\n",
+             value);
+#endif
+        set_int (word, value, &(((struct global *) item)->max_retries));
+        break;
+    default:
+        snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
+                  word);
+        return -1;
+    }
+    return 0;
+
 }
 
 int set_rmax (char *word, char *value, int context, void *item)
@@ -878,7 +901,7 @@ struct iprange *set_range (char *word, char *value, struct iprange *in)
                   "format is '%s <host or ip> - <host or ip>'\n", word);
         return NULL;
     }
-    ipr = (struct iprange *) malloc (sizeof (struct iprange));
+    ipr = malloc (sizeof (struct iprange));
     ipr->next = NULL;
     hp = gethostbyname (value);
     if (!hp)
@@ -959,6 +982,34 @@ int set_iprange (char *word, char *value, int context, void *item)
     }
     lns->range = set_range (word, value, lns->range);
     if (!lns->range)
+        return -1;
+#ifdef DEBUG_FILE
+    l2tp_log (LOG_DEBUG, "range start = %x, end = %x, sense=%ud\n",
+         ntohl (lns->range->start), ntohl (lns->range->end), lns->range->sense);
+#endif
+    return 0;
+}
+
+int set_localiprange (char *word, char *value, int context, void *item)
+{
+    struct lns *lns = (struct lns *) item;
+    switch (context & ~CONTEXT_DEFAULT)
+    {
+    case CONTEXT_LNS:
+        break;
+    default:
+        snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
+                  word);
+        return -1;
+    }
+
+    if (lns->localaddr) {
+        snprintf (filerr, sizeof (filerr), "'local ip range' and 'local ip' are mutually exclusive\n");
+	return -1;
+    }
+
+    lns->localrange = set_range (word, value, lns->localrange);
+    if (!lns->localrange)
         return -1;
 #ifdef DEBUG_FILE
     l2tp_log (LOG_DEBUG, "range start = %x, end = %x, sense=%ud\n",
@@ -1050,6 +1101,11 @@ int set_localaddr (char *word, char *value, int context, void *item)
         return set_ip (word, value, &(l->localaddr));
     case CONTEXT_LNS:
         n = (struct lns *) item;
+        if (n->localrange) {
+            snprintf (filerr, sizeof (filerr),
+                    "'local ip range' and 'local ip' are mutually exclusive\n");
+            return -1;
+        }
         return set_ip (word, value, &(n->localaddr));
     default:
         snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
@@ -1445,7 +1501,7 @@ int parse_config (FILE * f)
 #ifdef DEBUG_FILE
             l2tp_log (LOG_DEBUG, "parse_config: field is %s, value is %s\n", s, t);
 #endif
-            /* Okay, bit twidling is done.  Let's handle this */
+            /* Okay, bit twiddling is done.  Let's handle this */
             
             switch (parse_one_option (s, t, context | def, data))
             {
@@ -1511,6 +1567,7 @@ struct keyword words[] = {
     {"no lac", &set_lac},
     {"assign ip", &set_assignip},
     {"local ip", &set_localaddr},
+    {"local ip range", &set_localiprange},
     {"remote ip", &set_remoteaddr},
     {"defaultroute", &set_defaultroute},
     {"length bit", &set_lbit},
@@ -1537,5 +1594,6 @@ struct keyword words[] = {
     {"tx bps", &set_speed},
     {"rx bps", &set_speed},
     {"bps", &set_speed},
+    {"max retries" , &set_maxretries},
     {NULL, NULL}
 };

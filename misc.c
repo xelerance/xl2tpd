@@ -57,7 +57,7 @@ void l2tp_log (int level, const char *fmt, ...)
     vsnprintf (buf, sizeof (buf), fmt, args);
     va_end (args);
     
-    if(gconfig.daemon) {
+    if(gconfig.syslog) {
 	init_log();
 	SYSLOG_CALL( syslog (level, "%s", buf) );
     } else {
@@ -80,10 +80,15 @@ void set_error (struct call *c, int error, const char *fmt, ...)
 
 struct buffer *new_buf (int size)
 {
-    struct buffer *b = malloc (sizeof (struct buffer));
+    struct buffer *b = NULL;
 
-    if (!b || !size || size < 0)
+    if (!size || size < 0)
         return NULL;
+
+    b = malloc (sizeof (struct buffer));
+    if (!b)
+        return NULL;
+
     b->rstart = malloc (size);
     if (!b->rstart)
     {
@@ -170,7 +175,7 @@ void do_packet_dump (struct buffer *buf)
     printf ("}\n");
 }
 
-inline void swaps (void *buf_v, int len)
+void swaps (void *buf_v, int len)
 {
 #ifdef __alpha
     /* Reverse byte order alpha is little endian so lest save a step.
@@ -219,13 +224,13 @@ struct ppp_opts *add_opt (struct ppp_opts *option, char *fmt, ...)
 {
     va_list args;
     struct ppp_opts *new, *last;
-    new = (struct ppp_opts *) malloc (sizeof (struct ppp_opts));
+    new = malloc (sizeof (struct ppp_opts));
     if (!new)
     {
         l2tp_log (LOG_WARNING,
 		  "%s : Unable to allocate ppp option memory.  Expect a crash\n",
 		  __FUNCTION__);
-        return NULL;
+        return option;
     }
     new->next = NULL;
     va_start (args, fmt);
