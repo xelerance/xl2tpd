@@ -702,12 +702,11 @@ void network_thread ()
                         sc->tx_bytes += sc->ppp_buf->len;
                         sc->tx_pkts++;
 
-                        unsigned char* tosval,typeval;
-                        tosval = *get_inner_tos_byte(sc->ppp_buf);
-                        typeval = *get_inner_ppp_type(sc->ppp_buf);
+                        unsigned char* tosval = get_inner_tos_byte(sc->ppp_buf);
+                        unsigned char* typeval = get_inner_ppp_type(sc->ppp_buf);
 
-                        int tosval_dec = (int)tosval;
-                        int typeval_dec = (int)typeval;
+                        int tosval_dec = (int)*tosval;
+                        int typeval_dec = (int)*typeval;
 
                         if (typeval_dec != 33 )
                         	tosval_dec=atoi(gconfig.controltos);
