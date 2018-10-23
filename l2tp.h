@@ -41,6 +41,7 @@ typedef unsigned long long _u64;
 
 #define CONTROL_PIPE "/var/run/xl2tpd/l2tp-control"
 #define CONTROL_PIPE_MESSAGE_SIZE 1024
+#define UNUSED(x) (void)(x)
 
 /* Control pip request types */
 #define CONTROL_PIPE_REQ_LAC_REMOVE 'r'

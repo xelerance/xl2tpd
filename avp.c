@@ -388,6 +388,8 @@ int ignore_avp (struct tunnel *t, struct call *c, void *data, int datalen)
      * One option is to simply change the options we pass to pppd.
      *
      */
+    UNUSED(data);
+    UNUSED(datalen);
     if (gconfig.debug_avp)
     {
         if (DEBUG)
@@ -398,6 +400,7 @@ int ignore_avp (struct tunnel *t, struct call *c, void *data, int datalen)
 
 int seq_reqd_avp (struct tunnel *t, struct call *c, void *data, int datalen)
 {
+    UNUSED(data);
 #ifdef SANITY
     if (t->sanity)
     {

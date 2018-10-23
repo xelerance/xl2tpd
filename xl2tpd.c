@@ -75,7 +75,7 @@ int control_handle_lac_hangup(FILE* resf, char* bufp);
 int control_handle_lac_disconnect(FILE* resf, char* bufp);
 int control_handle_lac_add_modify(FILE* resf, char* bufp);
 int control_handle_lac_remove(FILE* resf, char* bufp);
-int control_handle_lac_status(FILE* resf, char* bufp);
+int control_handle_lac_status();
 int control_handle_lns_remove(FILE* resf, char* bufp);
 
 struct control_requests_handler control_handlers[] = {
@@ -210,6 +210,7 @@ void show_status (void)
 
 void null_handler(int sig)
 {
+	UNUSED(sig);
        /* FIXME
         * A sighup is received when a call is terminated, unknown origine ..
         * I catch it and ll looks good, but ..
@@ -218,11 +219,13 @@ void null_handler(int sig)
 
 void status_handler (int sig)
 {
+    UNUSED(sig);
     show_status ();
 }
 
-void child_handler (int signal)
+void child_handler (int sig)
 {
+    UNUSED(sig);
     /*
      * Oops, somebody we launched was killed.
      * It's time to reap them and close that call.
@@ -340,26 +343,31 @@ void death_handler (int signal)
 
 void sigterm_handler(int sig)
 {
+    UNUSED(sig);
     sigterm_received = 1;
 }
 
 void sigint_handler(int sig)
 {
+    UNUSED(sig);
     sigint_received = 1;
 }
 
 void sigchld_handler(int sig)
 {
+    UNUSED(sig);
     sigchld_received = 1;
 }
 
 void sigusr1_handler(int sig)
 {
+    UNUSED(sig);
     sigusr1_received = 1;
 }
 
 void sighup_handler(int sig)
 {
+    UNUSED(sig);
     sighup_received = 1;
 }
 
@@ -1020,7 +1028,8 @@ struct lns* find_lns_by_name(char* name){
     return NULL; /* ml: Ok we could not find anything*/
 }
 
-int control_handle_available(FILE* resf, char* bufp){
+int control_handle_available(FILE* resf, char* bufp) {
+    UNUSED(bufp);
     struct lac *lac;
     struct lns *lns;
 
@@ -1529,7 +1538,7 @@ int control_handle_lac_remove(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_status(FILE* resf, char* bufp){
+int control_handle_lac_status(){
     show_status ();
     return 1;
 }

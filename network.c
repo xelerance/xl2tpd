@@ -183,6 +183,7 @@ static inline void fix_hdr (void *buf)
 
 void dethrottle (void *call)
 {
+    UNUSED(call);
 /*	struct call *c = (struct call *)call; */
 /*	if (c->throttle) {
 #ifdef DEBUG_FLOW

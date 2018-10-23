@@ -87,22 +87,22 @@ struct command_t commands[] = {
     },
 
     /* LAC commands */
-    {"add-lac", &command_add_lac, TUNNEL_REQUIRED},
-    {"connect-lac", &command_connect_lac, TUNNEL_REQUIRED},
-    {"disconnect-lac", &command_disconnect_lac, TUNNEL_REQUIRED},
-    {"remove-lac", &command_remove_lac, TUNNEL_REQUIRED},
+    {"add-lac", &command_add_lac, TUNNEL_REQUIRED, ""},
+    {"connect-lac", &command_connect_lac, TUNNEL_REQUIRED, ""},
+    {"disconnect-lac", &command_disconnect_lac, TUNNEL_REQUIRED, ""},
+    {"remove-lac", &command_remove_lac, TUNNEL_REQUIRED, ""},
 
     /* LNS commands */
     {"add-lns", &command_add_lns, TUNNEL_REQUIRED,
         "\tadd-lns\tadds new or modify existing lns configuration.\n"
     },
-    {"remove-lns", &command_remove_lns, TUNNEL_REQUIRED},
+    {"remove-lns", &command_remove_lns, TUNNEL_REQUIRED, ""},
 
     /* Generic commands */
-    {"status", &command_status_lac, TUNNEL_REQUIRED},
-    {"status-lns", &command_status_lns, TUNNEL_REQUIRED},
-    {"available", &command_available, TUNNEL_NOT_REQUIRED},
-    {NULL, NULL}
+    {"status", &command_status_lac, TUNNEL_REQUIRED, ""},
+    {"status-lns", &command_status_lns, TUNNEL_REQUIRED, ""},
+    {"available", &command_available, TUNNEL_NOT_REQUIRED, ""},
+    {NULL, NULL, 0, NULL}
 };
 
 void usage()
@@ -463,6 +463,8 @@ int command_connect_lac
 int command_disconnect_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_DISCONNECT, tunnel);
     return 0;
 }
@@ -470,6 +472,8 @@ int command_disconnect_lac
 int command_remove_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_REMOVE, tunnel);
     return 0;
 }
@@ -477,6 +481,8 @@ int command_remove_lac
 int command_status_lns
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LNS_STATUS, tunnel);
     return 0;
 }
@@ -484,6 +490,8 @@ int command_status_lns
 int command_status_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_STATUS, tunnel);
     return 0;
 }
@@ -491,6 +499,8 @@ int command_status_lac
 int command_available
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_AVAILABLE, tunnel);
     return 0;
 }
@@ -498,6 +508,8 @@ int command_available
 int command_remove_lns
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LNS_REMOVE, tunnel);
     return 0;
 }

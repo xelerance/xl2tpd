@@ -24,8 +24,8 @@ struct buffer
     void *rstart;
     void *rend;
     void *start;
-    int len;
-    int maxlen;
+    size_t len;
+    size_t maxlen;
 #if 0
     unsigned int addr;
     int port;

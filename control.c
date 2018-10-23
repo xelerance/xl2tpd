@@ -90,7 +90,7 @@ void add_fcs (struct buffer *buf)
 {
     _u16 fcs = PPP_INITFCS;
     unsigned char *c = buf->start;
-    int x;
+    size_t x;
     for (x = 0; x < buf->len; x++)
     {
         fcs = PPP_FCS (fcs, *c);
@@ -1314,7 +1314,7 @@ static inline int check_payload (struct buffer *buf, struct tunnel *t,
      * or not.  Returns 0 on success.
      */
 
-    int ehlen = MIN_PAYLOAD_HDR_LEN;
+    size_t ehlen = MIN_PAYLOAD_HDR_LEN;
     struct payload_hdr *h = (struct payload_hdr *) (buf->start);
     if (!c)
     {
@@ -1415,6 +1415,7 @@ static inline int check_payload (struct buffer *buf, struct tunnel *t,
 static inline int expand_payload (struct buffer *buf, struct tunnel *t,
                            struct call *c)
 {
+    UNUSED(t);
     /*
      * Expands payload header.  Does not check for valid header,
      * check_payload() should already be called as a prerequisite.
@@ -1599,7 +1600,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
      * Write a packet, doing sync->async conversion if
      * necessary
      */
-    int x;
+    size_t x;
     unsigned char e;
     int err;
     static unsigned char wbuf[MAX_RECV_SIZE];
@@ -1629,17 +1630,17 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
         /* We are given async frames, so write them
            directly to the tty */
         err = write (c->fd, buf->start, buf->len);
-        if (err == buf->len)
+        if ((size_t)err == buf->len)
         {
             return 0;
         }
-        else if (err == 0)
+        else if ((size_t)err == 0)
         {
             l2tp_log (LOG_WARNING, "%s: wrote no bytes of async packet\n",
                  __FUNCTION__);
             return -EINVAL;
         }
-        else if (err < 0)
+        else if ((size_t)err < 0)
         {
             if ((errno == EAGAIN) || (errno == EINTR))
             {
@@ -1651,13 +1652,13 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
                      strerror (errno));
             }
         }
-        else if (err < buf->len)
+        else if ((size_t)err < buf->len)
         {
             l2tp_log (LOG_WARNING, "%s: short write (%d of %d bytes)\n", __FUNCTION__,
                  err, buf->len);
             return -EINVAL;
         }
-        else if (err > buf->len)
+        else if ((size_t)err > buf->len)
         {
             l2tp_log (LOG_WARNING, "%s: write returned LONGER than buffer length?\n",
                  __FUNCTION__);
@@ -1678,7 +1679,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
     {
         // we must at least still have 3 bytes left in the worst case scenario:
         // 1 for a possible escape, 1 for the value and 1 to end the PPP stream.
-        if(pos >= (sizeof(wbuf) - 4)) {
+        if((size_t)pos >= (sizeof(wbuf) - 4)) {
             if(DEBUG)
                 l2tp_log(LOG_CRIT, "%s: rx packet is too big after PPP encoding (size %u, max is %u)\n",
                                 __FUNCTION__, buf->len, MAX_RECV_SIZE);
@@ -1704,7 +1705,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
 #endif
 
     x = 0;
-    while ( pos != x )
+    while ((size_t) pos != x )
     {
       err = write (c->fd, wbuf+x, pos-x);
       if ( err < 0 ) {
