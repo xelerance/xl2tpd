@@ -279,9 +279,13 @@ void child_handler (int sig)
                      * it
                      */
 #ifdef USE_KERNEL
-                 if (!kernel_support)
+                 if (!kernel_support) {
+
 #endif
                     close (c->fd);
+#ifdef USE_KERNEL
+                 }
+#endif
                     c->fd = -1;
                     /*
                      * terminate tunnel and call loops, returning to the
