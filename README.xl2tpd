@@ -34,3 +34,6 @@ NOTE: In Linux kernel 4.15+ there is a kernel bug with ancillary IP_PKTINFO.
 Mailing Lists :
     https://lists.openswan.org/cgi-bin/mailman/listinfo/xl2tpd is home of the
     mailing list. Note: This is a closed list - you *must* be subscribed to post.
+
+Security Vulnerability :
+    Security vulnerabilities can be e-mailed to: security@xelerance.com
