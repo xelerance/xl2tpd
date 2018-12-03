@@ -1,3 +1,15 @@
+v1.3.13 (December 3, 2018)
+* Specify email address for reporting security vulnerabilities [Samir Hussain]
+* Fix compile warning with USE_KERNEL in xl2tpd.c [Samir Hussain]
+* Applying patch that reduces compile warnings and fixes warnings from gcc and clang. [Gareth Ansell]
+* Fix compiler warnings in network.c [Gareth Ansell]
+* Add a make command for packaging's prep work [Samir Hussain]
+* Add Makefile directive for getting version [Samir Hussain]
+* Add a preproc for Watchguard firewall (Github issue #136) [daniel1111]
+* Convert from ISO-8859 to UTF-8 [Simon Deziel]
+* Update README to provide latest info on xl2tpd + Linux kernel 4.15+ [Samir Hussain]
+* Use dh_auto_build in order to allow cross compiles [Helmut Grohne]
+
 v1.3.12 (May 18, 2018)
 * TOS value to copy to the tunnel header (Yurkovskyy)
 * Fix for ENODEV (No such device) error with Linux kernel 4.15 (Douglas Kosovic)
