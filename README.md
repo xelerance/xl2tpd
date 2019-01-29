@@ -29,6 +29,11 @@ NOTE: In Linux kernel 4.15+ there is a kernel bug with ancillary IP_PKTINFO.
       As such, for Linux kernel 4.15+ we recommend the community use xl2tpd
       1.3.12+
 
+## Build and install
+    make
+    sudo make install
+
+
 ## Mailing Lists
 
 https://lists.openswan.org/cgi-bin/mailman/listinfo/xl2tpd is home of the mailing list.
