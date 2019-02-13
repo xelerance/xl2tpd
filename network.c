@@ -262,9 +262,14 @@ void control_xmit (void *b)
     else
     {
         /*
-           * Adaptive timeout with exponential backoff
+         * Adaptive timeout with exponential backoff.  The delay grows
+         * exponentialy, unless it's capped by configuration.
          */
-        tv.tv_sec = 1LL << (buf->retries-1);
+        unsigned shift_by = (buf->retries-1);
+        if (shift_by > 31)
+            shift_by = 31;
+
+        tv.tv_sec = 1LL << shift_by;
         tv.tv_usec = 0;
         schedule (tv, control_xmit, buf);
 #ifdef DEBUG_CONTROL_XMIT
