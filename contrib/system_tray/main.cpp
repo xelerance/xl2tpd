@@ -69,35 +69,35 @@ int get_status_from_file() {
   std::string s = readfile(logfilepath);
   // split file by string
   std::string delimiter = "Modem hangup";
-	// select last element of array
-	size_t pos = 0;
-	std::string token;
-	while ((pos = s.find(delimiter)) != std::string::npos) {
-		token = s.substr(0, pos);
-		s.erase(0, pos + delimiter.length());
-	}
-	trim(s);
-	if (s=="") {
-		return 0;
-	}
-	else {
-		delimiter = "Script /etc/ppp/ip-up finished";
-		if ((pos = s.find(delimiter)) != std::string::npos) {
-			token = s.substr(0, pos);
-			s.erase(0, pos + delimiter.length());
-			delimiter = "status = 0x0";
-			if ((pos = s.find(delimiter)) != std::string::npos) s.erase(0, pos + delimiter.length());
-			trim(s);
-		} else {
-			return 1;
-		}
-		if (s=="") {
-			return 2;
-		}
-		else {
-			return 3;
-		}
-	}
+   // select last element of array
+   size_t pos = 0;
+   std::string token;
+   while ((pos = s.find(delimiter)) != std::string::npos) {
+      token = s.substr(0, pos);
+      s.erase(0, pos + delimiter.length());
+   }
+   trim(s);
+   if (s=="") {
+      return 0;
+   }
+   else {
+      delimiter = "status = 0x0";
+      token = "1";
+      while ((pos = s.find(delimiter)) != std::string::npos) {
+         token = "3";
+         s.erase(0, pos + delimiter.length());
+      }
+      trim(s);
+      if (s=="") {
+         return 2;
+      }
+      if (token == "1") {
+         return 1;
+      }
+      else {
+         return 3;
+      }
+   }
 }
 
 // c++ convert gchar std::string
