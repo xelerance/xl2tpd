@@ -113,6 +113,7 @@ int init_network (void)
         int kernel_fd = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
         if (kernel_fd < 0)
         {
+            close(kernel_fd);
             l2tp_log (LOG_INFO, "L2TP kernel support not detected (try modprobing l2tp_ppp and pppol2tp)\n");
             kernel_support = 0;
         }
