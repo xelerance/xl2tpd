@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -34,7 +35,7 @@ char hostname[256];
 struct sockaddr_in server, from;        /* Server and transmitter structs */
 int server_socket;              /* Server socket */
 #ifdef USE_KERNEL
-int kernel_support;             /* Kernel Support there or not? */
+bool kernel_support;             /* Kernel Support there or not? */
 #endif
 
 int init_network (void)
@@ -106,7 +107,7 @@ int init_network (void)
     if (gconfig.forceuserspace)
     {
         l2tp_log (LOG_INFO, "Not looking for kernel support.\n");
-        kernel_support = 0;
+        kernel_support = false;
     }
     else
     {
@@ -115,13 +116,13 @@ int init_network (void)
         {
             close(kernel_fd);
             l2tp_log (LOG_INFO, "L2TP kernel support not detected (try modprobing l2tp_ppp and pppol2tp)\n");
-            kernel_support = 0;
+            kernel_support = false;
         }
         else
         {
             close(kernel_fd);
             l2tp_log (LOG_INFO, "Using l2tp kernel support.\n");
-            kernel_support = -1;
+            kernel_support = true;
         }
     }
 #else

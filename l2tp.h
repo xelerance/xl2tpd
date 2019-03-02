@@ -23,6 +23,7 @@ typedef unsigned long long _u64;
                                 /* FIXME: MAX_RECV_SIZE, what is it? */
 #define MAX_RECV_SIZE 4096      /* Biggest packet we'll accept */
 
+#include <stdbool.h>
 #include <netinet/in.h>
 #include <termios.h>
 #ifdef OPENBSD
@@ -239,7 +240,7 @@ extern int ppd;
 extern int switch_io;           /* jz */
 extern int control_fd;
 #ifdef USE_KERNEL
-extern int kernel_support;
+extern bool kernel_support;
 extern int connect_pppol2tp (struct tunnel *t);
 #endif
 extern int start_pppd (struct call *c, struct ppp_opts *);
