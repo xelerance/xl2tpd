@@ -68,6 +68,7 @@ int init_network (void)
     };
     if (getsockname (server_socket, (struct sockaddr *) &server, &length))
     {
+        close (server_socket);
         l2tp_log (LOG_CRIT, "%s: Unable to read socket name.Terminating.\n",
              __FUNCTION__);
         return -EINVAL;
