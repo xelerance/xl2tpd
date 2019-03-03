@@ -47,7 +47,6 @@ struct tunnel_list tunnels;
 int rand_source;
 int ppd = 1;                    /* Packet processing delay */
 int control_fd;                 /* descriptor of control area */
-char *args;
 
 static char *dial_no_tmp;              /* jz: Dialnumber for Outgoing Call */
 int switch_io = 0;              /* jz: Switch for Incoming or Outgoing Call */
