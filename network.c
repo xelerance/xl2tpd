@@ -506,32 +506,28 @@ static void do_tunnel_server(struct buffer *buf, int *currentfd)
         return;
     }
 
-
     refme=refhim=0;
 
-
-        struct cmsghdr *cmsg;
-        /* Process auxiliary received data in msgh */
-        for (cmsg = CMSG_FIRSTHDR(&msgh);
-                cmsg != NULL;
-                cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
+    struct cmsghdr *cmsg;
+    /* Process auxiliary received data in msgh */
+    for (cmsg = CMSG_FIRSTHDR(&msgh); cmsg; cmsg = CMSG_NXTHDR(&msgh,cmsg)) {
 #ifdef LINUX
-                /* extract destination(our) addr */
-                if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO) {
-                        struct in_pktinfo* pktInfo = ((struct in_pktinfo*)CMSG_DATA(cmsg));
-                        to = *pktInfo;
-                } else
+            /* extract destination(our) addr */
+            if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO) {
+                struct in_pktinfo* pktInfo = ((struct in_pktinfo*)CMSG_DATA(cmsg));
+                to = *pktInfo;
+            } else
 #endif
-                /* extract IPsec info out */
-                if (gconfig.ipsecsaref && cmsg->cmsg_level == IPPROTO_IP
-                && cmsg->cmsg_type == gconfig.sarefnum) {
-                        unsigned int *refp;
+            /* extract IPsec info out */
+            if (gconfig.ipsecsaref && cmsg->cmsg_level == IPPROTO_IP &&
+                cmsg->cmsg_type == gconfig.sarefnum) {
+                unsigned int *refp;
 
-                        refp = (unsigned int *)CMSG_DATA(cmsg);
-                        refme =refp[0];
-                        refhim=refp[1];
-                }
-        }
+                refp = (unsigned int *)CMSG_DATA(cmsg);
+                refme =refp[0];
+                refhim=refp[1];
+            }
+    }
 
     /*
      * some logic could be added here to verify that we only
