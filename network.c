@@ -247,8 +247,8 @@ void control_xmit (void *b)
                 l2tp_log (LOG_DEBUG,
                      "Unable to deliver closing message for tunnel %d. Destroying anyway.\n",
                      t->ourtid);
-                t->self->needclose = 0;
-                t->self->closing = -1;
+                t->self->needclose = false;
+                t->self->closing = true;
             }
             else
             {
@@ -256,7 +256,7 @@ void control_xmit (void *b)
                      "Maximum retries exceeded for tunnel %d.  Closing.\n",
                      t->ourtid);
                 strcpy (t->self->errormsg, "Timeout");
-                t->self->needclose = -1;
+                t->self->needclose = true;
             }
 	    call_close(t->self);
         }
@@ -395,7 +395,7 @@ int build_fdset (fd_set *readfds)
 		call = tun->call_head;
 		while (call)
 		{
-			if (call->needclose ^ call->closing)
+			if (call->needclose && call->closing)
 			{
 				call_close (call);
 				call = tun->call_head;
@@ -417,7 +417,7 @@ int build_fdset (fd_set *readfds)
 		/* Now that call fds have been collected, and checked for
 		 * closing, check if the tunnel needs to be closed too
 		 */
-		if (tun->self->needclose ^ tun->self->closing)
+		if (tun->self->needclose && tun->self->closing)
 		{
 			if (gconfig.debug_tunnel)
 				l2tp_log (LOG_DEBUG, "%s: closing down tunnel %d\n",
@@ -728,7 +728,7 @@ void network_thread ()
                          "%s: tossing read packet, error = %s (%d).  Closing call.\n",
                          __FUNCTION__, strerror (-result), -result);
                     strcpy (sc->errormsg, strerror (-result));
-                    sc->needclose = -1;
+                    sc->needclose = true;
                 }
             }
         }

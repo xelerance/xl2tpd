@@ -11,6 +11,7 @@
  *
  * Handle a call as a separate thread (header file)
  */
+#include <stdbool.h>
 #include <sys/time.h>
 #include "misc.h"
 #include "common.h"
@@ -58,8 +59,8 @@ struct call
     char dialing[MAXSTRLEN];    /* Original caller ID */
     char subaddy[MAXSTRLEN];    /* Sub address */
 
-    int needclose;              /* Do we need to close this call? */
-    int closing;                /* Are we actually in the process of closing? */
+    bool needclose;              /* Do we need to close this call? */
+    bool closing;                /* Are we actually in the process of closing? */
     /*
        needclose            closing         state
        =========            =======         =====

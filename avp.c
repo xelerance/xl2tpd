@@ -122,7 +122,7 @@ void wrong_length (struct call *c, char *field, int expected, int found,
 
     c->error = ERROR_LENGTH;
     c->result = RESULT_ERROR;
-    c->needclose = -1;
+    c->needclose = true;
 }
 
 struct unaligned_u16 {
@@ -1658,7 +1658,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
                 set_error (c, VENDOR_ERROR,
                            "mandatory attribute %d cannot be handled",
                            avp->attr);
-                c->needclose = -1;
+                c->needclose = true;
                 return -EINVAL;
             }
             else
@@ -1676,7 +1676,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
                  "%s: AVP received with length > remaining packet length!\n",
                  __FUNCTION__);
             set_error (c, ERROR_LENGTH, "Invalid AVP length");
-            c->needclose = -1;
+            c->needclose = true;
             return -EINVAL;
         }
         if (avp->attr && firstavp)
@@ -1684,7 +1684,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             l2tp_log (LOG_WARNING, "%s: First AVP was not message type.\n",
                  __FUNCTION__);
             set_error (c, VENDOR_ERROR, "First AVP must be message type");
-            c->needclose = -1;
+            c->needclose = true;
             return -EINVAL;
         }
         if (ALENGTH (avp->length) < sizeof (struct avp_hdr))
@@ -1692,7 +1692,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             l2tp_log (LOG_WARNING, "%s: AVP with too small of size (%d).\n",
                  __FUNCTION__, ALENGTH (avp->length));
             set_error (c, ERROR_LENGTH, "AVP too small");
-            c->needclose = -1;
+            c->needclose = true;
             return -EINVAL;
         }
         if (AZBITS (avp->length))
@@ -1702,7 +1702,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
             if (AMBIT (avp->length))
             {
                 set_error (c, ERROR_RESERVED, "reserved bits set in AVP");
-                c->needclose = -1;
+                c->needclose = true;
                 return -EINVAL;
             }
             goto next;
@@ -1725,7 +1725,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
                 if (AMBIT (avp->length))
                 {
                     set_error (c, VENDOR_ERROR, "Invalid Hidden AVP");
-                    c->needclose = -1;
+                    c->needclose = true;
                     return -EINVAL;
                 }
                 goto next;
@@ -1748,7 +1748,7 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
                          "%s: Bad exit status handling attribute %d (%s) on mandatory packet.\n",
                          __FUNCTION__, avp->attr,
                          avps[avp->attr].description);
-                    c->needclose = -1;
+                    c->needclose = true;
                     return -EINVAL;
                 }
                 else

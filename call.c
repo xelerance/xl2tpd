@@ -311,8 +311,8 @@ void call_close (struct call *c)
         while (tmp)
         {
             tmp2 = tmp->next;
-            tmp->needclose = 0;
-            tmp->closing = -1;
+            tmp->needclose = false;
+            tmp->closing = true;
             call_close (tmp);
             tmp = tmp2;
         }
@@ -373,7 +373,7 @@ void call_close (struct call *c)
     /*
      * Note that we're in the process of closing now
      */
-    c->closing = -1;
+    c->closing = true;
 }
 
 void destroy_call (struct call *c)
@@ -550,8 +550,8 @@ struct call *new_call (struct tunnel *parent)
     tmp->oldptyconf = malloc (sizeof (struct termios));
     tmp->pnu = 0;
     tmp->cnu = 0;
-    tmp->needclose = 0;
-    tmp->closing = 0;
+    tmp->needclose = false;
+    tmp->closing = false;
     tmp->die = 0;
     tmp->pppd = 0;
     tmp->error = -1;

@@ -273,7 +273,7 @@ static void child_handler (int sig)
                         l2tp_log (LOG_DEBUG, "%s : pppd exited for call %d for unknown reason\n", __FUNCTION__,
                          c->cid );
                     }
-                    c->needclose = -1;
+                    c->needclose = true;
                     /*
                      * OK...pppd died, we can go ahead and close the pty for
                      * it
@@ -327,7 +327,7 @@ static void death_handler (int signal)
                         call_close (st->self);
                         if (!sec)
                         {
-                                st->self->closing = -1;
+                                st->self->closing = true;
                                 call_close (st->self);
                         }
                         st = st2;
@@ -854,7 +854,7 @@ static void lac_hangup (int cid)
                      "%s :Hanging up call %d, Local: %d, Remote: %d\n",
                      __FUNCTION__, tmp->serno, tmp->ourcid, tmp->cid);
                 strcpy (tmp->errormsg, "Goodbye!");
-/*                                    tmp->needclose = -1; */
+/*                                    tmp->needclose = true; */
                 kill (tmp->pppd, SIGTERM);
                 return;
             }
@@ -876,7 +876,7 @@ static void lac_disconnect (int tid)
             l2tp_log (LOG_INFO,
                  "Disconnecting from %s, Local: %d, Remote: %d\n",
                  IPADDY (t->peer.sin_addr), t->ourtid, t->tid);
-            t->self->needclose = -1;
+            t->self->needclose = true;
             strcpy (t->self->errormsg, "Goodbye!");
             call_close (t->self);
             return;
