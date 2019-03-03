@@ -662,7 +662,7 @@ void network_thread ()
         currentfd = NULL;
         st = tunnels.head;
         while (st || !server_socket_processed)
-		{
+        {
             if (st && (st->udp_fd == -1)) {
                 st=st->next;
                 continue;
@@ -677,12 +677,12 @@ void network_thread ()
                 do_tunnel_server(buf, currentfd);
             }
 	        if (st) st=st->next;
-	}
+        }
 
-	/*
-	 * finished obvious sources, look for data from PPP connections.
-	 */
-	st = tunnels.head;
+        /*
+        * finished obvious sources, look for data from PPP connections.
+        */
+        st = tunnels.head;
         while (st)
         {
             sc = st->call_head;
