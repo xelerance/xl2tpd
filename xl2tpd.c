@@ -48,36 +48,36 @@ int rand_source;
 int ppd = 1;                    /* Packet processing delay */
 int control_fd;                 /* descriptor of control area */
 
-char *dial_no_tmp;              /* jz: Dialnumber for Outgoing Call */
+static char *dial_no_tmp;              /* jz: Dialnumber for Outgoing Call */
 int switch_io = 0;              /* jz: Switch for Incoming or Outgoing Call */
 
 static void open_controlfd(void);
 
-volatile sig_atomic_t sigterm_received;
-volatile sig_atomic_t sigint_received;
-volatile sig_atomic_t sigchld_received;
-volatile sig_atomic_t sigusr1_received;;
-volatile sig_atomic_t sighup_received;
+static volatile sig_atomic_t sigterm_received;
+static volatile sig_atomic_t sigint_received;
+static volatile sig_atomic_t sigchld_received;
+static volatile sig_atomic_t sigusr1_received;;
+static volatile sig_atomic_t sighup_received;
 
 struct control_requests_handler {
     char type;
     int (*handler) (FILE* resf, char* bufp);
 };
 
-int control_handle_available(FILE* resf, char* bufp);
-int control_handle_lns_add_modify(FILE* resf, char* bufp);
-int control_handle_lns_status(FILE* resf, char* bufp);
-int control_handle_tunnel(FILE* respf, char* bufp);
-int control_handle_lac_connect(FILE* resf, char* bufp);
-int control_handle_lac_outgoing_call(FILE* resf, char* bufp);
-int control_handle_lac_hangup(FILE* resf, char* bufp);
-int control_handle_lac_disconnect(FILE* resf, char* bufp);
-int control_handle_lac_add_modify(FILE* resf, char* bufp);
-int control_handle_lac_remove(FILE* resf, char* bufp);
-int control_handle_lac_status();
-int control_handle_lns_remove(FILE* resf, char* bufp);
+static int control_handle_available(FILE* resf, char* bufp);
+static int control_handle_lns_add_modify(FILE* resf, char* bufp);
+static int control_handle_lns_status(FILE* resf, char* bufp);
+static int control_handle_tunnel(FILE* respf, char* bufp);
+static int control_handle_lac_connect(FILE* resf, char* bufp);
+static int control_handle_lac_outgoing_call(FILE* resf, char* bufp);
+static int control_handle_lac_hangup(FILE* resf, char* bufp);
+static int control_handle_lac_disconnect(FILE* resf, char* bufp);
+static int control_handle_lac_add_modify(FILE* resf, char* bufp);
+static int control_handle_lac_remove(FILE* resf, char* bufp);
+static int control_handle_lac_status();
+static int control_handle_lns_remove(FILE* resf, char* bufp);
 
-struct control_requests_handler control_handlers[] = {
+static struct control_requests_handler control_handlers[] = {
     {CONTROL_PIPE_REQ_AVAILABLE, &control_handle_available},
     {CONTROL_PIPE_REQ_LNS_ADD_MODIFY, &control_handle_lns_add_modify},
     {CONTROL_PIPE_REQ_LNS_STATUS, &control_handle_lns_status},
@@ -94,7 +94,7 @@ struct control_requests_handler control_handlers[] = {
     {0, NULL}
 };
 
-void init_tunnel_list (struct tunnel_list *t)
+static void init_tunnel_list (struct tunnel_list *t)
 {
     t->head = NULL;
     t->count = 0;
@@ -102,7 +102,7 @@ void init_tunnel_list (struct tunnel_list *t)
 }
 
 /* Now sends to syslog instead - MvO */
-void show_status (void)
+static void show_status (void)
 {
     struct schedule_entry *se;
     struct tunnel *t;
@@ -207,7 +207,7 @@ void show_status (void)
     l2tp_log (LOG_WARNING, "================================\n");
 }
 
-void null_handler(int sig)
+static void null_handler(int sig)
 {
 	UNUSED(sig);
        /* FIXME
@@ -216,13 +216,13 @@ void null_handler(int sig)
         */
 }
 
-void status_handler (int sig)
+static void status_handler (int sig)
 {
     UNUSED(sig);
     show_status ();
 }
 
-void child_handler (int sig)
+static void child_handler (int sig)
 {
     UNUSED(sig);
     /*
@@ -299,7 +299,7 @@ void child_handler (int sig)
     }
 }
 
-void death_handler (int signal)
+static void death_handler (int signal)
 {
     /*
        * If we get here, somebody terminated us with a kill or a control-c.
@@ -344,31 +344,31 @@ void death_handler (int signal)
     exit (1);
 }
 
-void sigterm_handler(int sig)
+static void sigterm_handler(int sig)
 {
     UNUSED(sig);
     sigterm_received = 1;
 }
 
-void sigint_handler(int sig)
+static void sigint_handler(int sig)
 {
     UNUSED(sig);
     sigint_received = 1;
 }
 
-void sigchld_handler(int sig)
+static void sigchld_handler(int sig)
 {
     UNUSED(sig);
     sigchld_received = 1;
 }
 
-void sigusr1_handler(int sig)
+static void sigusr1_handler(int sig)
 {
     UNUSED(sig);
     sigusr1_received = 1;
 }
 
-void sighup_handler(int sig)
+static void sighup_handler(int sig)
 {
     UNUSED(sig);
     sighup_received = 1;
@@ -694,7 +694,7 @@ void destroy_tunnel (struct tunnel *t)
     free (t);
 }
 
-struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
+static struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
                           struct lns *lns)
 {
     /*
@@ -745,7 +745,7 @@ struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
     return tmp->container;
 }
 
-void magic_lac_tunnel (void *data)
+static void magic_lac_tunnel (void *data)
 {
     struct lac *lac;
     lac = (struct lac *) data;
@@ -771,7 +771,7 @@ void magic_lac_tunnel (void *data)
     }
 }
 
-struct call *lac_call (int tid, struct lac *lac, struct lns *lns)
+static struct call *lac_call (int tid, struct lac *lac, struct lns *lns)
 {
     struct tunnel *t = tunnels.head;
     struct call *tmp;
@@ -838,7 +838,7 @@ void magic_lac_dial (void *data)
     lac_call (lac->t->ourtid, lac, NULL);
 }
 
-void lac_hangup (int cid)
+static void lac_hangup (int cid)
 {
     struct tunnel *t = tunnels.head;
     struct call *tmp;
@@ -865,7 +865,7 @@ void lac_hangup (int cid)
     return;
 }
 
-void lac_disconnect (int tid)
+static void lac_disconnect (int tid)
 {
     struct tunnel *t = tunnels.head;
     while (t)
@@ -936,7 +936,7 @@ struct tunnel *new_tunnel ()
     return tmp;
 }
 
-void write_res (FILE* res_file, const char *fmt, ...)
+static void write_res (FILE* res_file, const char *fmt, ...)
 {
     if (!res_file || ferror (res_file) || feof (res_file))
         return;
@@ -946,7 +946,7 @@ void write_res (FILE* res_file, const char *fmt, ...)
     va_end (args);
 }
 
-int parse_one_line (char* bufp, int context, void* tc)
+static int parse_one_line (char* bufp, int context, void* tc)
 {
     /* FIXME: I should check for incompatible options */
     char *s, *d, *t;
@@ -1003,15 +1003,15 @@ int parse_one_line (char* bufp, int context, void* tc)
     return 0;
 }
 
-int parse_one_line_lac (char* bufp, struct lac *tc){
+static int parse_one_line_lac (char* bufp, struct lac *tc){
     return parse_one_line(bufp, CONTEXT_LAC, tc);
 }
 
-int parse_one_line_lns (char* bufp, struct lns *tc){
+static int parse_one_line_lns (char* bufp, struct lns *tc){
     return parse_one_line(bufp, CONTEXT_LNS, tc);
 }
 
-struct lns* find_lns_by_name(char* name){
+static struct lns* find_lns_by_name(char* name){
     struct lns *cursor;
 
     /* ml: First check to see if we are searching for default */
@@ -1031,7 +1031,7 @@ struct lns* find_lns_by_name(char* name){
     return NULL; /* ml: Ok we could not find anything*/
 }
 
-int control_handle_available(FILE* resf, char* bufp) {
+static int control_handle_available(FILE* resf, char* bufp) {
     UNUSED(bufp);
     struct lac *lac;
     struct lns *lns;
@@ -1083,7 +1083,7 @@ int control_handle_available(FILE* resf, char* bufp) {
 	return 1;
 }
 
-int control_handle_lns_add_modify(FILE* resf, char* bufp){
+static int control_handle_lns_add_modify(FILE* resf, char* bufp){
     struct lns *lns;
     char* tunstr;
     char delims[] = " ";
@@ -1116,7 +1116,7 @@ int control_handle_lns_add_modify(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lns_remove(FILE* resf, char* bufp){
+static int control_handle_lns_remove(FILE* resf, char* bufp){
     char *tunstr;
     struct lns* lns;
     struct lns* prev_lns;
@@ -1164,7 +1164,7 @@ int control_handle_lns_remove(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lns_status(FILE* resf, char* bufp){
+static int control_handle_lns_status(FILE* resf, char* bufp){
     struct lns *lns;
     char* tunstr;
     char delims[] = " ";
@@ -1222,7 +1222,7 @@ int control_handle_lns_status(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_tunnel(FILE* resf, char* bufp){
+static int control_handle_tunnel(FILE* resf, char* bufp){
     char* host;
     host = strchr (bufp, ' ') + 1;
 #ifdef DEBUG_CONTROL
@@ -1236,7 +1236,7 @@ int control_handle_tunnel(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_connect(FILE* resf, char* bufp){
+static int control_handle_lac_connect(FILE* resf, char* bufp){
     char* tunstr = NULL;
     char* authname= NULL;
     char* password = NULL;
@@ -1297,7 +1297,7 @@ int control_handle_lac_connect(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
+static int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
     char* sub_str;
     char* tunstr;
     char* tmp_ptr;
@@ -1352,7 +1352,7 @@ int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_hangup(FILE* resf, char* bufp){
+static int control_handle_lac_hangup(FILE* resf, char* bufp){
     char* callstr;
     int call;
 
@@ -1367,7 +1367,7 @@ int control_handle_lac_hangup(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_disconnect(FILE* resf, char* bufp){
+static int control_handle_lac_disconnect(FILE* resf, char* bufp){
     char* tunstr;
     struct lac* lac;
     int tunl = 0;
@@ -1413,7 +1413,7 @@ int control_handle_lac_disconnect(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_add_modify(FILE* resf, char* bufp){
+static int control_handle_lac_add_modify(FILE* resf, char* bufp){
     char* tunstr;
     struct lac* lac;
     char delims[] = " ";
@@ -1476,7 +1476,7 @@ int control_handle_lac_add_modify(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_remove(FILE* resf, char* bufp){
+static int control_handle_lac_remove(FILE* resf, char* bufp){
     char *tunstr;
     struct lac* lac;
     struct lac* prev_lac;
@@ -1541,7 +1541,7 @@ int control_handle_lac_remove(FILE* resf, char* bufp){
     return 1;
 }
 
-int control_handle_lac_status(){
+static int control_handle_lac_status(){
     show_status ();
     return 1;
 }
@@ -1642,7 +1642,7 @@ void do_control ()
 }
 
 
-void usage(void) {
+static void usage(void) {
     printf("\nxl2tpd version:  %s\n", SERVER_VERSION);
     printf("Usage: xl2tpd [-c <config file>] [-s <secret file>] [-p <pid file>]\n"
             "              [-C <control file>] [-D] [-l] [-q <tos decimal value for control>]\n"
@@ -1651,7 +1651,7 @@ void usage(void) {
     exit(1);
 }
 
-void init_args(int argc, char *argv[])
+static void init_args(int argc, char *argv[])
 {
     int i=0;
 
@@ -1746,7 +1746,7 @@ void init_args(int argc, char *argv[])
 }
 
 
-void daemonize() {
+static void daemonize() {
     int pid=0;
     int i;
 
@@ -1844,7 +1844,7 @@ static void open_controlfd()
     }
 }
 
-void init (int argc,char *argv[])
+static void init (int argc,char *argv[])
 {
     struct lac *lac;
     struct in_addr listenaddr;
@@ -1921,4 +1921,3 @@ int main (int argc, char *argv[])
     network_thread ();
     return 0;
 }
-
