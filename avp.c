@@ -1738,30 +1738,8 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
         }
         else
             hidlen = 0;
-        if (avps[avp->attr].handler)
-        {
-            if (avps[avp->attr].handler (t, c, avp, ALENGTH (avp->length)))
-            {
-                if (AMBIT (avp->length))
-                {
-                    l2tp_log (LOG_WARNING,
-                         "%s: Bad exit status handling attribute %d (%s) on mandatory packet.\n",
-                         __FUNCTION__, avp->attr,
-                         avps[avp->attr].description);
-                    c->needclose = true;
-                    return -EINVAL;
-                }
-                else
-                {
-                    if (DEBUG)
-                        l2tp_log (LOG_DEBUG,
-                             "%s: Bad exit status handling attribute %d (%s).\n",
-                             __FUNCTION__, avp->attr,
-                             avps[avp->attr].description);
-                }
-            }
-        }
-        else
+
+        if (!avps[avp->attr].handler)
         {
             if (AMBIT (avp->length))
             {
@@ -1779,8 +1757,31 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
                     l2tp_log (LOG_WARNING, "%s:  no handler for attribute %d (%s).\n",
                          __FUNCTION__, avp->attr,
                          avps[avp->attr].description);
+                goto next;
             }
         }
+
+        if (avps[avp->attr].handler (t, c, avp, ALENGTH (avp->length)))
+        {
+            if (AMBIT (avp->length))
+            {
+                l2tp_log (LOG_WARNING,
+                     "%s: Bad exit status handling attribute %d (%s) on mandatory packet.\n",
+                     __FUNCTION__, avp->attr,
+                     avps[avp->attr].description);
+                c->needclose = true;
+                return -EINVAL;
+            }
+            else
+            {
+                if (DEBUG)
+                    l2tp_log (LOG_DEBUG,
+                         "%s: Bad exit status handling attribute %d (%s).\n",
+                         __FUNCTION__, avp->attr,
+                         avps[avp->attr].description);
+            }
+        }
+
       next:
         if (hidlen && ALENGTH(hidlen))
         {
