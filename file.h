@@ -16,6 +16,8 @@
 #ifndef _FILE_H
 #define _FILE_H
 
+#include <stdbool.h>
+
 #define STRLEN 100              /* Length of a string */
 
 /* Definition of a keyword */
@@ -64,7 +66,7 @@ struct lns
 {
     struct lns *next;
     int exclusive;              /* Only one tunnel per host? */
-    int active;                 /* Is this actively in use? */
+    bool active;                 /* Is this actively in use? */
     unsigned int localaddr;     /* Local IP for PPP connections */
     int tun_rws;                /* Receive window size (tunnel) */
     int call_rws;               /* Call rws */
@@ -110,7 +112,7 @@ struct lac
     int call_rws;               /* Call rws */
     int rxspeed;		/* Tunnel rx speed */
     int txspeed;		/* Tunnel tx speed */
-    int active;                 /* Is this connection in active use? */
+    bool active;                 /* Is this connection in active use? */
     int hbit;                   /* Permit hidden AVP's? */
     int lbit;                   /* Use the length field? */
     int challenge;              /* Challenge authenticate the peer? */

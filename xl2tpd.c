@@ -1259,7 +1259,7 @@ static int control_handle_lac_connect(FILE* resf, char* bufp){
     }
 
     if(lac) {
-        lac->active = -1;
+        lac->active = true;
         lac->rtries = 0;
         if (authname != NULL)
             strncpy (lac->authname, authname, STRLEN);
@@ -1319,7 +1319,7 @@ static int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
     }
 
     if(lac) {
-        lac->active = -1;
+        lac->active = true;
         lac->rtries = 0;
         if (!lac->c)
         {
@@ -1379,7 +1379,7 @@ static int control_handle_lac_disconnect(FILE* resf, char* bufp){
     {
         if (!strcasecmp (lac->entname, tunstr))
         {
-            lac->active = 0;
+            lac->active = false;
             lac->rtries = 0;
             if (lac->t)
             {
@@ -1468,7 +1468,7 @@ static int control_handle_lac_add_modify(FILE* resf, char* bufp){
         l2tp_log (LOG_DEBUG, "%s: Autodialing '%s'\n", __FUNCTION__,
                 lac->entname[0] ? lac->entname : "(unnamed)");
 #endif
-        lac->active = -1;
+        lac->active = true;
         switch_io = true;  /* If we're a LAC, autodials will be ICRQ's */
         magic_lac_dial (lac);
         /* FIXME: Should I check magic_lac_dial result somehow? */
@@ -1498,7 +1498,7 @@ static int control_handle_lac_remove(FILE* resf, char* bufp){
         return 0;
     }
     // disconnect lac
-    lac->active = 0;
+    lac->active = false;
     lac->rtries = 0;
     if (lac->t)
     {
@@ -1907,7 +1907,7 @@ static void init (int argc,char *argv[])
             l2tp_log (LOG_DEBUG, "%s: Autodialing '%s'\n", __FUNCTION__,
                     lac->entname[0] ? lac->entname : "(unnamed)");
 #endif
-            lac->active = -1;
+            lac->active = true;
             switch_io = true;      /* If we're a LAC, autodials will be ICRQ's */
             magic_lac_dial (lac);
         }

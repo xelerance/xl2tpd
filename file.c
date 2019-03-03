@@ -164,7 +164,7 @@ struct lac *new_lac ()
     tmp->challenge = 0;
     tmp->autodial = 0;
     tmp->rtimeout = 30;
-    tmp->active = 0;
+    tmp->active = false;
     tmp->debug = 0;
     tmp->pass_peer = 0;
     tmp->pppoptfile[0] = 0;
