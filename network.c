@@ -742,83 +742,84 @@ void network_thread ()
 
 #ifdef USE_KERNEL
 int connect_pppol2tp(struct tunnel *t) {
-        if (kernel_support) {
-            int ufd = -1, fd2 = -1;
-            int flags;
-            struct sockaddr_pppol2tp sax;
+    if (!kernel_support)
+        return 0;
 
-            struct sockaddr_in server;
+    int ufd = -1, fd2 = -1;
+    int flags;
+    struct sockaddr_pppol2tp sax;
 
-            memset(&server, 0, sizeof(struct sockaddr_in));
-            server.sin_family = AF_INET;
-            server.sin_addr.s_addr = gconfig.listenaddr;
-            server.sin_port = htons (gconfig.port);
-            if ((ufd = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
-            {
-                l2tp_log (LOG_CRIT, "%s: Unable to allocate UDP socket. Terminating.\n",
-                    __FUNCTION__);
-                return -EINVAL;
-            };
+    struct sockaddr_in server;
 
-            flags=1;
-            setsockopt(ufd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
+    memset(&server, 0, sizeof(struct sockaddr_in));
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = gconfig.listenaddr;
+    server.sin_port = htons (gconfig.port);
+    if ((ufd = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
+    {
+        l2tp_log (LOG_CRIT, "%s: Unable to allocate UDP socket. Terminating.\n",
+            __FUNCTION__);
+        return -EINVAL;
+    };
+
+    flags=1;
+    setsockopt(ufd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(flags));
 #ifdef SO_NO_CHECK
-            setsockopt(ufd, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
+    setsockopt(ufd, SOL_SOCKET, SO_NO_CHECK, &flags, sizeof(flags));
 #endif
 
-            if (bind (ufd, (struct sockaddr *) &server, sizeof (server)))
-            {
-                close (ufd);
-                l2tp_log (LOG_CRIT, "%s: Unable to bind UDP socket: %s. Terminating.\n",
-                     __FUNCTION__, strerror(errno), errno);
-                return -EINVAL;
-            };
-            server = t->peer;
-            flags = fcntl(ufd, F_GETFL);
-            if (flags == -1 || fcntl(ufd, F_SETFL, flags | O_NONBLOCK) == -1) {
-                l2tp_log (LOG_WARNING, "%s: Unable to set UDP socket nonblock.\n",
-                     __FUNCTION__);
-                return -EINVAL;
-            }
-            if (connect (ufd, (struct sockaddr *) &server, sizeof(server)) < 0) {
-                l2tp_log (LOG_CRIT, "%s: Unable to connect UDP peer. Terminating.\n",
-                 __FUNCTION__);
-                close(ufd);
-                return -EINVAL;
-            }
+    if (bind (ufd, (struct sockaddr *) &server, sizeof (server)))
+    {
+        close (ufd);
+        l2tp_log (LOG_CRIT, "%s: Unable to bind UDP socket: %s. Terminating.\n",
+             __FUNCTION__, strerror(errno), errno);
+        return -EINVAL;
+    };
+    server = t->peer;
+    flags = fcntl(ufd, F_GETFL);
+    if (flags == -1 || fcntl(ufd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        l2tp_log (LOG_WARNING, "%s: Unable to set UDP socket nonblock.\n",
+             __FUNCTION__);
+        return -EINVAL;
+    }
+    if (connect (ufd, (struct sockaddr *) &server, sizeof(server)) < 0) {
+        l2tp_log (LOG_CRIT, "%s: Unable to connect UDP peer. Terminating.\n",
+         __FUNCTION__);
+        close(ufd);
+        return -EINVAL;
+    }
 
-            t->udp_fd=ufd;
+    t->udp_fd=ufd;
 
-            fd2 = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
-            if (fd2 < 0) {
-                l2tp_log (LOG_WARNING, "%s: Unable to allocate PPPoL2TP socket.\n",
-                     __FUNCTION__);
-                return -EINVAL;
-            }
-            flags = fcntl(fd2, F_GETFL);
-            if (flags == -1 || fcntl(fd2, F_SETFL, flags | O_NONBLOCK) == -1) {
-                l2tp_log (LOG_WARNING, "%s: Unable to set PPPoL2TP socket nonblock.\n",
-                     __FUNCTION__);
-                close(fd2);
-                return -EINVAL;
-            }
-            memset(&sax, 0, sizeof(sax));
-            sax.sa_family = AF_PPPOX;
-            sax.sa_protocol = PX_PROTO_OL2TP;
-            sax.pppol2tp.fd = t->udp_fd;
-            sax.pppol2tp.addr.sin_addr.s_addr = t->peer.sin_addr.s_addr;
-            sax.pppol2tp.addr.sin_port = t->peer.sin_port;
-            sax.pppol2tp.addr.sin_family = AF_INET;
-            sax.pppol2tp.s_tunnel  = t->ourtid;
-            sax.pppol2tp.d_tunnel  = t->tid;
-            if ((connect(fd2, (struct sockaddr *)&sax, sizeof(sax))) < 0) {
-                l2tp_log (LOG_WARNING, "%s: Unable to connect PPPoL2TP socket. %d %s\n",
-                     __FUNCTION__, errno, strerror(errno));
-                close(fd2);
-                return -EINVAL;
-            }
-            t->pppox_fd = fd2;
-        }
+    fd2 = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
+    if (fd2 < 0) {
+        l2tp_log (LOG_WARNING, "%s: Unable to allocate PPPoL2TP socket.\n",
+             __FUNCTION__);
+        return -EINVAL;
+    }
+    flags = fcntl(fd2, F_GETFL);
+    if (flags == -1 || fcntl(fd2, F_SETFL, flags | O_NONBLOCK) == -1) {
+        l2tp_log (LOG_WARNING, "%s: Unable to set PPPoL2TP socket nonblock.\n",
+             __FUNCTION__);
+        close(fd2);
+        return -EINVAL;
+    }
+    memset(&sax, 0, sizeof(sax));
+    sax.sa_family = AF_PPPOX;
+    sax.sa_protocol = PX_PROTO_OL2TP;
+    sax.pppol2tp.fd = t->udp_fd;
+    sax.pppol2tp.addr.sin_addr.s_addr = t->peer.sin_addr.s_addr;
+    sax.pppol2tp.addr.sin_port = t->peer.sin_port;
+    sax.pppol2tp.addr.sin_family = AF_INET;
+    sax.pppol2tp.s_tunnel  = t->ourtid;
+    sax.pppol2tp.d_tunnel  = t->tid;
+    if ((connect(fd2, (struct sockaddr *)&sax, sizeof(sax))) < 0) {
+        l2tp_log (LOG_WARNING, "%s: Unable to connect PPPoL2TP socket. %d %s\n",
+             __FUNCTION__, errno, strerror(errno));
+        close(fd2);
+        return -EINVAL;
+    }
+    t->pppox_fd = fd2;
     return 0;
 }
 #endif
