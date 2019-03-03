@@ -448,7 +448,6 @@ static void do_tunnel_server(struct buffer *buf, int *currentfd)
      */
     struct sockaddr_in from;
     struct in_pktinfo to;
-    unsigned int fromlen;
     int tunnel, call;           /* Tunnel and call */
     int recvsize;               /* Length of data received */
     struct call *c;
@@ -469,15 +468,13 @@ static void do_tunnel_server(struct buffer *buf, int *currentfd)
     memset(&from, 0, sizeof(from));
     memset(&to,   0, sizeof(to));
 
-    fromlen = sizeof(from);
-
     memset(&msgh, 0, sizeof(struct msghdr));
     iov.iov_base = buf->start;
     iov.iov_len  = buf->len;
     msgh.msg_control = cbuf;
     msgh.msg_controllen = sizeof(cbuf);
     msgh.msg_name = &from;
-    msgh.msg_namelen = fromlen;
+    msgh.msg_namelen = sizeof(from);
     msgh.msg_iov  = &iov;
     msgh.msg_iovlen = 1;
     msgh.msg_flags = 0;
