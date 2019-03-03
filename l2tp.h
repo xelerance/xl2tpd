@@ -237,7 +237,7 @@ extern int read_packet (struct call *);
 extern void udp_xmit (struct buffer *buf, struct tunnel *t);
 extern void control_xmit (void *);
 extern int ppd;
-extern int switch_io;           /* jz */
+extern bool switch_io;           /* jz */
 extern int control_fd;
 #ifdef USE_KERNEL
 extern bool kernel_support;

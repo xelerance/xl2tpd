@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <unistd.h>
@@ -49,7 +50,7 @@ int ppd = 1;                    /* Packet processing delay */
 int control_fd;                 /* descriptor of control area */
 
 static char *dial_no_tmp;              /* jz: Dialnumber for Outgoing Call */
-int switch_io = 0;              /* jz: Switch for Incoming or Outgoing Call */
+bool switch_io = false;              /* jz: Switch for Incoming or Outgoing Call */
 
 static void open_controlfd(void);
 
@@ -1244,7 +1245,7 @@ static int control_handle_lac_connect(FILE* resf, char* bufp){
     char delims[] = " ";
     struct lac* lac;
 
-    switch_io = 1;  /* jz: Switch for Incoming - Outgoing Calls */
+    switch_io = true;  /* jz: Switch for Incoming - Outgoing Calls */
     tunstr = strtok (&bufp[1], delims);
 
     /* Are these passed on the command line? */
@@ -1304,7 +1305,7 @@ static int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
     struct lac* lac;
     int tunl;
 
-    switch_io = 0;  /* jz: Switch for incoming - outgoing Calls */
+    switch_io = false;  /* jz: Switch for incoming - outgoing Calls */
 
     sub_str = strchr (bufp, ' ') + 1;
     tunstr = strtok (sub_str, " "); /* jz: using strtok function to get */
@@ -1468,7 +1469,7 @@ static int control_handle_lac_add_modify(FILE* resf, char* bufp){
                 lac->entname[0] ? lac->entname : "(unnamed)");
 #endif
         lac->active = -1;
-        switch_io = 1;  /* If we're a LAC, autodials will be ICRQ's */
+        switch_io = true;  /* If we're a LAC, autodials will be ICRQ's */
         magic_lac_dial (lac);
         /* FIXME: Should I check magic_lac_dial result somehow? */
     }
@@ -1907,7 +1908,7 @@ static void init (int argc,char *argv[])
                     lac->entname[0] ? lac->entname : "(unnamed)");
 #endif
             lac->active = -1;
-            switch_io = 1;      /* If we're a LAC, autodials will be ICRQ's */
+            switch_io = true;      /* If we're a LAC, autodials will be ICRQ's */
             magic_lac_dial (lac);
         }
         lac = lac->next;
