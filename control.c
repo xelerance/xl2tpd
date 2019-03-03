@@ -1785,46 +1785,42 @@ inline int handle_packet (struct buffer *buf, struct tunnel *t,
     if (CTBIT (*((_u16 *) buf->start)))
     {
         /* We have a control packet */
-        if (!check_control (buf, t, c))
-        {
-            c->msgtype = -1;
-            if (buf->len == sizeof (struct control_hdr))
-            {
-#ifdef DEBUG_ZLB
-                l2tp_log (LOG_DEBUG, "%s: control ZLB received\n", __FUNCTION__);
-#endif
-                t->control_rec_seq_num--;
-                c->cnu = 0;
-                if (c->needclose && c->closing)
-                {
-                    if (c->container->cLr >= c->closeSs)
-                    {
-#ifdef DEBUG_ZLB
-                        l2tp_log (LOG_DEBUG, "%s: ZLB for closing message found\n",
-                             __FUNCTION__);
-#endif
-                        c->needclose = false;
-                        /* Trigger final closing of call */
-                    }
-                }
-                return 0;
-            }
-            else if (!handle_avps (buf, t, c))
-            {
-                return control_finish (t, c);
-            }
-            else
-            {
-                if (gconfig.debug_tunnel)
-                    l2tp_log (LOG_DEBUG, "%s: bad AVP handling!\n", __FUNCTION__);
-                return -EINVAL;
-            }
-        }
-        else
+        if (check_control (buf, t, c))
         {
             l2tp_log (LOG_DEBUG, "%s: bad control packet!\n", __FUNCTION__);
             return -EINVAL;
         }
+
+        c->msgtype = -1;
+        if (buf->len == sizeof (struct control_hdr))
+        {
+#ifdef DEBUG_ZLB
+            l2tp_log (LOG_DEBUG, "%s: control ZLB received\n", __FUNCTION__);
+#endif
+            t->control_rec_seq_num--;
+            c->cnu = 0;
+            if (c->needclose && c->closing)
+            {
+                if (c->container->cLr >= c->closeSs)
+                {
+#ifdef DEBUG_ZLB
+                    l2tp_log (LOG_DEBUG, "%s: ZLB for closing message found\n",
+                         __FUNCTION__);
+#endif
+                    c->needclose = false;
+                    /* Trigger final closing of call */
+                }
+            }
+            return 0;
+        }
+
+        if (handle_avps (buf, t, c))
+        {
+            if (gconfig.debug_tunnel)
+                l2tp_log (LOG_DEBUG, "%s: bad AVP handling!\n", __FUNCTION__);
+            return -EINVAL;
+        }
+        return control_finish (t, c);
     }
     else
     {
