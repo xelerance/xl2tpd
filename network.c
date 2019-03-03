@@ -686,50 +686,49 @@ void network_thread ()
         {
             for (sc = st->call_head; sc; sc = sc->next)
             {
-                if ((sc->fd >= 0) && FD_ISSET (sc->fd, &readfds))
+                if ((sc->fd < 0) || !FD_ISSET (sc->fd, &readfds))
+                    continue;
+
+                /* Got some payload to send */
+                int result;
+
+                while ((result = read_packet (sc)) > 0)
                 {
-                    /* Got some payload to send */
-                    int result;
-
-                    while ((result = read_packet (sc)) > 0)
+                    add_payload_hdr (sc->container, sc, sc->ppp_buf);
+                    if (gconfig.packet_dump)
                     {
-                        add_payload_hdr (sc->container, sc, sc->ppp_buf);
-                        if (gconfig.packet_dump)
-                        {
-                            do_packet_dump (sc->ppp_buf);
-                        }
-
-
-                        sc->prx = sc->data_rec_seq_num;
-                        if (sc->zlb_xmit)
-                        {
-                            deschedule (sc->zlb_xmit);
-                            sc->zlb_xmit = NULL;
-                        }
-                        sc->tx_bytes += sc->ppp_buf->len;
-                        sc->tx_pkts++;
-
-                        unsigned char* tosval = get_inner_tos_byte(sc->ppp_buf);
-                        unsigned char* typeval = get_inner_ppp_type(sc->ppp_buf);
-
-                        int tosval_dec = (int)*tosval;
-                        int typeval_dec = (int)*typeval;
-
-                        if (typeval_dec != 33 )
-                        	tosval_dec=atoi(gconfig.controltos);
-                        setsockopt(server_socket, IPPROTO_IP, IP_TOS, &tosval_dec, sizeof(tosval_dec));
-
-                        udp_xmit (sc->ppp_buf, st);
-                        recycle_payload (sc->ppp_buf, sc->container->peer);
+                        do_packet_dump (sc->ppp_buf);
                     }
-                    if (result != 0)
+
+                    sc->prx = sc->data_rec_seq_num;
+                    if (sc->zlb_xmit)
                     {
-                        l2tp_log (LOG_WARNING,
-                             "%s: tossing read packet, error = %s (%d).  Closing call.\n",
-                             __FUNCTION__, strerror (-result), -result);
-                        strcpy (sc->errormsg, strerror (-result));
-                        sc->needclose = -1;
+                        deschedule (sc->zlb_xmit);
+                        sc->zlb_xmit = NULL;
                     }
+                    sc->tx_bytes += sc->ppp_buf->len;
+                    sc->tx_pkts++;
+
+                    unsigned char* tosval = get_inner_tos_byte(sc->ppp_buf);
+                    unsigned char* typeval = get_inner_ppp_type(sc->ppp_buf);
+
+                    int tosval_dec = (int)*tosval;
+                    int typeval_dec = (int)*typeval;
+
+                    if (typeval_dec != 33 )
+                        tosval_dec=atoi(gconfig.controltos);
+                    setsockopt(server_socket, IPPROTO_IP, IP_TOS, &tosval_dec, sizeof(tosval_dec));
+
+                    udp_xmit (sc->ppp_buf, st);
+                    recycle_payload (sc->ppp_buf, sc->container->peer);
+                }
+                if (result != 0)
+                {
+                    l2tp_log (LOG_WARNING,
+                         "%s: tossing read packet, error = %s (%d).  Closing call.\n",
+                         __FUNCTION__, strerror (-result), -result);
+                    strcpy (sc->errormsg, strerror (-result));
+                    sc->needclose = -1;
                 }
             }
         }
