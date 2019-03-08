@@ -443,19 +443,19 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
      * I'm not sure what we're supposed to do with this but whatever..
      */
 
-    int error;
+    int error = -1; /* error code unset */
     int result;
     struct unaligned_u16 *raw = data;
 #ifdef SANITY
     if (t->sanity)
     {
-        if (datalen < 10)
+        if (datalen < 8)
         {
             if (DEBUG)
                 l2tp_log (LOG_DEBUG,
-                     "%s: avp is incorrect size.  %d < 10\n", __FUNCTION__,
+                     "%s: avp is incorrect size.  %d < 8\n", __FUNCTION__,
                      datalen);
-            wrong_length (c, "Result Code", 10, datalen, 1);
+            wrong_length (c, "Result Code", 8, datalen, 1);
             return -EINVAL;
         }
         switch (c->msgtype)
@@ -473,7 +473,6 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
     }
 #endif
     result = ntohs (raw[3].s);
-    error = ntohs (raw[4].s);
 
    /*
     * from prepare_StopCCN and prepare_CDN, note missing htons() call
@@ -486,15 +485,6 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
                  "%s: result code endianness fix for buggy Apple client. network=%d, le=%d\n",
                  __FUNCTION__, result, result >> 8);
         result >>= 8;
-    }
-
-    if (((error & 0xFF) == 0) && (error >> 8 != 0))
-    {
-        if (DEBUG)
-            l2tp_log (LOG_DEBUG,
-                 "%s: error code endianness fix for buggy Apple client. network=%d, le=%d\n",
-                 __FUNCTION__, error, error >> 8);
-        error >>= 8;
     }
 
     if ((c->msgtype == StopCCN) && ((result > 7) || (result < 1)))
@@ -515,9 +505,24 @@ int result_code_avp (struct tunnel *t, struct call *c, void *data,
         return 0;
     }
 
+    if (datalen >= 10) {
+        error = ntohs (raw[4].s);
+        if (((error & 0xFF) == 0) && (error >> 8 != 0))
+        {
+            if (DEBUG)
+                l2tp_log (LOG_DEBUG,
+                     "%s: error code endianness fix for buggy Apple client. network=%d, le=%d\n",
+                     __FUNCTION__, error, error >> 8);
+            error >>= 8;
+        }
+    }
+
     c->error = error;
     c->result = result;
-    safe_copy (c->errormsg, (char *) &raw[5].s, datalen - 10);
+    if (datalen > 10)
+        safe_copy (c->errormsg, (char *) &raw[5].s, datalen - 10);
+    else
+        c->errormsg[0] = 0;
     if (gconfig.debug_avp)
     {
         if (DEBUG && (c->msgtype == StopCCN))
