@@ -1631,6 +1631,8 @@ int handle_avps (struct buffer *buf, struct tunnel *t, struct call *c)
      * checking is done at this point.
      */
 
+    /* TODO: Refactor function to not use "goto next" */
+
     struct avp_hdr *avp;
     int len = buf->len - sizeof (struct control_hdr);
     int firstavp = -1;
