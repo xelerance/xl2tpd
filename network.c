@@ -681,11 +681,9 @@ void network_thread ()
 	/*
 	 * finished obvious sources, look for data from PPP connections.
 	 */
-	st = tunnels.head;
-        while (st)
+        for (st = tunnels.head; st; st = st->next)
         {
-            sc = st->call_head;
-            while (sc)
+            for (sc = st->call_head; sc; sc = sc->next)
             {
                 if ((sc->fd >= 0) && FD_ISSET (sc->fd, &readfds))
                 {
@@ -732,10 +730,8 @@ void network_thread ()
                         sc->needclose = -1;
                     }
                 }
-                sc = sc->next;
-            }
-            st = st->next;
-        }
+            } // for (sc..
+        } // for (st..
     }
 
 }
