@@ -59,7 +59,7 @@ typedef unsigned long long _u64;
 #define CONTROL_PIPE_REQ_LNS_REMOVE 'w'     /* Get status of LNS */
 
 #define BINARY "xl2tpd"
-#define SERVER_VERSION "xl2tpd-1.3.13"
+#define SERVER_VERSION "xl2tpd-1.3.14"
 #define VENDOR_NAME "xelerance.com"
 #ifndef PPPD
 #define PPPD		"/usr/sbin/pppd"

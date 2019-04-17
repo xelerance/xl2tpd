@@ -68,7 +68,6 @@ extern int addfcs (struct buffer *buf);
 extern void swaps (void *, int);
 extern void do_packet_dump (struct buffer *);
 extern void status (const char *fmt, ...);
-extern void status_handler (int signal);
 extern int getPtyMaster(char *, int);
 extern void do_control (void);
 extern void recycle_buf (struct buffer *);

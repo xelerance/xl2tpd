@@ -1,3 +1,28 @@
+v1.3.14 (April 17, 2019)
+* osport.h: replace SUSv3-specific functions by POSIX variants [Fabrice Fontaine]
+* avp: Error Code field in Result Code AVP is optional [Pau Espin Pedrol]
+* network_thread: Early continue in loop to remove huge indented block [Pau Espin Pedrol]
+*  network_thread: Simplify while loop using for loop [Pau Espin Pedrol]
+* network: connect_pppol2tp: early return to avoid huge indentation block [Pau Espin Pedrol]
+* xl2tpd: start_pppd: Fix truncation of last character [Pau Espin Pedrol]
+* handle_packet: Remove unneded else clause when handling payload [Pau Espin Pedrol]
+* control: Split control message handling into its own function [Pau Espin Pedrol]
+* handle_packet: Rearrange code flow to simplify it [Pau Espin Pedrol]
+* avp: Early failure if no handler to remove indent block [Pau Espin Pedrol]
+* xl2tpd: Mark internal symbols as static [Pau Espin Pedrol]
+* Fix indentation and whitespace in code block [Pau Espin Pedrol]
+* xl2tpd: Remove unused variable [Pau Espin Pedrol]
+* network: Add missing close(kernel_fd) on init network failure [Pau Espin Pedrol]
+* network: Add missing close(server_fd) on init network failure [Pau Espin Pedrol]
+* Add 'cap backoff' option, limiting exponential backoff retries will
+  be delayed by exponentially longer time, unless that time is capped
+  by configuration. [Bart Trojanowski]
+* Add program to show status icon in system tray. [Github user: username34]
+* Add info on building and installing xl2tpd [Samir Hussain]
+* Update formatting of README.md [Samir Hussain]
+* Rename README.xl2tpd to README.md [Samir Hussain]
+* Update Debian changelog [Samir Hussain]
+
 v1.3.13 (December 3, 2018)
 * Specify email address for reporting security vulnerabilities [Samir Hussain]
 * Fix compile warning with USE_KERNEL in xl2tpd.c [Samir Hussain]

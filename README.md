@@ -1,6 +1,4 @@
-URL         : https://www.xelerance.com/software/xl2tpd/
-Summary     : Layer 2 Tunnelling Protocol Daemon (RFC 2661)
-Description :
+# xl2tpd
 
 xl2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
 L2TP allows you to tunnel PPP over UDP. Some ISPs use L2TP to tunnel user
@@ -31,13 +29,16 @@ NOTE: In Linux kernel 4.15+ there is a kernel bug with ancillary IP_PKTINFO.
       As such, for Linux kernel 4.15+ we recommend the community use xl2tpd
       1.3.12+
 
-Build and install :
+## Build and install
     make
     sudo make install
 
-Mailing Lists :
-    https://lists.openswan.org/cgi-bin/mailman/listinfo/xl2tpd is home of the
-    mailing list. Note: This is a closed list - you *must* be subscribed to post.
+## Mailing Lists
 
-Security Vulnerability :
-    Security vulnerabilities can be e-mailed to: security@xelerance.com
+https://lists.openswan.org/cgi-bin/mailman/listinfo/xl2tpd is home of the mailing list.
+
+Note: This is a closed list - you **must** be subscribed to post.
+
+## Security Vulnerability
+
+Security vulnerabilities can be e-mailed to: security@xelerance.com
