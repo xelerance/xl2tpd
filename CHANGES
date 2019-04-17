@@ -1,4 +1,4 @@
-v1.3.14rc1 (April 7, 2019)
+v1.3.14 (April 17, 2019)
 * osport.h: replace SUSv3-specific functions by POSIX variants [Fabrice Fontaine]
 * avp: Error Code field in Result Code AVP is optional [Pau Espin Pedrol]
 * network_thread: Early continue in loop to remove huge indented block [Pau Espin Pedrol]
