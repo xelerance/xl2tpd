@@ -86,7 +86,7 @@ int init_network (void)
     else
     {
         arg=1;
-        if(setsockopt(server_socket, IPPROTO_IP, gconfig.sarefnum,  &arg, sizeof(arg)) != 0) {
+        if(setsockopt(server_socket, IPPROTO_IP, gconfig.sarefnum,  &arg, sizeof(arg)) != 0 && !gconfig.forceuserspace) {
             l2tp_log(LOG_CRIT, "setsockopt recvref[%d]: %s\n", gconfig.sarefnum, strerror(errno));
             gconfig.ipsecsaref=0;
         }
