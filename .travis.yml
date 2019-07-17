@@ -18,10 +18,10 @@ addons:
 
 cache:
   directories:
-  - $HOME/.ccache
+    - $HOME/.ccache
 
 before_script:
-    make clean
+  make clean
 
 script:
-    make
+  make
