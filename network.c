@@ -643,7 +643,7 @@ void network_thread ()
                 if (gconfig.debug_tunnel)
                 l2tp_log (LOG_DEBUG,
                     "%s: no such call %d on tunnel %d.  Sending special ZLB\n",
-                    __FUNCTION__);
+                    __FUNCTION__, call, tunnel);
                 if(1==handle_special (buf, c, call)) {
                     buf = new_buf (MAX_RECV_SIZE);
                 }
