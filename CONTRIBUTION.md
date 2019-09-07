@@ -3,7 +3,8 @@
 First of, thank you for taking the time to contribute.
 
 *Before spending a lot of time on something, please ask for feedback on your
-idea first!* You can ask in the [mailing list](https://lists.openswan.org/cgi-bin/mailman/listinfo/xl2tpd) or create an [issue](https://github.com/xelerance/xl2tpd/issues).
+idea first!* You can ask in the [mailing list](https://lists.openswan.org/cgi-bin/mailman/listinfo/xl2tpd)
+or create an [issue](https://github.com/xelerance/xl2tpd/issues).
 
 This project welcomes contribution from the community! Here are a few
 suggestions:
@@ -11,8 +12,8 @@ suggestions:
 * Update the [ipv6 branch](https://github.com/xelerance/xl2tpd/tree/ipv6).
   It needs to be tested and updated (it has diverged from master quite a bit).
 * Test and fix up the [libevent branch](https://github.com/xelerance/xl2tpd/tree/libevent).
-  There have been reports of crashes. They need to be investigated.  User
-  can get more information with the custom  *--debug-signals* and
+  There have been reports of crashes. They need to be investigated.  User can
+  get more information with the custom  *--debug-signals* and
   *--debug-libevent* option (which is only in this branch)
 
 ## **Did you find a bug?**
