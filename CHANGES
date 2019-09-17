@@ -1,3 +1,13 @@
+v1.3.15rc1 (September 17, 2019)
+* Fix spacing of CONTRIBUTION.md [Samir Hussain]
+* Add CONTRIBUTION.md [Samir Hussain]
+* Specify missing log arguments [Patch by github user: 川島和津実]
+* Use matrix for .travis.yaml to test for multiple Linux distro [Samir Hussain]
+* Fixing .travis.yaml spacing warning [Samir Hussain]
+* Sockopt bug fix for multiple IP's [JDTX]
+* Add Clang as compiler test for travis [Samir Hussain]
+* Add info on building and installing xl2tpd [Samir Hussain]
+
 v1.3.14 (April 17, 2019)
 * osport.h: replace SUSv3-specific functions by POSIX variants [Fabrice Fontaine]
 * avp: Error Code field in Result Code AVP is optional [Pau Espin Pedrol]
