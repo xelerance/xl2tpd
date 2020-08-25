@@ -20,3 +20,10 @@ A possible work around is to use x2ltpd 1.39 and disable use of kernel module
 (comment out the directive OSFLAGS+= -DUSE_KERNEL -D in the Makefile)
 
 For more information, please refer to: https://github.com/xelerance/xl2tpd/issues/187
+
+* AVP is incorrect size issues with Miktrotik server
+
+There are reports of problems connecting to Miktrotik server.
+
+Github user reported that the following configuration works for them:
+https://github.com/xelerance/xl2tpd/issues/156#issuecomment-678674101
