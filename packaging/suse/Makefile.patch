@@ -1,0 +1,28 @@
+--- ./Makefile.orig	2011-07-24 04:13:59.000000000 +0400
++++ ./Makefile	2011-10-19 05:27:27.451967117 +0400
+@@ -47,13 +47,13 @@
+ # trust pppd. This work around will be removed in the near future.
+ 
+ # DFLAGS= -g -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_FLOW -DDEBUG_PAYLOAD -DDEBUG_CONTROL -DDEBUG_CONTROL_XMIT -DDEBUG_FLOW_MORE -DDEBUG_MAGIC -DDEBUG_ENTROPY -DDEBUG_HIDDEN -DDEBUG_PPPD -DDEBUG_AAA -DDEBUG_FILE -DDEBUG_FLOW -DDEBUG_HELLO -DDEBUG_CLOSE -DDEBUG_ZLB -DDEBUG_AUTH
+-DFLAGS?= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
++#DFLAGS?= -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE
+ 
+ # Uncomment the next line for Linux. KERNELSRC is needed for if_pppol2tp.h,
+ # but we use a local copy if we don't find it.
+ #
+-#KERNELSRC=/lib/modules/`uname -r`/build/
+-KERNELSRC?=./linux
++KERNELSRC=/lib/modules/`uname -r`/build/
++#KERNELSRC?=./linux
+ OSFLAGS?= -DLINUX -I$(KERNELSRC)/include/
+ #
+ # Uncomment the following to use the kernel interface under Linux
+@@ -99,7 +99,7 @@
+ EXEC=xl2tpd
+ CONTROL_EXEC=xl2tpd-control
+ 
+-PREFIX?=/usr/local
++PREFIX?=/usr
+ SBINDIR?=$(DESTDIR)${PREFIX}/sbin
+ BINDIR?=$(DESTDIR)${PREFIX}/bin
+ MANDIR?=$(DESTDIR)${PREFIX}/share/man
