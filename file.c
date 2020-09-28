@@ -463,7 +463,7 @@ int set_autodial (char *word, char *value, int context, void *item)
 
 int set_flow (char *word, char *value, int context, void *item)
 {
-    int v;
+    int v = -1;
     set_boolean (word, value, &v);
     if (v < 0)
         return -1;
