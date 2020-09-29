@@ -1,23 +1,36 @@
-.TH "xl2tpd" "8" "" "Jeff McAdams" ""
-.SH "NAME"
-xl2tpd \- Layer 2 Tunnelling Protocol Daemon
-.SH "DESCRIPTION"
-A Layer 2 Tunneling Protocol VPN client/daemon for Linux and other POSIX-based
-OSs. Based off of L2TPd 0.61 from 
-  http://www.marko.net/l2tp 
+.TH xl2tpd 8 "Sep 2020"
+
+.SH NAME
+xl2tpd \- Layer 2 Tunnelling Protocol Daemon.
+
+.SH DESCRIPTION
+xl2tpd is an implementation of the Layer 2 Tunnelling Protocol (RFC 2661).
+L2TP allows to tunnel PPP over UDP. Some ISPs use L2TP to tunnel user sessions
+from dial-in servers (modem banks, ADSL DSLAMs) to back-end PPP servers.
+Another important application is Virtual Private Networks (VPN) where the
+IPsec protocol is used to secure the L2TP connection (L2TP/IPsec, RFC 3193).
+
+xl2tpd works by opening a pseudo-tty for communicating with pppd.
+It runs completely in userspace but supports kernel mode L2TP.
+
+xl2tpd supports IPsec SA Reference tracking to enable overlapping internak
+NAT'ed IP's by different clients (eg all clients connecting from their
+linksys internal IP 192.168.1.101) as well as multiple clients behind
+the same NAT router.
+
+On Linux xl2tpd supports the pppol2tp kernel mode operations by using
+kernel 2.6.23 or higher, or via a patch in contrib for 2.4.x kernels.
+Note that kernel mode and IPsec SA Reference tracking do not yet work
+together.
+
+This implementation is based on L2TPd 0.61 from http://www.marko.net/l2tp
 and patches collected by Jacco de Leeuw at
-  http://www.jacco2.dds.nl/networking/openswan-l2tp.html
+http://www.jacco2.dds.nl/networking/openswan-l2tp.html.
 
-Currently maintained by Xelerance
-  http://www.xelerance.com/software/xl2tpd/
-
-xl2tpd implements the Layer 2 Tunnelling Protocol, defined by RFC 2661.
-
-.SH "OPTIONS"
+.SH OPTIONS
 .TP 
 .B -D
-This option prevents xl2tpd from detaching from the terminal and
-daemonizing.  
+This option prevents xl2tpd from detaching from the terminal and daemonizing.
 
 .TP 
 .B -l
@@ -25,45 +38,51 @@ This option tells xl2tpd to use syslog for logging even when \fB\-D\fR
 was specified.
 
 .TP
-.B -c <config file>
-Tells xl2tpd to use an alternate config file.  Default is
-/etc/xl2tpd/xl2tpd.conf. Fallback configuration file is
-/etc/l2tpd/l2tpd.conf
+.B -c <config_file>
+Set an alternate config file.
+Fallback configuration file is /etc/l2tpd/l2tpd.conf.
 
 .TP 
-.B -s <secret file>
-Tells xl2tpd to use an alternate "secrets" file.  Default is
-/etc/xl2tpd/l2tp-secrets
+.B -s <secret_file>
+Tells xl2tpd to use an alternate "secrets" file.
 
 .TP 
-.B -p <pid file>
-Tells xl2tpd to use an alternate pid file.  Default is
-/var/run/xl2tpd/xl2tpd.pid
+.B -p <pid_file>
+Set an alternate pid file.
+Default is /var/run/xl2tpd/xl2tpd.pid.
 
 .TP 
-.B -C <control file>
-Tells xl2tpd to use an alternate control file.  Default is
-/var/run/xl2tpd/l2tp-control
+.B -C <control_file>
+Set an alternate control file.
 
 
-.SH "FILES"
+.SH FILES
+.IP /etc/xl2tpd/xl2tpd.conf
+Configuration file of xl2tpd, used by default.
 
-\fB\fR/etc/xl2tpd/xl2tpd.conf \fB\fR/etc/xl2tpd/l2tp\-secrets 
-\fB\fR/var/run/xl2tpd/l2tp\-control
-.SH "BUGS"
+.IP /etc/xl2tpd/l2tp-secrets
+Secrets file, used by default.
 
-Please address bugs and comment to xl2tpd@lists.xelerance.com
-.SH "SEE ALSO"
+.IP /var/run/xl2tpd/l2tp\-control
+Control file, used by default.
 
-\fB\fRxl2tpd.conf(5)
-.SH "AUTHORS"
-Forked from l2tpd by Xelerance (http://www.xelerance.com/software/xl2tpd/
+.SH BUGS
+Please send bugs and comments to xl2tpd@lists.xelerance.com
+or use the github project page https://github.com/xelerance/xl2tpd.
+
+.SH SEE ALSO
+xl2tpd.conf(5),
+xl2tpd-control(8),
+pppd(8)
+
+.SH AUTHORS
+Forked from l2tpd by Xelerance: https://github.com/xelerance/xl2tpd
 
 Michael Richardson <mcr@xelerance.com>
+.br
 Paul Wouters <paul@xelerance.com>
 
 Many thanks to Jacco de Leeuw <jacco2@dds.nl> for maintaining l2tpd.
-
 
 Previous development was hosted at sourceforge
 (http://www.sourceforge.net/projects/l2tpd) by:
@@ -73,7 +92,6 @@ Scott Balmos <sbalmos@iglou.com>
 David Stipp <dstipp@one.net>
 .br
 Jeff McAdams <jeffm@iglou.com>
-
 
 Based off of l2tpd version 0.60
 .br
