@@ -1,3 +1,19 @@
+v1.3.16dev1 (October 5, 2020)
+* yet another man-page update [Alexander Naumov]
+* update man-pages, fix typo [Alexander Naumov]
+* set_flow: result of operation is garbage or undefined [Alexander Naumov]
+* Update README [Alexander Naumov]
+* adding xl2tpd.init.patch [Alexander Naumov]
+* adding Makefile.patch [Alexander Naumov]
+* moving changes to separate file [Alexander Naumov]
+* sync/update spec file with official SUSE version [Alexander Naumov]
+* Set IP_PKTINFO even if setting of IPPROTO_IP fails (as it was in 1.3.9) [shadyhh]
+* Update .gitignore vim swap file [Samir Hussain]
+* Travis will test supported Ubuntu LTS distros [Samir Hussain]
+* Updating COMPATABILITY_ISSUES with info on Miktrotik servers [Samir Hussain]
+* Add work around for Android 10 maxium retries in COMPATIBILITY_ISSUES [Samir Hussain]
+* Add compatability issues with Ciso ASA [Samir Hussain]
+
 v1.3.15 (October 13, 2019)
 * Fix spacing of CONTRIBUTION.md [Samir Hussain]
 * Add CONTRIBUTION.md [Samir Hussain]
