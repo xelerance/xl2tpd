@@ -22,7 +22,7 @@
 %define rundir /run
 %endif
 Name:           xl2tpd
-Version:        1.3.16dev1
+Version:        1.3.16dev2
 Release:        0
 Summary:        Layer 2 Tunnelling Protocol Daemon (RFC 2661)
 License:        GPL-2.0-only

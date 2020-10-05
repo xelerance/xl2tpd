@@ -1,4 +1,7 @@
-v1.3.16dev1 (October 5, 2020)
+v1.3.16dev2 (October 5, 2020)
+* Travis will test different compiler on linux distro [Samir Hussain]
+* Update travis for proper matrix [Samir Hussain]
+* Add Focal to travis testing [Samir Hussain]
 * yet another man-page update [Alexander Naumov]
 * update man-pages, fix typo [Alexander Naumov]
 * set_flow: result of operation is garbage or undefined [Alexander Naumov]
