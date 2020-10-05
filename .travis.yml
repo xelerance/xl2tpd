@@ -1,4 +1,9 @@
-matrix:
+language: c
+compiler:
+  - gcc
+  - clang
+
+jobs:
   include:
     - os: linux
       dist: xenial
@@ -6,12 +11,6 @@ matrix:
       dist: bionic
     - os: linux
       dist: focal
-
-
-language: c
-compiler:
-  - gcc
-  - clang
 
 sudo: false
 
