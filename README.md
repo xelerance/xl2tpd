@@ -8,7 +8,9 @@ L2TP allows you to tunnel PPP over UDP. Some ISPs use L2TP to tunnel user
 sessions from dial-in servers (modem banks, ADSL DSLAMs) to back-end PPP
 servers. Another important application is Virtual Private Networks where
 the IPsec protocol is used to secure the L2TP connection (L2TP/IPsec is
-defined by [RFC 3193](https://tools.ietf.org/rfc/rfc3193.txt).
+defined by [RFC 3193](https://tools.ietf.org/rfc/rfc3193.txt). xl2tpd can
+be used in combination with IPsec implementations such as Openswan. Example
+configuration files for such a setup are included in the examples directory.
 
 xl2tpd uses a pseudo-tty to communicate with pppd.
 It runs in userspace but supports kernel mode L2TP.
