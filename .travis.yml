@@ -40,5 +40,4 @@ before_script:
 
 script:
   - make
-  - ./xl2tpd-control --version
   - ./xl2tpd-control --help
