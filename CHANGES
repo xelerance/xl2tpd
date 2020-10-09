@@ -1,4 +1,10 @@
-v1.3.16dev2 (October 5, 2020)
+v1.3.16dev3 (October 9, 2020)
+* Re-add braces for if-else that have only statement [Samir Hussain]
+* xl2tpd-control refactoring [Alexander Naumov]
+* fix travis 'script' syntax [Alexander Naumov]
+* adding xl2tpd-control tests to travis [Alexander Naumov]
+* Re-adding text giving more inofrmation about using ipsec with xl2tpd [Samir Hussain]
+* Update README: typo, links to RFC, link to travis [Alexander Naumov]
 * Travis will test different compiler on linux distro [Samir Hussain]
 * Update travis for proper matrix [Samir Hussain]
 * Add Focal to travis testing [Samir Hussain]
