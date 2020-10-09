@@ -126,12 +126,13 @@ int main (int argc, char *argv[])
 
     /* parse global options */
     for (i = 1; i < argc; i++) {
-        if (!strncmp (argv[i], "-c", 2))
+        if (!strncmp (argv[i], "-c", 2)) {
             control_filename = argv[++i];
-        else if (!strncmp (argv[i], "-d", 2))
+        } else if (!strncmp (argv[i], "-d", 2)) {
             log_level = DEBUG_LEVEL;
-        else
+        } else {
             break;
+        }
     }
 
     if (i >= argc) {
@@ -140,8 +141,9 @@ int main (int argc, char *argv[])
         return -1;
     }
 
-    if (!control_filename)
+    if (!control_filename) {
         control_filename = strdup (CONTROL_PIPE);
+    }
 
     /* parse command name */
     for (command = commands; command->name; command++)
@@ -366,19 +368,18 @@ int command_add
         {
             /* try to find '=' */
             char* eqv = strstr (optv[i], "=");
-            if (eqv)
-            {
+            if (eqv) {
                 /* check is it not last symbol */
-                if (eqv != (optv[i] + strlen(optv[i]) - 1))
+                if (eqv != (optv[i] + strlen(optv[i]) - 1)) {
                     fprintf (mesf, ";"); /* end up option */
-                else
+                } else {
                     wait_key = 0; /* now we waiting for value */
-            }
-            else /* two-word key */
+                }
+            } else { /* two-word key */
                 fprintf (mesf, " "); /* restore space */
-
+            }
         } else {
-            fprintf (mesf, ";"); /* end up option */        
+            fprintf (mesf, ";"); /* end up option */
             wait_key = 1; /* now we again waiting for key */
         }
     }
