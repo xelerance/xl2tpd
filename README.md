@@ -1,6 +1,7 @@
 # xl2tpd
 
 [![Build Status](https://travis-ci.org/xelerance/xl2tpd.svg?branch=1.3.16dev)](https://travis-ci.org/xelerance/xl2tpd)
+[![License](https://img.shields.io/github/license/xelerance/xl2tpd)](https://github.com/xelerance/xl2tpd/LICENSE)
 
 xl2tpd is a **FREE** implementation of the Layer 2 Tunneling Protocol
 as defined by [RFC 2661](https://tools.ietf.org/rfc/rfc2661.txt).
