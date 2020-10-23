@@ -656,11 +656,11 @@ void network_thread ()
         {
             if (c->container) {
                 c->container->my_addr = to;
+                c->container->chal_us.vector = NULL;
             }
 
             buf->peer = from;
             /* Handle the packet */
-            c->container->chal_us.vector = NULL;
             if (handle_packet (buf, c->container, c))
             {
                 if (gconfig.debug_tunnel)
