@@ -1,4 +1,4 @@
-v1.3.16rc1 (October 9, 2020)
+v1.3.16 (October 23, 2020)
 * Re-add braces for if-else that have only statement [Samir Hussain]
 * xl2tpd-control refactoring [Alexander Naumov]
 * fix travis 'script' syntax [Alexander Naumov]
