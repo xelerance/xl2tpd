@@ -2,6 +2,7 @@ xl2tpd (1.3.12-2) UNRELEASED; urgency=medium
 
   * copyright: Use https URL for Format.
   * control: Bump Standards-Version to 4.5.0.
+  * Bump debhelper from 10 to 12.
 
  -- Samuel Thibault <sthibault@debian.org>  Sat, 01 Aug 2020 15:34:57 +0200
 
