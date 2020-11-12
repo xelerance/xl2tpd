@@ -95,7 +95,7 @@ void usage()
             "   --help  show this help message\n\n"
             "List of supported commands:\n"
             "add-lac, status-lac, remove-lac, connect-lac, disconnect-lac\n"
-            "add-lns, status-lns, remove-lns, avaliable\n\n"
+            "add-lns, status-lns, remove-lns, available\n\n"
             "See xl2tpd-control(8) man page for more details.\n");
 }
 
