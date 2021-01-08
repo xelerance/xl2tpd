@@ -22,7 +22,7 @@ l2tp tunnels. The default is /etc/xl2tpd/l2tp\-secrets.
 .TP 
 .B ipsec saref
 Use IPsec Security Association tracking. When this is enabled, packets
-received by xl2tpd should have to extra fields (refme and refhim) which
+received by xl2tpd should have two extra fields (refme and refhim) which
 allows tracking of multiple clients using the same internal NATed IP
 address, and allows tracking of multiple clients behind the same
 NAT router. This needs to be supported by the kernel. Currently, this
