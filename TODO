@@ -1,3 +1,11 @@
+Complete existing branches:
+* Update the ipv6 branch (https://github.com/xelerance/xl2tpd/tree/ipv6).
+  It needs to be tested and updated (it has diverged from master quite a bit).
+* Test and fix up the libevent branch (https://github.com/xelerance/xl2tpd/tree/libevent).
+  There have been reports of crashes. They need to be investigated.  User can
+  get more information with the custom  *--debug-signals* and
+  *--debug-libevent* option (which is only in this branch)
+
 Critical:
 * Improved performance
 * Rate Adaptive Timeouts
@@ -11,7 +19,7 @@ Other:
 * Support LCP initial/final states
 * Maybe do something with private groups
 * Tunnel and call lookups should be hashes, not lists
-* Meaningful error message about pppd problems...for 
+* Meaningful error message about pppd problems...for
   either not installed, or no kernel support (if possible)
 
 Niceties:
