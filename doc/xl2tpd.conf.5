@@ -1,17 +1,19 @@
-.TH "xl2tpd.conf" "5" "" "Jean-Francois Dive" ""
-.SH "NAME"
+.TH xl2tpd.conf 5 "Sep 2020"
+.SH NAME
 xl2tpd.conf \- L2TPD configuration file
-.SH "DESCRIPTION"
-The xl2tpd.conf file contains configuration information for xl2tpd, the implementation of l2tp protocol.
+.SH DESCRIPTION
+The xl2tpd.conf file contains configuration information for xl2tpd,
+the free implementation of l2tp protocol.
 
 The configuration file is composed of sections and parameters. Each section
 has a given name which will be used when using the configuration FIFO
-(normally /var/run/xl2tpd/l2tp\-control). See xl2tpd.8  for more details.
+(normally /var/run/xl2tpd/l2tp\-control). See xl2tpd.8 for more details.
 
 The specific given name 
 .B default
 will specify parameters applicable for all the following sections.
-.SH "GLOBAL SECTION"
+
+.SH GLOBAL SECTION
 .TP 
 .B auth file
 Specify where to find the authentication file used to authenticate
@@ -29,7 +31,7 @@ only works with Openswan KLIPS in "mast" mode. (see http://www.openswan.org/)
 Set this to yes and the system will provide proper SAref values in the
 recvmsg() calls.
 
-Values can be yes or no. The default is no.
+Values can be 'yes' or 'no'. The default is 'no'.
 
 .TP 
 .B saref refinfo
@@ -50,46 +52,46 @@ Specify which UDP port xl2tpd should use. The default is 1701.
 
 .TP 
 .B access control
-If set to yes, the xl2tpd process will only accept connections from
-peers addresses specified in the following sections. The default is no.
+If set to 'yes', the xl2tpd process will only accept connections from
+peers addresses specified in the following sections. The default is 'no'.
 
 .TP
 .B debug avp
-Set this to yes to enable syslog output of L2TP AVP debugging information.
+Set this to 'yes' to enable syslog output of L2TP AVP debugging information.
 
 .TP
 .B debug network
-Set this to yes to enable syslog output of network debugging information.
+Set this to 'yes' to enable syslog output of network debugging information.
 
 .TP
 .B debug packet
-Set this to yes to enable printing of L2TP packet debugging information.
+Set this to 'yes' to enable printing of L2TP packet debugging information.
 Note: Output goes to STDOUT, so use this only in conjunction with the
 .B -D
 command line option.
 
 .TP
 .B debug state
-Set this to yes to enable syslog output of FSM debugging information.
+Set this to 'yes' to enable syslog output of FSM debugging information.
 
 .TP
 .B debug tunnel
-Set this to yes to enable syslog output of tunnel debugging information.
+Set this to 'yes' to enable syslog output of tunnel debugging information.
 
 .TP
 .B max retries
 Specify how many retries before a tunnel is closed. If there is no
 tunnel, then stop re-transmitting. The default is 5.
 
-.SH "LNS SECTION"
+.SH LNS SECTION
 .TP 
 .B exclusive
-If set to yes, only one control tunnel will be allowed to be built
-between 2 peers. CHECK
+If set to 'yes', only one control tunnel will be allowed to be built
+between 2 peers.
 
 .TP 
 .B (no) ip range
-Specify the range of ip addresses the LNS will assign to the connecting
+Specify the range of IP addresses the LNS will assign to the connecting
 LAC PPP tunnels. Multiple ranges can be defined. Using the 'no'
 statement disallows the use of that particular range.  Ranges are defined
 using the format IP \- IP (example: 1.1.1.1 \- 1.1.1.10).  Note that either
@@ -101,7 +103,7 @@ to no.
 
 .TP
 .B assign ip
-Set this to no if xl2tpd should not assign IP addresses out of the pool
+Set this to 'no' if xl2tpd should not assign IP addresses out of the pool
 defined with the
 .B ip range 
 option.  This can be useful if you have some other means to assign IP
@@ -110,20 +112,20 @@ addresses, e. g. a pppd that supports RADIUS AAA.
 
 .TP 
 .B (no) lac
-Specify the ip addresses of LAC's which are allowed to connect to xl2tpd
+Specify the IP addresses of LAC's which are allowed to connect to xl2tpd
 acting as a LNS. The format is the same as the 
 .B ip range 
 option.
 
 .TP 
 .B hidden bit
-If set to yes, xl2tpd will use the AVP hiding feature of L2TP. To get
+If set to 'yes', xl2tpd will use the AVP hiding feature of L2TP. To get
 more information about hidden AVP's and AVP in general, refer to rfc2661
 (add URL?)
 
 .TP 
 .B local ip
-Use the following IP as xl2tpd's own ip address.
+Use the following IP as xl2tpd's own IP address.
 
 .TP
 .B local ip range
@@ -140,7 +142,7 @@ option has no effect on this option.
 
 .TP 
 .B length bit
-If set to yes, the length bit present in the l2tp packet payload
+If set to 'yes', the length bit present in the l2tp packet payload
 will be used.
 
 .TP 
@@ -159,7 +161,7 @@ Will require or refuse the remote peer to authenticate itself.
 
 .TP 
 .B unix authentication
-If set to yes, /etc/passwd will be used for remote peer ppp authentication.
+If set to 'yes', /etc/passwd will be used for remote peer ppp authentication.
 
 .TP 
 .B hostname
@@ -171,7 +173,7 @@ This will enable the debug for pppd.
 
 .TP
 .B pass peer
-Pass the peer's IP address to pppd as ipparam.  Enabled by default.
+Pass the peer's IP address to pppd as ipparam. Enabled by default.
 
 .TP 
 .B pppoptfile
@@ -180,9 +182,9 @@ to be used.
 
 .TP 
 .B call rws
-This option is deprecated and no longer functions.  It used to be used
+This option is deprecated and no longer functions. It used to be used
 to define the flow control window size for individual L2TP calls or
-sessions.  The L2TP standard (RFC2661) no longer defines flow control or
+sessions. The L2TP standard (RFC2661) no longer defines flow control or
 window sizes on calls or sessions.
 
 .TP 
@@ -193,13 +195,13 @@ number of bytes.
 
 .TP 
 .B flow bits
-If set to yes, sequence numbers will be included in the communication.
+If set to 'yes', sequence numbers will be included in the communication.
 The feature to use sequence numbers in sessions is currently broken and
 does not function.
 
 .TP 
 .B challenge
-If set to yes, use challenge authentication to authenticate peer.
+If set to 'yes', use challenge authentication to authenticate peer.
 
 .TP
 .B rx bps
@@ -221,40 +223,76 @@ Set the dns name or ip address of the LNS to connect to.
 
 .TP
 .B autodial
-If set to yes, xl2tpd will automatically dial the LAC during startup.
+If set to 'yes', xl2tpd will automatically dial the LAC during startup.
 
 .TP 
 .B redial
-If set to yes, xl2tpd will attempt to redial if the call get
+If set to 'yes', xl2tpd will attempt to redial if the call get
 disconnected.  Note that, if enabled, xl2tpd will keep passwords in
 memory: a potential security risk.
 
 .TP 
 .B redial timeout
 Wait X seconds before redial. The redial option must be set to yes
-to use this option.  Defaults to 30 seconds.
+to use this option. Defaults to 30 seconds.
 
 .TP 
 .B max redials 
 Will give up redial tries after X attempts.
 
-.SH "FILES"
+.SH FILES
+.IP /etc/xl2tpd/xl2tpd.conf
+Configuration file of xl2tpd, used by default.
 
-\fB\fR/etc/xl2tpd/xl2tpd.conf \fB\fR/etc/xl2tpd/l2tp\-secrets 
-\fB\fR/var/run/xl2tpd/l2tp\-control
-.SH "BUGS"
+.IP /etc/xl2tpd/l2tp-secrets
+Secrets file, used by default.
 
-Please address bugs and comment to xl2tpdv@lists.xelerance.com
-.SH "SEE ALSO"
+.IP /var/run/xl2tpd/l2tp\-control
+Control file, used by default.
 
-\fB\fRxl2tpd(8)
-.SH "AUTHORS"
-Forked from xl2tpd by Xelerance (https://www.xelerance.com/software/xl2tpd/)
+
+.SH BUGS
+Please use the github project page
+https://github.com/xelerance/xl2tpd
+to send bugreports, issues and any other feedback
+
+
+.SH SEE ALSO
+xl2tpd(8),
+xl2tpd-control(8),
+pppd(8)
+
+.SH COPYLEFT
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program (see the file LICENSE); if not, see
+https://www.gnu.org/licenses/, or contact Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+.SH CONTRIBUTORS
+Alexander Dorokhov <alex.dorokhov@gmail.com>
+.br
+Alexander Naumov <alexander_naumov@opensuse.org>
+
+
+.SH AUTHORS
+Forked from l2tpd by Xelerance: https://github.com/xelerance/xl2tpd
 
 Michael Richardson <mcr@xelerance.com>
+.br
 Paul Wouters <paul@xelerance.com>
-
-Many thanks to Jacco de Leeuw <jacco2@dds.nl> for maintaining l2tpd.
+.br
+Samir Hussain <shussain@xelerance.com>
 
 
 Previous development was hosted at sourceforge
@@ -267,7 +305,8 @@ David Stipp <dstipp@one.net>
 Jeff McAdams <jeffm@iglou.com>
 
 
-Based off of l2tpd version 0.60
+Based off of l2tpd version 0.61.
+Many thanks to Jacco de Leeuw <jacco2@dds.nl> for maintaining l2tpd.
 .br
 Copyright (C)1998 Adtran, Inc.
 .br

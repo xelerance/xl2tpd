@@ -7,6 +7,9 @@
 # This is free software.  You may distribute it under
 # the terms of the GNU General Public License,
 # version 2, or at your option any later version.
+
+include Makefile.ver
+
 #
 # Note on debugging flags:
 # -DDEBUG_ZLB shows all ZLB exchange traffic
@@ -97,7 +100,7 @@ OSFLAGS+= -DUSE_KERNEL
 
 IPFLAGS?= -DIP_ALLOCATION
 
-CFLAGS+= $(DFLAGS) -Os -Wall -DSANITY $(OSFLAGS) $(IPFLAGS)
+CFLAGS+= $(DFLAGS) -Os -Wall -Wextra -DSANITY $(OSFLAGS) $(IPFLAGS)
 HDRS=l2tp.h avp.h misc.h control.h call.h scheduler.h file.h aaa.h md5.h
 OBJS=xl2tpd.o pty.o misc.o control.o avp.o call.o network.o avpsend.o scheduler.o file.o aaa.o md5.o
 SRCS=${OBJS:.o=.c} ${HDRS}
@@ -129,6 +132,15 @@ pfc:
 
 romfs:
 	$(ROMFSINST) /bin/$(EXEC)
+
+version:
+	@echo ${XL2TPDVERSION}
+
+packagingprep:
+	sed -i "s/XL2TPDVERSION=.*/XL2TPDVERSION=${XL2TPDBASEVERSION}/" Makefile.ver
+	sed -i "s/#define SERVER_VERSION .*/#define SERVER_VERSION \"xl2tpd-${XL2TPDBASEVERSION}\"/" l2tp.h
+	sed -i "s/Version: .*/Version: ${XL2TPDBASEVERSION}/" packaging/*/*.spec
+	sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=${XL2TPDBASEVERSION}/" packaging/openwrt/Makefile
 
 install: ${EXEC} pfc ${CONTROL_EXEC}
 	install -d -m 0755 ${SBINDIR}

@@ -1,0 +1,30 @@
+This program read xl2tpd log file and show status icon in system tray.
+To compile it name file main.cpp and execute command in terminal.
+
+    g++ `pkg-config --cflags --libs gtk+-2.0` main.cpp -o xl2tpd-tray-icon
+
+then copy xl2tpd-tray-icon to directory /usr/bin
+
+then copy 4 image files (connect.png, disconnect.png, online.png, offline.png)
+to directory /usr/share/xl2tpd-tray-icon
+
+then make file /etc/xdg/autostart/xl2tpd-tray-icon.desktop with content
+
+    [Desktop Entry]
+    Name=xl2tpd-tray-icon
+    Exec=xl2tpd-tray-icon
+    Terminal=false
+    Type=Application
+    X-GNOME-Autostart-enabled=true
+
+after reboot program will start automatically.
+
+-----
+
+Images are from Openclipart (Creative Commons Zero 1.0 Public Domain License)
+and Pixabay (Free for commerical use. No attribution required)
+
+https://openclipart.org/detail/198745/mono-tool-offline-mode-off
+https://openclipart.org/detail/198746/mono-tool-offline-mode-on
+https://pixabay.com/en/connection-broken-network-98523/
+https://pixabay.com/en/network-computer-workstations-lan-98522/

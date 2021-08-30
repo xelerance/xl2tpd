@@ -3,7 +3,7 @@ l2tpd RPM
 """""""""
 
 This l2tpd RPM was originally created by Lenny Cartier
-<lenny@mandrakesoft.com> and Per Øyvind Karlsen <peroyvind@delonic.no>.
+<lenny@mandrakesoft.com> and Per Ã˜yvind Karlsen <peroyvind@delonic.no>.
 Some details have been changed by me (see specfile changelog).
 Originally it only built on recent versions of Mandrake but it
 should now work on Red Hat, SuSE and older Mandrake versions as well.

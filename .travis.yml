@@ -1,9 +1,25 @@
-os:
-  - linux
-
 language: c
-compiler:
-  - gcc
+
+jobs:
+  include:
+    - os: linux
+      dist: xenial
+      compiler: gcc
+    - os: linux
+      dist: xenial
+      compiler: clang
+    - os: linux
+      dist: bionic
+      compiler: gcc
+    - os: linux
+      dist: bionic
+      compiler: clang
+    - os: linux
+      dist: focal
+      compiler: gcc
+    - os: linux
+      dist: focal
+      compiler: clang
 
 sudo: false
 
@@ -17,10 +33,12 @@ addons:
 
 cache:
   directories:
-  - $HOME/.ccache
+    - $HOME/.ccache
 
 before_script:
-    make clean
+  - make clean
 
 script:
-    make
+  - make
+  - ./xl2tpd-control --version
+  - ./xl2tpd-control --help

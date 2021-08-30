@@ -1,1 +1,2 @@
-Suse startup files based on examples found in OpenSuse 10.3
+These files can be used to build openSUSE/SLE packages by using Open Build Service
+(standard system to build packages used by openSUSE project and SUSE itself).

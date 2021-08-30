@@ -1,91 +1,113 @@
-.TH "xl2tpd-control" "8" "" "Alexander Dorokhov" ""
-.SH "NAME"
-xl2tpd\-control \- Layer 2 Tunnelling Protocol Daemon Contorl Utility
-.SH "DESCRIPTION"
-A Layer 2 Tunneling Protocol Daemon Control Utility for Linux.
+.TH xl2tpd-control 8  "Sep 2020"
 
-Currently maintained by Xelerance
-  http://www.xelerance.com/software/xl2tpd/
+.SH NAME
+xl2tpd\-control \- xl2tpd control utility.
 
-.SH "SYNOPSIS"
-.HP \w'\fBipsec\fR\ 'u
-\fBxl2tpd-control\fR [\fI-c\fR <PATH>] \fI<command>\fR \fI<tunnel name>\fR [\fI<COMMAND OPTIONS>\fR]
+.SH DESCRIPTION
+xl2tpd is an implementation of the Layer 2 Tunneling Protocol (RFC 2661).
+L2TP allows to tunnel PPP over UDP. Some ISPs use L2TP to tunnel user sessions
+from dial-in servers (modem banks, ADSL DSLAMs) to back-end PPP servers.
+Another important application is Virtual Private Networks where the IPsec
+protocol is used to secure the L2TP connection (L2TP/IPsec, RFC 3193).
+
+xl2tpd works by opening a pseudo-tty for communicating with pppd.
+It runs completely in userspace but supports kernel mode L2TP.
+
+xl2tpd supports IPsec SA Reference tracking to enable overlapping internak
+NAT'ed IP's by different clients (eg all clients connecting from their
+linksys internal IP 192.168.1.101) as well as multiple clients behind
+the same NAT router.
+
+.SH SYNOPSIS
+.HP
+\fBxl2tpd-control\fR [\fI-c\fR PATH] \fI<COMMAND>\fR \fI<TUNNEL_NAME>\fR [\fIOPTIONS\fR]
 
 
-.SH "OPTIONS"
+.SH OPTIONS
 .TP
 .B -c
-This option specifies xl2tpd control file
+This option specifies xl2tpd control file.
 
 .TP
 .B -d
-This option specify xl2tpd-control to run in debug mode
+This option enables debugging mode.
 
-.SH "COMMANDS"
-.TP
-.B add
-Adds new or modify existing lac configuration. Configuration must be
-specified as command options in <key>=<value> pairs format. See available
-options in xl2tpd.conf(5)
-
-.TP
-.B connect
-Tries to activate the tunnel. Username and secret for the tunnel can be
-passed as command options.
-
-.TP
-.B disconnect
-Disconnects the tunnel.
-
-.TP
-.B remove
-
+.SH COMMANDS
 .TP
 .B add-lac
-Adds new or modify existing lac configuration.
+Adds new or modify existing LAC (L2TP Access Concentrator) configuration.
+Configuration should be specified as a command options in <key>=<value>
+pairs format. See available options in xl2tpd.conf(5).
 
 .TP
 .B connect-lac
+Establish new connection to LAC.
+Username and secret for tunnel can be passed as a command options.
 
 .TP
 .B disconnect-lac
+Disconnects tunnel.
 
 .TP
 .B remove-lac
+Removes existing LAC configuration.
+xl2tpd disconnects the tunnel before removing.
 
 .TP
 .B add-lns
-Adds new or modify existing lns configuration.
+Adds new or modify existing LNS (L2TP Network Server) configuration.
 
 .TP
 .B remove-lns
-
-.TP
-.B status
+Removes existing LNS configuration.
 
 .TP
 .B status-lns
+Check the status of LNS.
 
 .TP
 .B available
+Check availability.
 
-.SH "BUGS"
+.SH BUGS
+Please use the github project page
+https://github.com/xelerance/xl2tpd
+to send bugreports, issues and any other feedback.
 
-Please address bugs and comment to xl2tpd@lists.xelerance.com
-.SH "SEE ALSO"
+.SH SEE ALSO
+xl2tpd.conf(5),
+xl2tpd(8),
+pppd(8)
 
-\fB\fRxl2tpd.conf(5)
-.SH "AUTHORS"
-Forked from l2tpd by Xelerance (http://www.xelerance.com/software/xl2tpd/
+.SH COPYLEFT
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program (see the file LICENSE); if not, see
+https://www.gnu.org/licenses/, or contact Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+.SH CONTRIBUTORS
+Alexander Dorokhov <alex.dorokhov@gmail.com>
+.br
+Alexander Naumov <alexander_naumov@opensuse.org>
+
+.SH AUTHORS
+Forked from l2tpd by Xelerance: https://github.com/xelerance/xl2tpd
 
 Michael Richardson <mcr@xelerance.com>
+.br
 Paul Wouters <paul@xelerance.com>
+.br
 Samir Hussain <shussain@xelerance.com>
-
-Many thanks to Jacco de Leeuw <jacco2@dds.nl> for maintaining l2tpd.
-
-Patched contributed by:
-Alexander Dorokhov <alex.dorokhov@gmail.com>
 
 Previous development was hosted at sourceforge
 (http://www.sourceforge.net/projects/l2tpd) by:
@@ -96,7 +118,9 @@ David Stipp <dstipp@one.net>
 .br
 Jeff McAdams <jeffm@iglou.com>
 
-Based off of l2tpd version 0.60
+Based off of l2tpd version 0.61.
+Many thanks to Jacco de Leeuw <jacco2@dds.nl> for maintaining l2tpd.
+
 .br
 Copyright (C)1998 Adtran, Inc.
 .br

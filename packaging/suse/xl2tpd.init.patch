@@ -1,0 +1,92 @@
+--- packaging/suse/xl2tpd.init.orig	2010-05-04 12:01:25.000000000 +0200
++++ packaging/suse/xl2tpd.init	2010-05-04 12:08:08.000000000 +0200
+@@ -17,8 +17,10 @@
+ #
+ ### BEGIN INIT INFO
+ # Provides: xl2tpd
+-# Required-Start: $syslog $remote_fs
+-# Required-Stop:  $syslog $remote_fs
++# Required-Start: $remote_fs $syslog $network
++# Required-Stop:  $remote_fs $syslog $network
++# Should-Start: ypbind
++# Should-Stop: ypbind
+ # Default-Start:  3 5
+ # Default-Stop:   0 1 2 6
+ # Short-Description: Start xl2tpd (to provide L2TP VPN's)
+@@ -30,20 +32,11 @@
+ # not real dependencies. Depencies have to be handled by admin
+ # resp. the configuration tools (s)he uses.
+ 
+-# Source SuSE config (if still necessary, most info has been moved)
+-test -r /etc/rc.config && . /etc/rc.config
+-
+ # Check for missing binaries (stale symlinks should not happen)
+ XL2TPD_BIN=/usr/sbin/xl2tpd
+-test -x $YPBIND_BIN || { echo "$YPBIND_BIN not installed";
+-        if [ "$1" = "stop" ]; then exit 0; else exit 5; fi; }
+-
+-# Check for existence of needed config file and read it
+-#XL2TPD_CONFIG=/etc/sysconfig/xl2tpd
+-#test -r $YPBIND_CONFIG || { echo "$YPBIND_CONFIG not existing";
+-#        if [ "$1" = "stop" ]; then exit 0; else exit 6; fi; }
+-#. $XL2TPD_CONFIG
+-
++XL2TPD_PID=/var/run/xl2tpd/xl2tpd.pid
++XL2TPD_CONF=/etc/xl2tpd/xl2tpd.conf
++XL2TPD_PIDDIR=/var/run/xl2tpd
+ # Shell functions sourced from /etc/rc.status:
+ #      rc_check         check and set local and overall rc status
+ #      rc_status        check and set local and overall rc status
+@@ -82,7 +75,10 @@
+ 
+ 	# NOTE: startproc returns 0, even if service is 
+ 	# already running to match LSB spec.
+-	startproc $XL2TPD_BIN >/dev/null 2>&1
++	if [ ! -d $XL2TPD_PIDDIR ]; then
++	mkdir -p $XL2TPD_PIDDIR
++	fi
++	startproc -p $XL2TPD_PID $XL2TPD_BIN
+ 
+ 	# Remember status and be verbose
+ 	rc_status -v
+@@ -92,8 +88,7 @@
+ 	## Stop daemon with killproc(8) and if this fails
+ 	## set echo the echo return value.
+ 
+-	killproc -TERM $XL2TPD_BIN
+-	rm -f /var/run/xl2tpd/xl2tpd.pid
++	killproc -G -TERM $XL2TPD_BIN
+ 	# Remember status and be verbose
+ 	rc_status -v
+ 	;;
+@@ -123,13 +118,8 @@
+ 	## do this on signal 1 (SIGHUP).
+ 	## If it does not support it, restart.
+ 	echo -n "Reload service xl2tpd"
+-	## if it supports it:
+ 	killproc -HUP $XL2TPD_BIN
+-	#touch /var/run/xl2tpd/xl2tpd.pid
+ 	rc_status -v
+-	## Otherwise:
+-	#$0 stop  &&  $0 start
+-	#rc_status
+ 	;;
+     reload)
+ 	## Like force-reload, but if daemon does not support
+@@ -137,7 +127,6 @@
+ 	# If it supports signalling:
+ 	echo -n "Reload service xl2tpd"
+ 	killproc -HUP $XL2TPD_BIN
+-	#touch /var/run/xl2tpd.pid
+ 	rc_status -v
+ 	## Otherwise if it does not support reload:
+ 	#rc_failed 3
+@@ -162,7 +151,7 @@
+ 	## Optional: Probe for the necessity of a reload,
+ 	## print out the argument which is required for a reload.
+ 
+-	test /etc/xl2tpd/xl2tpd.conf -nt /var/run/xltpd/xl2tpd.pid && echo reload
++	test $XL2TPD_CONF -nt $XL2TPD_PID && echo reload
+ 	;;
+     *)
+ 	echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload|probe}"

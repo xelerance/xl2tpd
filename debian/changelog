@@ -1,3 +1,15 @@
+xl2tpd (1.3.14-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+
+ -- Samir Hussain <shussain@xelerance.com>  Wed, 17 Apr 2019 12:22:21 -0500
+
+xl2tpd (1.3.13-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+
+ -- Samir Hussain <shussain@xelerance.com>  Mon, 03 Dec 2018 13:02:21 -0500
+
 xl2tpd (1.3.12-2) UNRELEASED; urgency=medium
 
   * copyright: Use https URL for Format.

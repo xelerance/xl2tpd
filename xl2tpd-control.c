@@ -1,13 +1,24 @@
 /*
- * Layer Two Tunnelling Protocol Daemon Control Utility
- * Copyright (C) 2011 Alexander Dorokhov
+ * xl2tpd-control - the xl2tpd control utility
  *
- * This software is distributed under the terms
- * of the GPL, which you should have received
- * along with this source.
+ * Copyright (C) 2011 Alexander Dorokhov <alex.dorokhov@gmail.com>
  *
- * xl2tpd-control client main file
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program (see the file LICENSE); if not, see
+ * https://www.gnu.org/licenses/, or contact Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ ****************************************************************
  */
  
 #define _GNU_SOURCE
@@ -43,7 +54,6 @@ int result_fd = -1;
 int log_level = ERROR_LEVEL;
 
 void print_error (int level, const char *fmt, ...);
-
 int read_result(int result_fd, char* buf, ssize_t size);
 
 /* Definition of a command */
@@ -52,99 +62,41 @@ struct command_t
     char *name;
     int (*handler) (FILE*, char* tunnel, int optc, char *optv[]);
     int requires_tunnel;
-    char *help;
 };
 
-int command_add_lac (FILE*, char* tunnel, int optc, char *optv[]);
-int command_connect_lac (FILE*, char* tunnel, int optc, char *optv[]);
-int command_disconnect_lac (FILE*, char* tunnel, int optc, char *optv[]);
-int command_remove_lac (FILE*, char* tunnel, int optc, char *optv[]);
-int command_add_lns (FILE*, char* tunnel, int optc, char *optv[]);
-int command_status_lac (FILE*, char* tunnel, int optc, char *optv[]);
-int command_status_lns (FILE*, char* tunnel, int optc, char *optv[]);
-int command_remove_lns (FILE*, char* tunnel, int optc, char *optv[]);
-int command_available (FILE*, char* tunnel, int optc, char *optv[]);
+int command_add_lac       (FILE*, char* tunnel, int optc, char *optv[]);
+int command_connect_lac   (FILE*, char* tunnel, int optc, char *optv[]);
+int command_disconnect_lac(FILE*, char* tunnel, int optc, char *optv[]);
+int command_status_lac    (FILE*, char* tunnel, int optc, char *optv[]);
+int command_remove_lac    (FILE*, char* tunnel, int optc, char *optv[]);
+int command_available     (FILE*, char* tunnel, int optc, char *optv[]);
+int command_add_lns       (FILE*, char* tunnel, int optc, char *optv[]);
+int command_status_lns    (FILE*, char* tunnel, int optc, char *optv[]);
+int command_remove_lns    (FILE*, char* tunnel, int optc, char *optv[]);
 
 struct command_t commands[] = {
-    /* Keep this command mapping for backwards compat */
-    {"add", &command_add_lac, TUNNEL_REQUIRED,
-        "\tadd\tadds new or modify existing lac configuration.\n"
-        "\t\tConfiguration must be specified as command options in\n"
-        "\t\t<key>=<value> pairs format.\n"
-        "\t\tSee available options in xl2tpd.conf(5)\n"
-    },
-    {"connect", &command_connect_lac, TUNNEL_REQUIRED,
-        "\tconnect\ttries to activate the tunnel.\n"
-        "\t\tUsername and secret for the tunnel can be passed as\n"
-        "\t\tcommand options.\n"
-    },
-    {"disconnect", &command_disconnect_lac, TUNNEL_REQUIRED,
-        "\tdisconnect\tdisconnects the tunnel.\n"
-    },
-    {"remove", &command_remove_lac, TUNNEL_REQUIRED,
-        "\tremove\tremoves lac configuration from xl2tpd.\n"
-        "\t\txl2tpd disconnects the tunnel before removing.\n"
-    },
-
-    /* LAC commands */
-    {"add-lac", &command_add_lac, TUNNEL_REQUIRED},
-    {"connect-lac", &command_connect_lac, TUNNEL_REQUIRED},
-    {"disconnect-lac", &command_disconnect_lac, TUNNEL_REQUIRED},
-    {"remove-lac", &command_remove_lac, TUNNEL_REQUIRED},
-
-    /* LNS commands */
-    {"add-lns", &command_add_lns, TUNNEL_REQUIRED,
-        "\tadd-lns\tadds new or modify existing lns configuration.\n"
-    },
-    {"remove-lns", &command_remove_lns, TUNNEL_REQUIRED},
-
-    /* Generic commands */
-    {"status", &command_status_lac, TUNNEL_REQUIRED},
-    {"status-lns", &command_status_lns, TUNNEL_REQUIRED},
-    {"available", &command_available, TUNNEL_NOT_REQUIRED},
-    {NULL, NULL}
+    {"add-lac",       &command_add_lac,       TUNNEL_REQUIRED},
+    {"connect-lac",   &command_connect_lac,   TUNNEL_REQUIRED},
+    {"disconnect-lac",&command_disconnect_lac,TUNNEL_REQUIRED},
+    {"status-lac",    &command_status_lac,    TUNNEL_REQUIRED},
+    {"remove-lac",    &command_remove_lac,    TUNNEL_REQUIRED},
+    {"available",     &command_available,     TUNNEL_NOT_REQUIRED},
+    {"add-lns",       &command_add_lns,       TUNNEL_REQUIRED},
+    {"status-lns",    &command_status_lns,    TUNNEL_REQUIRED},
+    {"remove-lns",    &command_remove_lns,    TUNNEL_REQUIRED}
 };
 
 void usage()
 {
-    int i;
-
-    printf ("\nxl2tpd server version %s\n", SERVER_VERSION);
-    printf ("Usage: xl2tpd-control [-c <PATH>] <command> <tunnel name> [<COMMAND OPTIONS>]\n"
-            "\n"
-            "    -c\tspecifies xl2tpd control file\n"
-            "    -d\tspecify xl2tpd-control to run in debug mode\n"
-            "--help\tshows extended help\n"
-    );
-
-    printf ("Available commands: ");
-    for (i = 0; commands[i].name; i++) {
-        struct command_t *command = &commands[i];
-        int last = command[1].name == NULL;
-
-        printf ("%s%s", command->name, !last ? ", " : "\n");
-    }
-}
-
-void help()
-{
-    int i;
-
-    usage();
-    printf (
-        "\n"
-        "Commands help:\n"
-    );
-
-    for (i = 0; commands[i].name; i++) {
-        struct command_t *command = &commands[i];
-
-        if (!command->help)
-            continue;
-        printf ("%s", command->help);
-    }
-    /*FIXME Ha! there is currently no manpage for xl2tpd-control */
-    printf ("See xl2tpd-control man page for more help\n");
+    printf ("Usage: xl2tpd-control [-c <PATH>] <COMMAND> <TUNNEL_NAME> [<OPTIONS>]\n\n"
+            "       -c  set xl2tpd control file\n"
+            "       -d  enable debugging mode\n"
+            "--version  show version\n"
+            "   --help  show this help message\n\n"
+            "List of supported commands:\n"
+            "add-lac, status-lac, remove-lac, connect-lac, disconnect-lac\n"
+            "add-lns, status-lns, remove-lns, avaliable\n\n"
+            "See xl2tpd-control(8) man page for more details.\n");
 }
 
 void cleanup(void)
@@ -162,17 +114,19 @@ int main (int argc, char *argv[])
     struct command_t* command = NULL;    
     int i; /* argv iterator */
 
-    if (argv[1] && !strncmp (argv[1], "--help", 6))
-    {
-        help();
+    if (argv[1] && !strncmp (argv[1], "--help", 6)) {
+        usage();
         return 0;
     }
-    /* parse global options */
-    for (i = 1; i < argc; i++)
-    {
 
-        if (!strncmp (argv[i], "-c", 2))
-        {
+    if (argv[1] && !strncmp (argv[1], "--version", 9)) {
+        printf ("Version: %s\n", SERVER_VERSION);
+        return 0;
+    }
+
+    /* parse global options */
+    for (i = 1; i < argc; i++) {
+        if (!strncmp (argv[i], "-c", 2)) {
             control_filename = argv[++i];
         } else if (!strncmp (argv[i], "-d", 2)) {
             log_level = DEBUG_LEVEL;
@@ -180,14 +134,14 @@ int main (int argc, char *argv[])
             break;
         }
     }
-    if (i >= argc)
-    {
+
+    if (i >= argc) {
         print_error (ERROR_LEVEL, "error: command not specified\n");
         usage();
         return -1;
     }
-    if (!control_filename)
-    {
+
+    if (!control_filename) {
         control_filename = strdup (CONTROL_PIPE);
     }
 
@@ -202,25 +156,26 @@ int main (int argc, char *argv[])
     }
     
     if (!command->name) {
-        print_error (ERROR_LEVEL, "error: no such command %s\n", argv[i]);
+        print_error (ERROR_LEVEL, "error: no such command\n");
+        free(control_filename);
+        usage();
         return -1;
     }
     
     /* get tunnel name */
     if(command->requires_tunnel){
-        if (i >= argc)
-        {
+        if (i >= argc) {
             print_error (ERROR_LEVEL, "error: tunnel name not specified\n");
             usage();
+            free(control_filename);
             return -1;
         }
         tunnel_name = argv[i++];    
         /* check tunnel name for whitespaces */
-        if (strstr (tunnel_name, " "))
-        {
-            print_error (ERROR_LEVEL,
-                "error: tunnel name shouldn't include spaces\n");
-            usage();        
+        if (strstr (tunnel_name, " ")) {
+            print_error (ERROR_LEVEL, "error: tunnel name shouldn't include spaces\n");
+            usage();
+            free(control_filename);
             return -1;
         }
     }
@@ -233,6 +188,7 @@ int main (int argc, char *argv[])
     unlink (result_filename);
     mkfifo (result_filename, 0600);
     atexit(cleanup);
+
     result_fd = open (result_filename, O_RDONLY | O_NONBLOCK, 0600);
     if (result_fd < 0)
     {
@@ -251,8 +207,7 @@ int main (int argc, char *argv[])
     
     /* pass result filename to command */
     fprintf (mesf, "@%s ", result_filename);
-    if (ferror (mesf))
-    {
+    if (ferror (mesf)) {
         print_error (ERROR_LEVEL, "internal error: message buffer to short");
         return -2;
     }
@@ -261,16 +216,15 @@ int main (int argc, char *argv[])
     int command_res = command->handler (
         mesf, tunnel_name, argc - i, argv + i
     );
-    if (command_res < 0)
-    {
+
+    if (command_res < 0) {
         print_error (ERROR_LEVEL, "error: command parse error\n");
         return -1;
     }
     
     fflush (mesf);
     
-    if (ferror (mesf))
-    {
+    if (ferror (mesf)) {
         print_error (ERROR_LEVEL,
             "error: message too long (max = %i ch.)\n",
             CONTROL_PIPE_MESSAGE_SIZE - 1);
@@ -281,8 +235,7 @@ int main (int argc, char *argv[])
 
     /* try to open control file for writing */
     int control_fd = open (control_filename, O_WRONLY | O_NONBLOCK, 0600);
-    if (control_fd < 0)
-    {
+    if (control_fd < 0) {
         int errorno = errno;
         switch (errorno)
         {
@@ -309,8 +262,7 @@ int main (int argc, char *argv[])
     }
     
     /* pass command to control pipe */
-    if (write (control_fd, buf, ftell (mesf)) < 0)
-    {
+    if (write (control_fd, buf, ftell (mesf)) < 0) {
       int errorno = errno;
       print_error (ERROR_LEVEL,
                 "Unable to write to %s: %s\n",
@@ -366,7 +318,8 @@ int read_result(int result_fd, char* buf, ssize_t size)
             print_error (ERROR_LEVEL,
                 "error: can't read command result: %s\n", strerror (errno));
             break;
-        } else if (len == 0) {
+        }
+        else if (len == 0) {
             if(!write_pipe) {
                  gettimeofday(&tve, NULL);
                  diff = (tve.tv_sec - tvs.tv_sec) * 1000000 + (tve.tv_usec - tvs.tv_usec);
@@ -379,13 +332,15 @@ int read_result(int result_fd, char* buf, ssize_t size)
                  }
             }
             break;
-        } else {
+        }
+        else {
             write_pipe = 1;
             readed += len;
             if ((size - readed) <= 0)
                 break;
        }
     } while (1);
+
     buf[readed] = '\0';
 
     /* scan result code */
@@ -398,11 +353,11 @@ int read_result(int result_fd, char* buf, ssize_t size)
 int command_add
 (FILE* mesf, char* tunnel, int optc, char *optv[], int reqopt)
 {
-    if (optc <= 0)
-    {
+    if (optc <= 0) {
         print_error (ERROR_LEVEL, "error: tunnel configuration expected\n");
         return -1;
     }
+
     fprintf (mesf, "%c %s ", reqopt, tunnel);
     int i;
     int wait_key = 1;
@@ -413,11 +368,9 @@ int command_add
         {
             /* try to find '=' */
             char* eqv = strstr (optv[i], "=");
-            if (eqv)
-            {
+            if (eqv) {
                 /* check is it not last symbol */
-                if (eqv != (optv[i] + strlen(optv[i]) - 1))
-                {
+                if (eqv != (optv[i] + strlen(optv[i]) - 1)) {
                     fprintf (mesf, ";"); /* end up option */
                 } else {
                     wait_key = 0; /* now we waiting for value */
@@ -426,7 +379,7 @@ int command_add
                 fprintf (mesf, " "); /* restore space */
             }
         } else {
-            fprintf (mesf, ";"); /* end up option */        
+            fprintf (mesf, ";"); /* end up option */
             wait_key = 1; /* now we again waiting for key */
         }
     }
@@ -463,6 +416,8 @@ int command_connect_lac
 int command_disconnect_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_DISCONNECT, tunnel);
     return 0;
 }
@@ -470,6 +425,8 @@ int command_disconnect_lac
 int command_remove_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_REMOVE, tunnel);
     return 0;
 }
@@ -477,6 +434,8 @@ int command_remove_lac
 int command_status_lns
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LNS_STATUS, tunnel);
     return 0;
 }
@@ -484,6 +443,8 @@ int command_status_lns
 int command_status_lac
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LAC_STATUS, tunnel);
     return 0;
 }
@@ -491,6 +452,8 @@ int command_status_lac
 int command_available
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_AVAILABLE, tunnel);
     return 0;
 }
@@ -498,6 +461,8 @@ int command_available
 int command_remove_lns
 (FILE* mesf, char* tunnel, int optc, char *optv[])
 {
+    UNUSED(optc);
+    UNUSED(optv);
     fprintf (mesf, "%c %s", CONTROL_PIPE_REQ_LNS_REMOVE, tunnel);
     return 0;
 }

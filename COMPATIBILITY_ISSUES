@@ -1,0 +1,29 @@
+* Android  9 & 10 fails on maximum retries exceeded for tunnel
+
+There are reports that with Android 9 & 10, some users are getting "Maximum retries"
+error messages. It seems to related to some of the phones not responding to
+L2TP keepalive heartbeats
+
+A possible work around is to use the max_retries option. Using "max retries"
+in the xl2tpd.conf (e.g. max retries = 100) has known to work for some
+users. Alternatively, another works around is to not to enable L2TP
+keepalive on the VPN servers.
+
+For more information, please refer to: https://github.com/xelerance/xl2tpd/issues/191
+
+* Issues with Cisco ASA
+
+Some users are reporting that newer version of xl2tpd (1.310 onward) are
+not able to connect to Cisco ASA.
+
+A possible work around is to use x2ltpd 1.39 and disable use of kernel module
+(comment out the directive OSFLAGS+= -DUSE_KERNEL -D in the Makefile)
+
+For more information, please refer to: https://github.com/xelerance/xl2tpd/issues/187
+
+* AVP is incorrect size issues with Miktrotik server
+
+There are reports of problems connecting to Miktrotik server.
+
+Github user reported that the following configuration works for them:
+https://github.com/xelerance/xl2tpd/issues/156#issuecomment-678674101

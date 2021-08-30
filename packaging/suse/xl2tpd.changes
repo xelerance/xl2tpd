@@ -1,0 +1,446 @@
+-------------------------------------------------------------------
+Sun Oct 13 18:22:24 UTC 2019 - Martin Hauke <mardnh@gmx.de>
+
+- Update to version 1.3.15
+  * Specify missing log arguments
+  * Sockopt bug fix for multiple IP's
+
+-------------------------------------------------------------------
+Wed Apr 17 17:42:30 UTC 2019 - Martin Hauke <mardnh@gmx.de>
+
+- Update to version 1.3.14
+  * Bugfix release, mostly code cleanup
+
+-------------------------------------------------------------------
+Wed Mar 20 19:03:16 UTC 2019 - Jan Engelhardt <jengelh@inai.de>
+
+- Drop ||true from %tmpfiles_create, this is already
+  included in the macro.
+- Reduce hard dependency on systemd during build.
+
+-------------------------------------------------------------------
+Fri Mar  8 20:54:23 UTC 2019 - Martin Hauke <mardnh@gmx.de>
+
+- Run spec-cleaner
+- Remove support for non-systemd distros
+- Remove -doc subpackage (contained only some KB text-files and
+  and manpages)
+- Fix handling of tmpfilesdir
+- Update to version 1.3.13
+  * Fix compile warning with USE_KERNEL in xl2tpd.c
+  * Applying patch that reduces compile warnings and fixes warnings
+    from gcc and clang.
+  * Fix compiler warnings in network.c
+  * Add a preproc for Watchguard firewall (Github issue #136)
+  * Convert from ISO-8859 to UTF-8 [Simon Deziel]
+    Update README to provide latest info on xl2tpd + Linux kernel 4.15+
+- Update to version 1.3.12
+  * TOS value to copy to the tunnel header
+  * Fix for ENODEV (No such device) error with Linux kernel 4.15
+  * Update xl2tpd.init
+  * fix version number and upload
+- Update to version 1.3.11
+  * only changes related to debian packaging
+
+-------------------------------------------------------------------
+Thu Oct 26 12:38:37 UTC 2017 - badshah400@gmail.com
+
+- Update to version 1.3.10
+  * Update STRLEN in file.h to 100 (from 80).
+  * xl2tpd-control: fix xl2tpd hanged up in "fopen".
+  * Update version in spec and opewnrt Makefile.
+- Update source URL in specfile.
+
+-------------------------------------------------------------------
+Thu Jun 29 15:04:34 UTC 2017 - dimstar@opensuse.org
+
+- Own /etc/ppp (mode 750, like other packages too).
+
+-------------------------------------------------------------------
+Thu May 16 10:33:42 UTC 2017 - alexander_naumov@opensuse.org
+
+- Update to version 1.3.9
+  * Add xl2tpd-control man pages (Samir Hussain)
+  * Update spec file with newest Soure0 and version (Samir Hussain)
+  * Update License file (Samir Hussain)
+  * Display PID for call in the logs (Samir Hussain)
+  * Use left shift rather than pow() function. (Samir Hussain)
+  * Enable Travis integration (Samir Hussain)
+  * Remove unnecessary casting of malloc() results (Andrew Clayton)
+  * Remove an unused line of code in init_config() (Andrew Clayton)
+  * Fix some undefined behaviour in read_result() (Andrew Clayton)
+  * Fix feature test macro deprecation warnings (Andrew Clayton)
+
+-------------------------------------------------------------------
+Sun Apr 12 00:55:33 UTC 2015 - p.drouand@gmail.com
+
+- Update to version 1.3.6
+  * Fix the size of the lenght param for AVP headers. This should
+    fix Android support no matter how the compiler optimizes.
+- For changes from other versions, please read the CHANGES files
+- Use download Url as source
+- Remove redundant %clean section
+- Remove xl2tpd-1.3.0-0001-Add-kernel-support-for-2.6.32.patch; 
+  fixed by upstream
+- Adapt Makefile.patch and xl2tpd.init.patch to upstream changes
+- Do not provide sysvinit and systemd support on the same system;
+  it's redundant
+- Add backward compatibility symlinl to systemd service
+
+-------------------------------------------------------------------
+Thu Jun 26 15:27:11 UTC 2014 - dvlaeev@suse.com
+
+- switch to /run on openSUSE newer than 13.1 
+
+-------------------------------------------------------------------
+Wed Jan  1 21:53:05 UTC 2014 - dvlaeev@suse.com
+
+- Remove newline from description in xl2tpd.conf (bnc#856928)
+
+-------------------------------------------------------------------
+Sun Mar 17 16:14:54 UTC 2013 - dvaleev@suse.com
+
+- Use /usr/lib/tmpfile.d for tmpfiles configuration
+
+-------------------------------------------------------------------
+Wed Mar  6 21:15:13 YEKT 2013 - avm.xandry@gmail.com
+
+- Added /etc/tmpfiles.d/xl2tpd.conf file (bnc#807605)
+
+-------------------------------------------------------------------
+Mon Nov 26 10:24:38 UTC 2012 - dvaleev@suse.com
+
+- don't use old version of if_pppol2tp.h (bnc#791109) 
+
+-------------------------------------------------------------------
+Wed Nov 21 06:04:50 UTC 2012 - binli@opensuse.org
+
+- xl2tpd Add kernel support for 2.6.23+ (patch v12)
+  xl2tpd-1.3.0-0001-Add-kernel-support-for-2.6.32.patch
+  Public Clone URL: git://gist.github.com/1306094.git
+  (bnc#790250).
+
+-------------------------------------------------------------------
+Fri Aug 31 21:45:57 UTC 2012 - crrodriguez@opensuse.org
+
+- Add systemd support. 
+
+-------------------------------------------------------------------
+Thu Oct 26 20:10:00 UTC 2011 - nekolayer@yandex.ru
+
+- update to xl2tpd 1.3.0
+  * added xl2tpd-control tool (activates/disconnects the tunnel,
+  actions with lac configuration file)
+  * fixed bug causing "Resource temporarily unavailable(11)" in log
+  * fixed xl2tpd hungs and won't redial after communication fail
+  * fixed buffer overrun in reading >16 char l2tp-secrets
+
+-------------------------------------------------------------------
+Tue May  4 12:30:00 CEST 2010 - dvaleev@novell.com
+
+- fixed rpmlint dir-or-file-in-var-run 
+
+-------------------------------------------------------------------
+Thu Apr 22 09:23:57 UTC 2010 - aj@suse.de
+
+- Fix specfile, debug_package will get inserted automatically.
+- Do not use license package.
+
+-------------------------------------------------------------------
+Fri Apr 16 15:01:13 CEST 2010 - eri_zaq@please-enter-an-email-address
+
+- xl2tpd-1.2.4-4
+- Fix init script to stop service correctly
+- *.changes
+-------------------------------------------------------------------
+Mon Mar 15 00:00:00 CET 2010 - k0da@opensuse.org
+
+- xl2tpd-1.2.4-3
+- avoid a huge overload of duplicated files
+
+-------------------------------------------------------------------
+Thu Mar 11 00:00:00 CET 2010 - k0da@opensuse.org
+
+- xl2tpd-1.2.4-2
+- xl2tpd-doc-1.2.4-2
+- *-doc package
+- cleanup init script
+
+-------------------------------------------------------------------
+Wed Mar 10 00:00:00 CET 2010 - k0da@opensuse.org
+
+- xl2tpd-1.2.4-1
+- patch for init file
+
+-------------------------------------------------------------------
+Tue Oct 28 00:00:00 CET 2008 - k0da@opensuse.org
+
+- Adjust build requires
+
+-------------------------------------------------------------------
+Sun Oct 26 00:00:00 CEST 2008 - paul@xelerance.com
+
+- Updated Suse init scripts and spec file
+- Added pfc for pppd's precompiled-active-filter
+
+-------------------------------------------------------------------
+Fri Apr 18 00:00:00 CEST 2008 - paul@xelerance.com
+
+- Updated Suse init scripts and spec file
+
+-------------------------------------------------------------------
+Tue Jun 26 00:00:00 CEST 2007 - paul@xelerance.com
+
+- Minor changes to spec file to accomodate new README files
+
+-------------------------------------------------------------------
+Fri Feb 23 00:00:00 CET 2007 - paul@xelerance.com
+
+- Upgraded to 1.1.08
+- This works around the ppp-2.4.2-6.4 issue of not dying on SIGTERM
+
+-------------------------------------------------------------------
+Mon Feb 19 00:00:00 CET 2007 - paul@xelerance.com
+
+- Upgraded to 1.1.07
+- Fixes from Tuomo Soini for pidfile handling with Fedora
+- Fix hardcoded version for Source in spec file.
+
+-------------------------------------------------------------------
+Thu Dec  7 00:00:00 CET 2006 - paul@xelerance.com
+
+- Changed space/tab replacing method
+
+-------------------------------------------------------------------
+Wed Dec  6 00:00:00 CET 2006 - paul@xelerance.com
+
+- Added -p to keep original timestamps
+- Added temporary hack to change space/tab in init file.
+- Added /sbin/service dependancy
+
+-------------------------------------------------------------------
+Tue Dec  5 00:00:00 CET 2006 - paul@xelerance.com
+
+- Changed Mr. Karlsen's name to not be a utf8 problem
+- Fixed Obosoletes/Provides to be more specific wrt l2tpd.
+- Added dist tag which accidentally got deleted.
+
+-------------------------------------------------------------------
+Mon Dec  4 00:00:00 CET 2006 - paul@xelerance.com
+
+- Rebased spec file on Fedora Extras copy, but using xl2tpd as package name
+
+-------------------------------------------------------------------
+Sun Nov 27 00:00:00 CET 2005 - paul@xelerance.com
+
+- Pulled up sourceforget.net CVS fixes.
+- various debugging added, but debugging should not be on by default.
+- async/sync conversion routines must be ready for possibility that the read
+  will block due to routing loops.
+- refactor control socket handling.
+- move all logic about pty usage to pty.c. Try ptmx first, if it fails try
+  legacy ptys
+- rename log() to l2tp_log(), as "log" is a math function.
+- if we aren't deamonized, then log to stderr.
+- added install: and DESTDIR support.
+
+-------------------------------------------------------------------
+Thu Oct 20 00:00:00 CEST 2005 - paul@xelerance.com
+
+- Removed suse/mandrake specifics. Comply for Fedora Extras guidelines
+
+-------------------------------------------------------------------
+Tue Jun 21 00:00:00 CEST 2005 - jacco2@dds.nl
+
+- Added log() patch by Paul Wouters so that l2tpd compiles on FC4.
+
+-------------------------------------------------------------------
+Sat Jun  4 00:00:00 CEST 2005 - jacco2@dds.nl
+
+- l2tpd.org has been hijacked. Project moved back to SourceForge:
+  http://l2tpd.sourceforge.net
+
+-------------------------------------------------------------------
+Tue May  3 00:00:00 CEST 2005 - jacco2@dds.nl
+
+- Small Makefile fixes. Explicitly use gcc instead of cc.
+  Network services library was not linked on Solaris due to typo.
+
+-------------------------------------------------------------------
+Thu Mar 17 00:00:00 CET 2005 - jacco2@dds.nl
+
+- Choosing between SysV or BSD style ptys is now configurable through
+  a compile-time boolean "unix98pty".
+
+-------------------------------------------------------------------
+Fri Feb  4 00:00:00 CET 2005 - jacco2@dds.nl
+
+- Added code from Roaring Penguin (rp-l2tp) to support SysV-style ptys.
+  Requires the N_HDLC kernel module.
+
+-------------------------------------------------------------------
+Fri Nov 26 00:00:00 CET 2004 - jacco2@dds.nl
+
+- Updated the README.
+
+-------------------------------------------------------------------
+Wed Nov 10 00:00:00 CET 2004 - jacco2@dds.nl
+
+- Patch by Marald Klein and Roger Luethi. Fixes writing PID file.
+  (http://l2tpd.graffl.net/msg01790.html)
+  Long overdue. Rereleasing 10jdl.
+
+-------------------------------------------------------------------
+Tue Nov  9 00:00:00 CET 2004 - jacco2@dds.nl
+
+- [SECURITY FIX] Added fix from Debian because of a bss-based
+  buffer overflow.
+  (http://www.mail-archive.com/l2tpd-devel@l2tpd.org/msg01071.html)
+- Mandrake's FreeS/WAN, Openswan and Strongswan RPMS use configuration
+  directories /etc/{freeswan,openswan,strongswan}. Install our
+  configuration files to /etc/ipsec.d and create symbolic links in
+  those directories.
+
+-------------------------------------------------------------------
+Wed Aug 18 00:00:00 CEST 2004 - jacco2@dds.nl
+
+- Removed 'leftnexthop=' lines. Not relevant for recent versions
+  of FreeS/WAN and derivates.
+
+-------------------------------------------------------------------
+Tue Jan 20 00:00:00 CET 2004 - jacco2@dds.nl
+
+- Added "noccp" because of too much MPPE/CCP messages sometimes.
+
+-------------------------------------------------------------------
+Wed Dec 31 00:00:00 CET 2003 - jacco2@dds.nl
+
+- Added patch in order to prevent StopCCN messages.
+
+-------------------------------------------------------------------
+Sat Aug 23 00:00:00 CEST 2003 - jacco2@dds.nl
+
+- MTU/MRU 1410 seems to be the lowest possible for MSL2TP.
+  For Windows 2000/XP it doesn't seem to matter.
+- Typo in l2tpd.conf (192.168.128/25).
+
+-------------------------------------------------------------------
+Fri Aug  8 00:00:00 CEST 2003 - jacco2@dds.nl
+
+- Added MTU/MRU 1400 to options.l2tpd. I don't know the optimal
+  value but some apps had problems with the default value.
+
+-------------------------------------------------------------------
+Fri Aug  1 00:00:00 CEST 2003 - jacco2@dds.nl
+
+- Added workaround for the missing hostname bug in the MSL2TP client
+  ('Specify your hostname', error 629: "You have been disconnected
+  from the computer you are dialing").
+
+-------------------------------------------------------------------
+Sun Jul 20 00:00:00 CEST 2003 - jacco2@dds.nl
+
+- Added the "listen-addr" global parameter for l2tpd.conf. By
+  default, the daemon listens on *all* interfaces. Use
+  "listen-addr" if you want it to bind to one specific
+  IP address (interface), for security reasons. (See also:
+  http://www.jacco2.dds.nl/networking/freeswan-l2tp.html#Firewallwarning)
+- Explained in l2tpd.conf that two different IP addresses should be
+  used for 'listen-addr' and 'local ip'.
+- Modified init script. Upgrades should work better now. You
+  still need to start/chkconfig l2tpd manually.
+- Renamed the example Openswan .conf files to better reflect
+  the situation. There are two variants using different portselectors.
+  Previously I thought Windows 2000/XP used portselector 17/0
+  and the rest used 17/1701. But with the release of an updated
+  IPsec client by Microsoft, it turns out that 17/0 must have
+  been a mistake: the updated client now also uses 17/1701.
+
+-------------------------------------------------------------------
+Thu Apr 10 00:00:00 CEST 2003 - jacco2@dds.nl
+
+- Changed sample chap-secrets to be valid only for specific
+  IP addresses.
+
+-------------------------------------------------------------------
+Thu Mar 13 00:00:00 CET 2003 - tech-role@tronicplanet.de
+
+- Adjustments for SuSE8.x (thanks, Bernhard!)
+- Added sample chap-secrets.
+
+-------------------------------------------------------------------
+Thu Mar  6 00:00:00 CET 2003 - jacco2@dds.nl
+
+- Replaced Dominique's patch by Damion de Soto's, which does not
+  depend on the N_HDLC kernel module.
+
+-------------------------------------------------------------------
+Wed Feb 26 00:00:00 CET 2003 - jacco2@dds.nl
+
+- Seperate example config files for Win9x (MSL2TP) and Win2K/XP
+  due to left/rightprotoport differences.
+  Fixing preun for Red Hat.
+
+-------------------------------------------------------------------
+Mon Feb  3 00:00:00 CET 2003 - jacco2@dds.nl
+
+- Mandrake uses /etc/freeswan/ instead of /etc/ipsec.d/
+  Error fixed: source6 was used for both PSK and CERT.
+
+-------------------------------------------------------------------
+Wed Jan 29 00:00:00 CET 2003 - jacco2@dds.nl
+
+- Added Dominique Cressatti's pty patch in another attempt to
+  prevent the Windows 2000 Professional "loopback detected" error.
+  Seems to work!
+
+-------------------------------------------------------------------
+Wed Dec 25 00:00:00 CET 2002 - jacco2@dds.nl
+
+- Added 'connect-delay' to PPP parameters in an attempt to
+  prevent the Windows 2000 Professional "loopback detected" error.
+  Didn't seem to work.
+
+-------------------------------------------------------------------
+Fri Dec 13 00:00:00 CET 2002 - jacco2@dds.nl
+
+- Did not build on Red Hat 8.0. Solved by adding comments(?!).
+  Bug detected in spec file: chkconfig --list l2tpd does not work
+  on Red Hat 8.0. Not important enough to look into yet.
+
+-------------------------------------------------------------------
+Sun Nov 17 00:00:00 CET 2002 - jacco2@dds.nl
+
+- Tested on Red Hat, required some changes. No gprintf. Used different
+  pty patch, otherwise wouldn't run. Added buildroot sanity check.
+
+-------------------------------------------------------------------
+Sun Nov 10 00:00:00 CET 2002 - jacco2@dds.nl
+
+- Specfile adapted from Mandrake Cooker. The original RPM can be
+  retrieved through:
+  http://www.rpmfind.net/linux/rpm2html/search.php?query=l2tpd
+- Config path changed from /etc/l2tp/ to /etc/l2tpd/
+  (Seems more logical and rp-l2tp already uses /etc/l2tp/).
+- Do not run at boot or install. The original RPM uses a config file
+  which is completely commented out, but it still starts l2tpd on all
+  interfaces. Could be a security risk. This RPM does not start l2tpd,
+  the sysadmin has to edit the config file and start l2tpd explicitly.
+- Renamed patches to start with l2tpd-
+- Added dependencies for pppd, glibc-devel.
+- Use %%{name} as much as possible.
+- l2tp-secrets contains passwords, thus should not be world readable.
+- Removed dependency on rpm-helper.
+
+-------------------------------------------------------------------
+Mon Oct 21 00:00:00 CEST 2002 - lenny@mandrakesoft.com
+
+- from Per 0yvind Karlsen <peroyvind@delonic.no> :
+ - PreReq and Requires
+ - Fix preun_service
+
+-------------------------------------------------------------------
+Thu Oct 17 00:00:00 CEST 2002 - peroyvind@delonic.no
+
+- Initial release
+

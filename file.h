@@ -168,6 +168,7 @@ struct global
 				 * Changed in SAref patch in openswan 2.6.36 for linux 2.6.36+ */
     int max_retries;            /* Max retries before closing tunnel
                                    or stop re-transmitting */
+    int cap_backoff;		/* Limit seconds between exponential backoff */
 };
 
 extern struct global gconfig;   /* Global configuration options */

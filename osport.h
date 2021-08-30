@@ -43,4 +43,11 @@ struct in_pktinfo {
 
 #endif
 
+#if defined __UCLIBC__ && !defined UCLIBC_SUSV3_LEGACY_MACROS
+# define index(x, y)        strchr(x, y)
+# define bcopy(S1, S2, LEN) ((void)memmove(S2, S1, LEN))
+# define bzero(S1, LEN)     ((void)memset(S1,  0, LEN))
+# define bcmp(S1,S2,LEN)    ((memcmp(S2, S1, LEN)==0)?0:1)
+#endif /* defined __UCLIBC__ && !defined UCLIBC_SUSV3_LEGACY_MACROS */
+
 #endif /* _OSPORT_H_ */
