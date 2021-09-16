@@ -22,15 +22,30 @@ xl2tpd (1.3.13-1) UNRELEASED; urgency=medium
 
  -- Samir Hussain <shussain@xelerance.com>  Mon, 03 Dec 2018 13:02:21 -0500
 
-xl2tpd (1.3.12-1.1) UNRELEASED; urgency=medium
+xl2tpd (1.3.12-2) UNRELEASED; urgency=medium
 
+  * copyright: Use https URL for Format.
+  * control: Bump Standards-Version to 4.5.0.
+  * Bump debhelper from 10 to 12.
+
+ -- Samuel Thibault <sthibault@debian.org>  Sat, 01 Aug 2020 15:34:57 +0200
+
+xl2tpd (1.3.12-1.1) unstable; urgency=medium
+
+  [ Helmut Grohne ]
   * Non-maintainer upload.
-  * Fix FTCFBS: Let dh_auto_build pass cross compilers to make. (Closes: #-1)
+  * Fix FTCFBS: Let dh_auto_build pass cross compilers to make.
+    (Closes: #899423)
 
- -- Helmut Grohne <helmut@subdivi.de>  Thu, 24 May 2018 06:08:31 +0200
+ -- Samuel Thibault <sthibault@debian.org>  Tue, 01 Jan 2019 17:22:40 +0100
 
 xl2tpd (1.3.12-1) unstable; urgency=medium
+
+  [ Samir Hussain ]
   * New upstream release.
+
+  [ Samuel Thibault ]
+  * Use https URL.
 
  -- Samir Hussain <shussain@xelerance.com>  Fri, 18 May 2018 17:08:21 -0500
 
