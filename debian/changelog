@@ -7,6 +7,7 @@ xl2tpd (1.3.16-2) UNRELEASED; urgency=medium
 xl2tpd (1.3.16-1) unstable; urgency=medium
 
   * New upstream release.
+    (Closes: #977347)
 
  -- Samir Hussain <shussain@xelerance.com>  Thu, 16 Sep 2021 11:24:39 -0400
 
