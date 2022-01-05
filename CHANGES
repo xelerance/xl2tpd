@@ -1,4 +1,21 @@
-v1.3.17dev1 (Dec 21, 2021)
+v1.3.17rc1 (Jan 05, 2022)
+* debian: Add systemd .service [Will Thompson]
+* Update TODO file to specify branch work that needs to be completed [Samir Hussain]
+* Correct a typo in the man page xl2tpd.conf(5) [Samy Mahmoudi]
+* xl2tpd-control: fix typo in usage [Yousong Zhou]
+* Updating debian changelog description [Samir Hussain]
+* control: Fix branch of Vcs-Git [Samuel Thibault]
+* upload [Samuel Thibault]
+* Drop unused lintian warning that produces a lintian error [Samuel Thibault]
+* Update xl2tpd.doc to use README.md [Samir Hussain]
+* Drop patch that cannot be applied any more [Samuel Thibault]
+* Bump debhelper from 10 to 12 [Samuel Thibault]
+* control: Bump Standards-Version to 4.5.0 [Samuel Thibault]
+* Really move changes to patch series [Samuel Thibault]
+* Move c0cce208e4a5 to patch series [Samuel Thibault]
+* upload [Samuel Thibault]
+* Close bug [Samuel Thibault]
+* Use https URL. [Samuel Thibault]
 
 v1.3.16 (October 23, 2020)
 * Re-add braces for if-else that have only statement [Samir Hussain]
