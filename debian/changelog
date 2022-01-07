@@ -1,6 +1,7 @@
 xl2tpd (1.3.16-2) UNRELEASED; urgency=medium
 
   * control: Fix branch of Vcs-Git.
+  * Play cat and mice again with lintian warning suppression.
 
  -- Samuel Thibault <sthibault@debian.org>  Mon, 20 Sep 2021 00:21:31 +0200
 
