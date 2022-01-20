@@ -2,6 +2,8 @@
 Description=Level 2 Tunnel Protocol Daemon (L2TP)
 After=network.target
 After=ipsec.service
+# Some ISPS use l2tp without IPsec. If that is the case for your ISP provider,
+# comment out the line below
 Wants=ipsec.service
 
 [Service]
