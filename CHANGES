@@ -1,4 +1,4 @@
-v1.3.17rc1 (Jan 05, 2022)
+v1.3.17 (Jan 20, 2022)
 * debian: Add systemd .service [Will Thompson]
 * Update TODO file to specify branch work that needs to be completed [Samir Hussain]
 * Correct a typo in the man page xl2tpd.conf(5) [Samy Mahmoudi]
