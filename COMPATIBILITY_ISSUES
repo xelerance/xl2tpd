@@ -27,3 +27,9 @@ There are reports of problems connecting to Miktrotik server.
 
 Github user reported that the following configuration works for them:
 https://github.com/xelerance/xl2tpd/issues/156#issuecomment-678674101
+
+* Some ISP use l2tp without IPsec.
+
+If the ISP being used by end user does not use IPsec, please comment out the
+following in debian/xl2tpd.service file:
+    Wants=ipsec.service
