@@ -32,4 +32,5 @@ https://github.com/xelerance/xl2tpd/issues/156#issuecomment-678674101
 
 If the ISP being used by end user does not use IPsec, please comment out the
 following in debian/xl2tpd.service file:
+    After=ipsec.service
     Wants=ipsec.service

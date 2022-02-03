@@ -1,9 +1,9 @@
 [Unit]
 Description=Level 2 Tunnel Protocol Daemon (L2TP)
-After=network.target
-After=ipsec.service
+After=network-online.target
 # Some ISPS use l2tp without IPsec. If that is the case for your ISP provider,
-# comment out the line below
+# comment out the two lines below
+After=ipsec.service
 Wants=ipsec.service
 
 [Service]
