@@ -710,6 +710,14 @@ static struct tunnel *l2tp_call (char *host, int port, struct lac *lac,
     {
         l2tp_log (LOG_WARNING, "Host name lookup failed for %s.\n",
              host);
+        if (lac->redial && (lac->rtimeout > 0) && !lac->rsched && lac->active)
+        {
+            struct timeval tv;
+            l2tp_log (LOG_INFO, "Will redial in %d seconds\n", lac->rtimeout);
+            tv.tv_sec = lac->rtimeout;
+            tv.tv_usec = 0;
+            lac->rsched = schedule (tv, magic_lac_dial, lac);
+        }
         return NULL;
     }
     bcopy (hp->h_addr, &addr.s_addr, hp->h_length);
