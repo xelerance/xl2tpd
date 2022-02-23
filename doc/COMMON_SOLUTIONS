@@ -1,0 +1,17 @@
+Q. How do you deny connection to xl2tpd without IPsec encryption?
+
+You can use iptables policy module like this:
+
+iptables -A INPUT -p udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
+iptables -A INPUT -p udp --dport 1701 -j DROP
+
+Q. How to address low throughput?
+
+Use rx bps and tx bps in xltpd.conf
+
+A lot of examples use the following which is 10 times the default xl2tpd values:
+
+tx bps = 100000000
+rx bps = 100000000
+
+
