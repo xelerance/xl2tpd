@@ -28,9 +28,18 @@ There are reports of problems connecting to Miktrotik server.
 Github user reported that the following configuration works for them:
 https://github.com/xelerance/xl2tpd/issues/156#issuecomment-678674101
 
+* Out of order control packet on tunnel
+
+Some users are reporting when stablishing a tunnel with with Watchguard
+Firewall, they get "Out of order control packet on tunnel" error messages.
+If that is the case, please add the following to the DFLAGS section in Makefile
+and compile:
+    -DCONFIG_WATCHDOG_FIREWALL
+
 * Some ISP use l2tp without IPsec.
 
 If the ISP being used by end user does not use IPsec, please comment out the
 following in debian/xl2tpd.service file:
     After=ipsec.service
     Wants=ipsec.service
+
