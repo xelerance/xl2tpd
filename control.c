@@ -1640,7 +1640,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
                  __FUNCTION__);
             return -EINVAL;
         }
-        else if ((size_t)err < 0)
+        else if ((ssize_t)err < 0)
         {
             if ((errno == EAGAIN) || (errno == EINTR))
             {
