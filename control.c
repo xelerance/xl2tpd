@@ -1421,7 +1421,8 @@ static inline int expand_payload (struct buffer *buf, struct tunnel *t,
      * check_payload() should already be called as a prerequisite.
      */
     struct payload_hdr *h = (struct payload_hdr *) (buf->start);
-    _u16 *r = (_u16 *) h;       /* Nice to have raw word pointers */
+    typedef _u16 __attribute__((aligned(1))) _u16_ua;
+    _u16_ua *r = (_u16_ua *) h; /* Nice to have raw word pointers */
     struct payload_hdr *new_hdr;
     int ehlen = 0;
     /*
