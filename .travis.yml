@@ -3,12 +3,6 @@ language: c
 jobs:
   include:
     - os: linux
-      dist: xenial
-      compiler: gcc
-    - os: linux
-      dist: xenial
-      compiler: clang
-    - os: linux
       dist: bionic
       compiler: gcc
     - os: linux
@@ -19,6 +13,12 @@ jobs:
       compiler: gcc
     - os: linux
       dist: focal
+      compiler: clang
+    - os: linux
+      dist: jammy
+      compiler: gcc
+    - os: linux
+      dist: jammy
       compiler: clang
 
 sudo: false
