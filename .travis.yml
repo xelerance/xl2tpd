@@ -20,6 +20,12 @@ jobs:
     - os: linux
       dist: focal
       compiler: clang
+    - os: linux
+      dist: jammy
+      compiler: gcc
+    - os: linux
+      dist: jammy
+      compiler: clang
 
 sudo: false
 
