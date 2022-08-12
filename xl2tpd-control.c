@@ -83,7 +83,9 @@ struct command_t commands[] = {
     {"available",     &command_available,     TUNNEL_NOT_REQUIRED},
     {"add-lns",       &command_add_lns,       TUNNEL_REQUIRED},
     {"status-lns",    &command_status_lns,    TUNNEL_REQUIRED},
-    {"remove-lns",    &command_remove_lns,    TUNNEL_REQUIRED}
+    {"remove-lns",    &command_remove_lns,    TUNNEL_REQUIRED},
+
+    {NULL, NULL, TUNNEL_REQUIRED}
 };
 
 void usage()
