@@ -11,6 +11,7 @@ Standards-Version: 4.6.0
 
 Package: xl2tpd
 Architecture: any
+Multi-Arch: foreign
 Provides: l2tpd
 Depends: ${shlibs:Depends}, ${misc:Depends}, ppp, lsb-base (>= 3.0-6)
 Description: layer 2 tunneling protocol implementation
