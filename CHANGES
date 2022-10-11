@@ -1,4 +1,24 @@
-v1.3.18dev1 (Jan 20, 2022)
+v1.3.18dev1 (Oct 11, 2022)
+* Set default debian branch [Samuel Thibault]
+* watch: Turn rc version piece into ~rc [Samuel Thibault]
+* upload [Samuel Thibault]
+* Fix changelog [Samuel Thibault]
+* control: Make Multi-Arch: foreign [Samuel Thibault]
+* Add support for Ubuntu Jammy (22.04) when testing with travis.yml [Samir Hussain]
+* Update control.c [Lőrinczy, Zsigmond]
+* Update issue templates [Samir]
+* Add compatability information for Watchguard Firewall [Samir Hussain]
+* Adding documentation on common scnerios and how to address them [Samir Hussain]
+* Fix issue where in some cases xl2tpd stops trying to connect if it can not resolve server name (DNS failure or WAN temporarily unavailable), even if autodial and redial options are set. [Samir Hussain]
+* Modify debian/xl2tpd.service to use network-online.target [Samir Hussain]
+* man page: leave the original phrasing for what xl2tpd is [Alexander Naumov]
+* typo fix [Alexander Naumov]
+* update man-pages [Alexander Naumov]
+* Updating README.md [Samir Hussain]
+* Add documentation to warn users to comment out: Wants=ipsec.service in the xl2pd.service file [Samir Hussain]
+* Update VERSION to 1.3.18dev1 [Samir Hussain]
+* control: Bump Standards-Version to 4.6.0 (no change) [Samuel Thibault]
+* Play cat and mice again with lintian warning suppression [Samuel Thibault]
 
 v1.3.17 (Jan 20, 2022)
 * debian: Add systemd .service [Will Thompson]
