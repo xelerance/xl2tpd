@@ -47,6 +47,7 @@
 ; rx bps = 10000000				; Receive tunnel speed
 ; tx bps = 10000000				; Transmit tunnel speed
 ; bps = 100000					; Define both receive and transmit speed in one option
+; trust remotenumber = no			; Trust dialing number AVP?
 
 ; [lac marko]							; Example VPN LAC definition
 ; lns = lns.marko.net					; * Who is our LNS?

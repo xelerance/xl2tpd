@@ -495,6 +495,14 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     }
 
     {
+        stropt[pos++] = strdup("remotenumber");
+        if (c->dialing[0] && (!c->lns || c->lns->trust_remotenumber)) {
+            /* if a remotenumber is available, and we're a LAC or the remote "dialing number" AVP is trusted */
+            stropt[pos++] = strdup(c->dialing);
+        } else {
+            stropt[pos++] = strdup(IPADDY(c->container->peer.sin_addr));
+        }
+
         struct ppp_opts *p = opts;
         int maxn_opts = sizeof(stropt) / sizeof(stropt[0]) - 1;
         while (p && pos < maxn_opts)
