@@ -1,3 +1,5 @@
+v1.3.19dev1  (Nov 01, 2022)
+
 v1.3.18 (Nov 01, 2022)
 * Set default debian branch [Samuel Thibault]
 * watch: Turn rc version piece into ~rc [Samuel Thibault]
