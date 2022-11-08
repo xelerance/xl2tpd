@@ -495,6 +495,12 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
     }
 
     {
+	if (c->dialing[0])
+	{
+	    stropt[pos++] = strdup("remotenumber");
+	    stropt[pos++] = strdup(c->dialing);
+	}
+
         struct ppp_opts *p = opts;
         int maxn_opts = sizeof(stropt) / sizeof(stropt[0]) - 1;
         while (p && pos < maxn_opts)
