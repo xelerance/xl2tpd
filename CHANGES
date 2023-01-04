@@ -394,7 +394,7 @@ v1.1.09
 
 v1.1.08
 * Confirmed pppd bug of not always terminating on SIGTERM. The new define
-  TRUST_PPPD_TO_DIE determins whether we send SIGTERM or SIGKILL, with
+  TRUST_PPPD_TO_DIE determines whether we send SIGTERM or SIGKILL, with
   SIGKILL being the (new) default. (ppp-2.4.2-6.4.RHEL4 is known to be
   broken)
 
