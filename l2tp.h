@@ -79,7 +79,7 @@ struct control_hdr
     _u16 Nr;                    /* Next received */
 } __attribute__((packed));
 
-#define CTBIT(ver) (ver & 0x8000)       /* Determins if control or not */
+#define CTBIT(ver) (ver & 0x8000)       /* Determines if control or not */
 #define CLBIT(ver) (ver & 0x4000)       /* Length bit present.  Must be 1
                                            for control messages */
 
