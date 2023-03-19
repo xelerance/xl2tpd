@@ -250,9 +250,9 @@ int control_finish (struct tunnel *t, struct call *c)
             add_bearer_caps_avp (buf, t->ourbc);
             /* FIXME:  Tie breaker */
             add_firmware_avp (buf);
-            if (t->lac && t->lac->hostname && t->lac->hostname[0])
+            if (t->lac && t->lac->hostname[0])
                 add_hostname_avp (buf, t->lac->hostname);
-            else if (t->lns && t->lns->hostname && t->lns->hostname[0])
+            else if (t->lns && t->lns->hostname[0])
                 add_hostname_avp (buf, t->lns->hostname);
             else
                 add_hostname_avp (buf, hostname);
@@ -468,9 +468,9 @@ int control_finish (struct tunnel *t, struct call *c)
         add_frame_caps_avp (buf, t->ourfc);
         add_bearer_caps_avp (buf, t->ourbc);
         add_firmware_avp (buf);
-        if (t->lac && t->lac->hostname && t->lac->hostname[0])
+        if (t->lac && t->lac->hostname[0])
             add_hostname_avp (buf, t->lac->hostname);
-        else if (t->lns && t->lns->hostname && t->lns->hostname[0])
+        else if (t->lns && t->lns->hostname[0])
             add_hostname_avp (buf, t->lns->hostname);
         else
             add_hostname_avp (buf, hostname);
