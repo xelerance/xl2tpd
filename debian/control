@@ -13,7 +13,7 @@ Package: xl2tpd
 Architecture: any
 Multi-Arch: foreign
 Provides: l2tpd
-Depends: ${shlibs:Depends}, ${misc:Depends}, ppp, lsb-base (>= 3.0-6)
+Depends: ${shlibs:Depends}, ${misc:Depends}, ppp
 Description: layer 2 tunneling protocol implementation
  xl2tpd is an open source implementation of the L2TP tunneling
  protocol (RFC2661).  xl2tpd is forked from l2tpd and is maintained by
