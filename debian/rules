@@ -59,6 +59,7 @@ binary-arch: build install
 	dh_installexamples
 #	dh_install
 	dh_installinit
+	dh_installsystemd
 	dh_installman
 	cp debian/lintian-overrides \
 		debian/xl2tpd/usr/share/lintian/overrides/xl2tpd
