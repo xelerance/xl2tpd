@@ -74,7 +74,7 @@ static int control_handle_lac_hangup(FILE* resf, char* bufp);
 static int control_handle_lac_disconnect(FILE* resf, char* bufp);
 static int control_handle_lac_add_modify(FILE* resf, char* bufp);
 static int control_handle_lac_remove(FILE* resf, char* bufp);
-static int control_handle_lac_status();
+static int control_handle_lac_status(FILE*, char*);
 static int control_handle_lns_remove(FILE* resf, char* bufp);
 
 static struct control_requests_handler control_handlers[] = {
@@ -1549,7 +1549,7 @@ static int control_handle_lac_remove(FILE* resf, char* bufp){
     return 1;
 }
 
-static int control_handle_lac_status(){
+static int control_handle_lac_status(FILE*, char*){
     show_status ();
     return 1;
 }
