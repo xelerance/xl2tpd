@@ -1,4 +1,8 @@
-v1.3.19dev1  (Nov 01, 2022)
+v1.3.19dev1  (March 21, 2025)
+* Only force userspace when ipsec saref enabled [Kyle Russell]
+* control: avoid compiler warnings. [Jaco Kroon]
+* fix typo [lilinjie]
+* fix a gcc-warning related to 'struct payload_hdr' pointer  [Lorinczy Zsigmond]
 
 v1.3.18 (Nov 01, 2022)
 * Set default debian branch [Samuel Thibault]
