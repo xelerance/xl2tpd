@@ -1,4 +1,4 @@
-v1.3.19dev1  (March 21, 2025)
+v1.3.19rc1 (April 4, 2025)
 * Only force userspace when ipsec saref enabled [Kyle Russell]
 * control: avoid compiler warnings. [Jaco Kroon]
 * fix typo [lilinjie]
