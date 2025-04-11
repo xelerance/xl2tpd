@@ -250,9 +250,9 @@ int control_finish (struct tunnel *t, struct call *c)
             add_bearer_caps_avp (buf, t->ourbc);
             /* FIXME:  Tie breaker */
             add_firmware_avp (buf);
-            if (t->lac && t->lac->hostname && t->lac->hostname[0])
+            if (t->lac && t->lac->hostname[0])
                 add_hostname_avp (buf, t->lac->hostname);
-            else if (t->lns && t->lns->hostname && t->lns->hostname[0])
+            else if (t->lns && t->lns->hostname[0])
                 add_hostname_avp (buf, t->lns->hostname);
             else
                 add_hostname_avp (buf, hostname);
@@ -468,9 +468,9 @@ int control_finish (struct tunnel *t, struct call *c)
         add_frame_caps_avp (buf, t->ourfc);
         add_bearer_caps_avp (buf, t->ourbc);
         add_firmware_avp (buf);
-        if (t->lac && t->lac->hostname && t->lac->hostname[0])
+        if (t->lac && t->lac->hostname[0])
             add_hostname_avp (buf, t->lac->hostname);
-        else if (t->lns && t->lns->hostname && t->lns->hostname[0])
+        else if (t->lns && t->lns->hostname[0])
             add_hostname_avp (buf, t->lns->hostname);
         else
             add_hostname_avp (buf, hostname);
@@ -1421,7 +1421,8 @@ static inline int expand_payload (struct buffer *buf, struct tunnel *t,
      * check_payload() should already be called as a prerequisite.
      */
     struct payload_hdr *h = (struct payload_hdr *) (buf->start);
-    _u16 *r = (_u16 *) h;       /* Nice to have raw word pointers */
+    typedef _u16 __attribute__((aligned(1))) _u16_ua;
+    _u16_ua *r = (_u16_ua *) h; /* Nice to have raw word pointers */
     struct payload_hdr *new_hdr;
     int ehlen = 0;
     /*
