@@ -257,6 +257,9 @@ static void child_handler (int sig)
             {
                 if (c->pppd == pid)
                 {
+                    /* pid is no longer valid, avoid killing it later by accident in destroy_call() */
+                    c->pppd = 0;
+
                     if ( WIFEXITED( status ) )
                     {
                         l2tp_log (LOG_DEBUG, "%s : pppd exited for call %d with code %d\n", __FUNCTION__,
@@ -283,6 +286,8 @@ static void child_handler (int sig)
 #endif
                     close (c->fd);
 #ifdef USE_KERNEL
+                 } else {
+                     call_close (c);
                  }
 #endif
                     c->fd = -1;
