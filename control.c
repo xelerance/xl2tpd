@@ -484,7 +484,7 @@ int control_finish (struct tunnel *t, struct call *c)
             handle_challenge (t, &t->chal_us);
             add_chalresp_avp (buf, t->chal_us.response, MD_SIG_SIZE);
         }
-        if (t->lns->challenge)
+        if (t->lns && t->lns->challenge)
         {
             if (t->chal_them.challenge)
 		free(t->chal_them.challenge);
@@ -927,24 +927,24 @@ int control_finish (struct tunnel *t, struct call *c)
                 po = add_opt (po, "passwordfd");
                 snprintf (passwdfd_buf, 32, "%d", pppd_passwdfd[0]);
                 po = add_opt (po, passwdfd_buf);
+
+                close(pppd_passwdfd[0]);
             }
             if (c->lac->pppoptfile[0])
             {
                 po = add_opt (po, "file");
                 po = add_opt (po, c->lac->pppoptfile);
             }
+            if (c->lac->pass_peer)
+            {
+                po = add_opt (po, "ipparam");
+                po = add_opt (po, IPADDY (t->peer.sin_addr));
+            }
         };
-        if (c->lac->pass_peer)
-        {
-            po = add_opt (po, "ipparam");
-            po = add_opt (po, IPADDY (t->peer.sin_addr));
-        }
         start_pppd (c, po);
         opt_destroy (po);
         if (c->lac)
             c->lac->rtries = 0;
-	if (c->lac->password[0])
-	    close(pppd_passwdfd[0]);
         break;
     case ICCN:
         if (c == t->self)
@@ -1078,12 +1078,12 @@ int control_finish (struct tunnel *t, struct call *c)
                 po = add_opt (po, "file");
                 po = add_opt (po, c->lac->pppoptfile);
             }
+            if (c->lac->pass_peer)
+            {
+                po = add_opt (po, "ipparam");
+                po = add_opt (po, IPADDY (t->peer.sin_addr));
+            }
         };
-        if (c->lac->pass_peer)
-        {
-            po = add_opt (po, "ipparam");
-            po = add_opt (po, IPADDY (t->peer.sin_addr));
-        }
         start_pppd (c, po);
 
         /*  jz: just show some information */
