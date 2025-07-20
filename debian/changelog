@@ -7,6 +7,7 @@ xl2tpd (1.3.19-1) unstable; urgency=medium
 xl2tpd (1.3.18-2) UNRELEASED; urgency=medium
 
   * control: Drop dependency on now-obsolete lsb-base.
+  * rules: Use buildflags.mk.
 
  -- Samuel Thibault <sthibault@debian.org>  Fri, 14 Jul 2023 16:21:27 +0200
 
