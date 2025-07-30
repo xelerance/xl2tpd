@@ -1,5 +1,5 @@
-Formats: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://www.xelerance.com/software/xl2tpd/ (repacked to remove non-free RFC text included in upstream distribution)
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 
 Files: *
 Copyright: (c) 2006-2016 Xelerance Corporation
