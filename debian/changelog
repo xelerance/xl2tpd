@@ -266,7 +266,3 @@ xl2tpd (1.1.11.dfsg.1-1) unstable; urgency=low
   * Repackage upstream tarball to remove non-free RFC (Closes: #393381)
 
  -- Roberto C. Sanchez <roberto@connexer.com>  Tue, 31 Jul 2007 20:57:23 -0400
-
-Local variables:
-mode: debian-changelog
-End:
