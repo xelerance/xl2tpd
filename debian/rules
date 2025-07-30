@@ -27,7 +27,7 @@ configure-stamp:
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
-build-stamp: configure-stamp 
+build-stamp: configure-stamp
 	dh_testdir
 	dh_auto_build -- CFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION -DUSE_KERNEL $(CFLAGS)" CPPFLAGS=" -DDEBUG_PPPD -DTRUST_PPPD_TO_DIE -O2 -fno-builtin -Wall -DSANITY -DLINUX -I$(KERNELSRC)/include/ -DIP_ALLOCATION $(CPPFLAGS)" LDFLAGS=" $(LDFLAGS)"
 	touch $@
@@ -37,7 +37,7 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	[ ! -f Makefile ] || $(MAKE) clean
-	dh_clean 
+	dh_clean
 
 install: build
 	dh_testdir

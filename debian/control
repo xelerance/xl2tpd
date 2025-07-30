@@ -22,4 +22,3 @@ Description: layer 2 tunneling protocol implementation
  The main purpose of this protocol is to tunnel PPP frames through IP
  networks.  It implements both LAC and LNS role in the L2TP networking
  architecture.
-
