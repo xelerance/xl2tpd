@@ -10,7 +10,7 @@ Build-Depends: debhelper-compat (= 13), libpcap0.8-dev
 Standards-Version: 4.6.2
 
 Package: xl2tpd
-Architecture: any
+Architecture: linux-any
 Multi-Arch: foreign
 Provides: l2tpd
 Depends: ${shlibs:Depends}, ${misc:Depends}, ppp
