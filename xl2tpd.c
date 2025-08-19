@@ -491,6 +491,9 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             l2tp_log (LOG_WARNING, "unable to open tty %s, cannot start pppd", tty);
             return -EINVAL;
         }
+#ifdef __APPLE__
+        stropt[pos++] = strdup("device");
+#endif
         stropt[pos++] = strdup(tty);
     }
 

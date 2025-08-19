@@ -1,0 +1,27 @@
+name: build
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: Itexoft/DevOpsKit/.github/workflows/autotools-multi-rid-build.yml@d7ba1b8c1e7d9a9bf54003af3c49fa1a722b94ce
+    with:
+      project_name: xl2tpd
+      apt_packages: libpcap-dev
+      build_cmd: |
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          sed -i '' '/OSFLAGS+= -DUSE_KERNEL/d' Makefile
+          sed -i '' 's/#if !defined(LINUX)/#if !defined(LINUX) \&\& !defined(__APPLE__)/' osport.h
+          mkdir -p darwin-headers/net
+          curl -L https://raw.githubusercontent.com/apple/darwin-xnu/main/bsd/net/ppp_defs.h \
+            -o darwin-headers/net/ppp_defs.h
+          make OSFLAGS="-DFREEBSD -I$PWD/darwin-headers" xl2tpd
+          make OSFLAGS="-DFREEBSD -I$PWD/darwin-headers" pfc xl2tpd-control
+        else
+          make xl2tpd
+          make pfc xl2tpd-control
+        fi
+        cp xl2tpd xl2tpd-control "$GITHUB_WORKSPACE/$ARTIFACTS_DIR"
+      enable_windows: "false"

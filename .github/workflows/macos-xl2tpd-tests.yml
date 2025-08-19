@@ -1,0 +1,44 @@
+name: macOS xl2tpd functional tests
+
+on:
+  workflow_run:
+    workflows: [ "build" ]
+    types: [ completed ]
+    branches: [ master, main ]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  macos_tests:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: xl2tpd-osx
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: artifacts
+      - run: cp artifacts/xl2tpd artifacts/xl2tpd-control .
+      - run: chmod +x xl2tpd xl2tpd-control || true
+      - run: |
+          if [ -x tests/macos/run.sh ]; then
+            bash tests/macos/run.sh
+          elif grep -q "^check:" Makefile 2>/dev/null; then
+            make check
+          elif [ -x scripts/test-macos.sh ]; then
+            bash scripts/test-macos.sh
+          else
+            echo "No tests defined" && exit 1
+          fi
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-xl2tpd-logs
+          path: .ci-artifacts

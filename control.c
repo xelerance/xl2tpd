@@ -861,17 +861,26 @@ int control_finish (struct tunnel *t, struct call *c)
 		  c->serno, t->refme, t->refhim);
         control_xmit (buf);
         po = NULL;
+#ifndef __APPLE__
         po = add_opt (po, "passive");
         po = add_opt (po, "nodetach");
+#endif
         if (c->lac)
         {
+#ifndef __APPLE__
             if (c->lac->defaultroute)
                 po = add_opt (po, "defaultroute");
+#endif
             strncpy (ip1, IPADDY (c->lac->localaddr), sizeof (ip1));
             strncpy (ip2, IPADDY (c->lac->remoteaddr), sizeof (ip2));
 #ifdef IP_ALLOCATION
-            po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
-                          c->lac->remoteaddr ? ip2 : "");
+            if (c->lac->localaddr || c->lac->remoteaddr)
+                po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
+                              c->lac->remoteaddr ? ip2 : "");
+#endif
+#ifdef __APPLE__
+            if (c->lac->defaultroute)
+                po = add_opt (po, "defaultroute");
 #endif
             if (c->lac->authself)
             {
@@ -978,8 +987,10 @@ int control_finish (struct tunnel *t, struct call *c)
         strncpy (ip1, IPADDY (c->lns->localaddr), sizeof (ip1));
         strncpy (ip2, IPADDY (c->addr), sizeof (ip2));
         po = NULL;
+#ifndef __APPLE__
         po = add_opt (po, "passive");
         po = add_opt (po, "nodetach");
+#endif
         po = add_opt (po, "%s:%s", c->lns->localaddr ? ip1 : "", ip2);
         if (c->lns->authself)
         {
@@ -1032,8 +1043,10 @@ int control_finish (struct tunnel *t, struct call *c)
         break;
     case OCCN:                 /* jz: get OCCN, so the only thing we must do is to start the pppd */
         po = NULL;
+#ifndef __APPLE__
         po = add_opt (po, "passive");
         po = add_opt (po, "nodetach");
+#endif
         po = add_opt (po, "file");
         strcat (dummy_buf, c->dial_no); /* jz: use /etc/ppp/dialnumber.options for pppd - kick it if you don't like */
         strcat (dummy_buf, ".options");
@@ -1044,8 +1057,9 @@ int control_finish (struct tunnel *t, struct call *c)
                 po = add_opt (po, "defaultroute");
             strncpy (ip1, IPADDY (c->lac->localaddr), sizeof (ip1));
             strncpy (ip2, IPADDY (c->lac->remoteaddr), sizeof (ip2));
-            po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
-                          c->lac->remoteaddr ? ip2 : "");
+            if (c->lac->localaddr || c->lac->remoteaddr)
+                po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
+                              c->lac->remoteaddr ? ip2 : "");
             if (c->lac->authself)
             {
                 if (c->lac->pap_refuse)
