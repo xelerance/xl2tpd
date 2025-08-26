@@ -1,18 +1,40 @@
-Source: http://www.xelerance.com/software/xl2tpd/ (repacked to remove non-free RFC text included in upstream distribution)
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: http://www.xelerance.com/software/xl2tpd/ (repacked to remove non-free RFC text included in upstream distribution)
 
 Files: *
 Copyright: (c) 2006-2016 Xelerance Corporation
+License: GPL
+
+Files: doc/* Makefile xl2tpd-control.c
+Copyright: (c) 2006-2016 Xelerance Corporation
 License: GPL-2+
+
+Files: md5.c
+Copyright: 1993 Colin Plumb
+License: public-domain
 
 Files: debian/*
 Copyright: (c) 2007-2013 Roberto C. Sanchez <roberto@connexer.com>
                          Jean-Francois Dive
-License: GPL-2+
+License: GPL
 
-License: GPL-2+
+License: GPL
  Please see the CREDITS file for a complete copyright history of all parts of
  the project.
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-2'.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
  .
  On Debian systems, the complete text of the GNU General
  Public License can be found in `/usr/share/common-licenses/GPL-2'.
