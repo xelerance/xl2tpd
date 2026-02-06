@@ -175,6 +175,12 @@ This will enable the debug for pppd.
 .B pass peer
 Pass the peer's IP address to pppd as ipparam. Enabled by default.
 
+.TP
+.B trust remotenumber
+When this is set to yes xl2tpd will trust the dialing number AVP and provide
+that as the remotenumber to pppd rather than the peer's IP address.  Default is
+not trusted.
+
 .TP 
 .B pppoptfile
 Specify the path for a file which contains pppd configuration parameters
