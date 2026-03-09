@@ -74,7 +74,7 @@ static int control_handle_lac_hangup(FILE* resf, char* bufp);
 static int control_handle_lac_disconnect(FILE* resf, char* bufp);
 static int control_handle_lac_add_modify(FILE* resf, char* bufp);
 static int control_handle_lac_remove(FILE* resf, char* bufp);
-static int control_handle_lac_status();
+static int control_handle_lac_status(FILE* resf, char* bufp);
 static int control_handle_lns_remove(FILE* resf, char* bufp);
 
 static struct control_requests_handler control_handlers[] = {
@@ -257,6 +257,9 @@ static void child_handler (int sig)
             {
                 if (c->pppd == pid)
                 {
+                    /* pid is no longer valid, avoid killing it later by accident in destroy_call() */
+                    c->pppd = 0;
+
                     if ( WIFEXITED( status ) )
                     {
                         l2tp_log (LOG_DEBUG, "%s : pppd exited for call %d with code %d\n", __FUNCTION__,
@@ -283,6 +286,8 @@ static void child_handler (int sig)
 #endif
                     close (c->fd);
 #ifdef USE_KERNEL
+                 } else {
+                     call_close (c);
                  }
 #endif
                     c->fd = -1;
@@ -491,6 +496,9 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
             l2tp_log (LOG_WARNING, "unable to open tty %s, cannot start pppd", tty);
             return -EINVAL;
         }
+#ifdef __APPLE__
+        stropt[pos++] = strdup("device");
+#endif
         stropt[pos++] = strdup(tty);
     }
 
@@ -1549,7 +1557,8 @@ static int control_handle_lac_remove(FILE* resf, char* bufp){
     return 1;
 }
 
-static int control_handle_lac_status(){
+static int control_handle_lac_status(FILE*, char*)
+{
     show_status ();
     return 1;
 }

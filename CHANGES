@@ -1,3 +1,10 @@
+v1.3.20 (February 04, 2026)
+* xl2tpd: Close calls when underlying pppd terminate. [Jaco Kroon]
+* debian: Install xl2tpd.service [Will Thompson]
+* Fix compiling with C23. [Jaco Kroon]
+* Update Debian configuraiton [Samir Hussain]
+* control: Drop dependency on now-obsolete lsb-base [Samuel Thibault]
+
 v1.3.19 (April 11, 2025)
 * Only force userspace when ipsec saref enabled [Kyle Russell]
 * control: avoid compiler warnings. [Jaco Kroon]
