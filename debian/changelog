@@ -1,3 +1,23 @@
+xl2tpd (1.3.20-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Samir Hussain <shussain@xelerance.com>  Wed, 04 Feb 2026 09:30:00 -0400
+
+xl2tpd (1.3.19-2) UNRELEASED; urgency=low
+
+  [ Will Thompson ]
+  * rules: Install xl2tpd.service (Closes: #1039424)
+
+  [ Samuel Thibault ]
+  * Trim trailing whitespace.
+  * Bump debhelper from old 12 to 13.
+  * Fix field name typo in debian/copyright (Formats ⇒ Format).
+  * Update standards version to 4.6.2, no changes needed.
+  * control: Make linux-any.
+
+ -- Samuel Thibault <sthibault@debian.org>  Wed, 30 Jul 2025 00:39:59 +0000
+
 xl2tpd (1.3.19-1) unstable; urgency=medium
 
   * New upstream release.
@@ -7,6 +27,7 @@ xl2tpd (1.3.19-1) unstable; urgency=medium
 xl2tpd (1.3.18-2) UNRELEASED; urgency=medium
 
   * control: Drop dependency on now-obsolete lsb-base.
+  * rules: Use buildflags.mk.
 
  -- Samuel Thibault <sthibault@debian.org>  Fri, 14 Jul 2023 16:21:27 +0200
 
@@ -265,7 +286,3 @@ xl2tpd (1.1.11.dfsg.1-1) unstable; urgency=low
   * Repackage upstream tarball to remove non-free RFC (Closes: #393381)
 
  -- Roberto C. Sanchez <roberto@connexer.com>  Tue, 31 Jul 2007 20:57:23 -0400
-
-Local variables:
-mode: debian-changelog
-End:
