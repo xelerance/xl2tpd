@@ -1557,8 +1557,10 @@ static int control_handle_lac_remove(FILE* resf, char* bufp){
     return 1;
 }
 
-static int control_handle_lac_status(FILE*, char*)
+static int control_handle_lac_status(FILE* resf, char* bufp)
 {
+    UNUSED(resf);
+    UNUSED(bufp);
     show_status ();
     return 1;
 }
