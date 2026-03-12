@@ -446,8 +446,8 @@ int start_pppd (struct call *c, struct ppp_opts *opts)
        sax.pppol2tp.d_tunnel  = c->container->tid;
        sax.pppol2tp.d_session = c->cid;
        if (connect(fd2, (struct sockaddr *)&sax, sizeof(sax)) < 0) {
-           l2tp_log (LOG_WARNING, "%s: Unable to connect PPPoL2TP socket.\n",
-                __FUNCTION__);
+           l2tp_log (LOG_WARNING, "%s: Unable to connect PPPoL2TP socket: %s.\n",
+                __FUNCTION__, strerror(errno));
            close(fd2);
            return -EINVAL;
        }
