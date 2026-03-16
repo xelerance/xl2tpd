@@ -676,6 +676,22 @@ int set_pass_peer (char *word, char *value, int context, void *item)
     return 0;
 }
 
+int set_trust_remotenumber (char *word, char *value, int context, void *item)
+{
+    switch (context & ~CONTEXT_DEFAULT)
+    {
+    case CONTEXT_LNS:
+        if (set_boolean (word, value, &(((struct lns *) item)->trust_remotenumber)))
+            return -1;
+        break;
+    default:
+        snprintf (filerr, sizeof (filerr), "'%s' not valid in this context\n",
+                  word);
+        return -1;
+    }
+    return 0;
+}
+
 int set_pppoptfile (char *word, char *value, int context, void *item)
 {
     struct lac *l = (struct lac *) item;
@@ -1611,6 +1627,7 @@ struct keyword words[] = {
     {"hostname", &set_hostname},
     {"ppp debug", &set_debug},
     {"pass peer", &set_pass_peer},
+    {"trust remotenumber", &set_trust_remotenumber},
     {"pppoptfile", &set_pppoptfile},
     {"call rws", &set_rws},
     {"tunnel rws", &set_rws},
