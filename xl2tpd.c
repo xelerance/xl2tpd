@@ -1322,9 +1322,18 @@ static int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
 
     switch_io = 0;  /* jz: Switch for incoming - outgoing Calls */
 
-    sub_str = strchr (bufp, ' ') + 1;
-    tunstr = strtok (sub_str, " "); /* jz: using strtok function to get */
-    tmp_ptr = strtok (NULL, " ");   /*     params out of the pipe       */
+    char *space = strchr(bufp, ' ');
+    if (space == NULL ||
+        (tunstr = strtok(space + 1, " ")) == NULL ||
+        *tunstr == '\0' ||
+        (tmp_ptr = strtok(NULL, " ")) == NULL ||
+        *tmp_ptr == '\0')
+    {
+        write_res (resf,
+                "%02i Invalid input: missing or malformed parameter(s)\n", 1);
+        l2tp_log (LOG_CRIT, "%s: Invalid input: missing or malformed parameter(s)\n", __FUNCTION__);
+        return -1;
+    }
     strcpy (dial_no_tmp, tmp_ptr);
 
     lac = laclist;
