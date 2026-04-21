@@ -1371,8 +1371,19 @@ static int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
 static int control_handle_lac_hangup(FILE* resf, char* bufp){
     char* callstr;
     int call;
+    char *p = strchr(bufp, ' ');
+    if (p != NULL)
+        callstr = p + 1;
+    else
+        callstr = NULL;
 
-    callstr = strchr (bufp, ' ') + 1;
+    if ((!callstr) || (!strlen (callstr)))
+    {
+        write_res (resf,
+                "%02i Command parse error: call-id expected\n", 1);
+        l2tp_log (LOG_CRIT, "%s: call-id expected\n", __FUNCTION__);
+        return 0;
+    }
     call = atoi (callstr);
 #ifdef DEBUG_CONTROL
     l2tp_log (LOG_DEBUG, "%s: Attempting to hangup call %d\n", __FUNCTION__,
