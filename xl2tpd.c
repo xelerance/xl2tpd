@@ -1398,8 +1398,18 @@ static int control_handle_lac_disconnect(FILE* resf, char* bufp){
     char* tunstr;
     struct lac* lac;
     int tunl = 0;
-
-    tunstr = strchr (bufp, ' ') + 1;
+    char *p = strchr(bufp, ' ');
+    if (p != NULL)
+        tunstr = p + 1;
+    else
+        tunstr = NULL;
+    if ((!tunstr) || (!strlen (tunstr)))
+    {
+        write_res (resf,
+                "%02i Command parse error: tunnel-id expected\n", 1);
+        l2tp_log (LOG_CRIT, "%s: tunnel-id expected\n", __FUNCTION__);
+        return 0;
+    }
     lac = laclist;
     while (lac)
     {
