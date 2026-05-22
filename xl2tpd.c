@@ -1323,16 +1323,38 @@ static int control_handle_lac_outgoing_call(FILE* resf, char* bufp){
     switch_io = 0;  /* jz: Switch for incoming - outgoing Calls */
 
     char *space = strchr(bufp, ' ');
-    if (space == NULL ||
-        (tunstr = strtok(space + 1, " ")) == NULL ||
-        *tunstr == '\0' ||
-        (tmp_ptr = strtok(NULL, " ")) == NULL ||
-        *tmp_ptr == '\0')
-    {
+    if (space == NULL) {
         write_res (resf,
-                "%02i Invalid input: missing or malformed parameter(s)\n", 1);
-        l2tp_log (LOG_CRIT, "%s: Invalid input: missing or malformed parameter(s)\n", __FUNCTION__);
-        return -1;
+                "%02i Command parse error: tunnel-name expected\n", 1);
+        l2tp_log (LOG_CRIT, "%s: tunnel-name expected\n", __FUNCTION__);
+        return 0;
+    }
+
+    sub_str = space + 1;
+
+    tunstr = strtok(sub_str, " ");
+    if (tunstr == NULL || *tunstr == '\0') {
+        write_res (resf,
+                "%02i Command parse error: tunnel-name expected\n", 1);
+        l2tp_log (LOG_CRIT, "%s: tunnel-name expected\n", __FUNCTION__);
+        return 0;
+    }
+
+    tmp_ptr = strtok(NULL, " ");
+    if (tmp_ptr == NULL || *tmp_ptr == '\0') {
+        write_res (resf,
+                "%02i Command parse error: dial-number expected\n", 1);
+        l2tp_log (LOG_CRIT, "%s: dial-number expected\n", __FUNCTION__);
+        return 0;
+    }
+
+    // dial_no_tmp length is capped at 128
+    size_t len = strlen(tmp_ptr);
+    if (len >= 128) {
+        write_res (resf,
+            "%02i Invalid input: dial-number too long\n", 1);
+        l2tp_log (LOG_CRIT, "%s: Invalid input: dial-number too long\n", __FUNCTION__);
+        return 0;
     }
     strcpy (dial_no_tmp, tmp_ptr);
 
@@ -1415,8 +1437,8 @@ static int control_handle_lac_disconnect(FILE* resf, char* bufp){
     if ((!tunstr) || (!strlen (tunstr)))
     {
         write_res (resf,
-                "%02i Command parse error: tunnel-id expected\n", 1);
-        l2tp_log (LOG_CRIT, "%s: tunnel-id expected\n", __FUNCTION__);
+                "%02i Command parse error: tunnel-name expected\n", 1);
+        l2tp_log (LOG_CRIT, "%s: tunnel-name expected\n", __FUNCTION__);
         return 0;
     }
     lac = laclist;
