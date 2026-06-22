@@ -285,12 +285,12 @@ static void child_handler (int sig)
 
 #endif
                     close (c->fd);
+                    c->fd = -1;
 #ifdef USE_KERNEL
                  } else {
                      call_close (c);
                  }
 #endif
-                    c->fd = -1;
                     /*
                      * terminate tunnel and call loops, returning to the
                      * for(;;) loop (and possibly get the next pid)
