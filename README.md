@@ -33,6 +33,15 @@ NOTE: In Linux kernel 4.15+ there is a kernel bug with ancillary IP_PKTINFO.
 
 The xl2tpd.conf(5) man page has details on how to configure xl2tpd.
 
+## Release process
+
+Due to changes and commits being contributed from different users and not
+having gone through integration testing, the release process is:
+* commits are merged/cherry-picked into a dev branch. The branch will follow the following naming convention:
+     _vUpcomingVersionNumberdev_     For example _v1.3.21dev_
+* after a couple of months, there will be a 'dev' git tag made based off the development branch
+* if there are no reported issues, a new 'rc' git tag will be made based off the 'dev' tag
+* if there are no reported issues, the changes will be merged into the master branch
 
 ## Mailing Lists
 
