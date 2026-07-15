@@ -153,6 +153,17 @@ static inline void extract (void *buf, int *tunnel, int *call)
     }
 }
 
+static inline int required_hdr_len(const void *buf)
+{
+    _u16 ver = ntohs(((_u16 *)buf)[0]);
+    if (ver & 0x8000) return 12;   // CTBIT: control header
+    int len = 6;
+    if (ver & 0x0200) len += 2;    // PSBIT
+    if (ver & 0x4000) len += 2;    // PLBIT
+    if (ver & 0x0800) len += 4;    // PFBIT
+    return len;
+}
+
 static inline void fix_hdr (void *buf)
 {
     /*
@@ -551,6 +562,12 @@ void network_thread ()
 
 	    /* Receive one packet. */
 	    recvsize = recvmsg(*currentfd, &msgh, 0);
+
+            if (recvsize < required_hdr_len(buf->start))
+            {
+                l2tp_log(LOG_WARNING, "%s: packet too short for declared header\n", __FUNCTION__);
+                continue;
+            }
 
             if (recvsize < MIN_PAYLOAD_HDR_LEN)
             {
