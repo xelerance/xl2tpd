@@ -438,9 +438,20 @@ int control_finish (struct tunnel *t, struct call *c)
         {
             if ((y->tid == t->tid) &&
                 (y->peer.sin_addr.s_addr == t->peer.sin_addr.s_addr) &&
+                (y->peer.sin_port == t->peer.sin_port) &&
                 (!gconfig.ipsecsaref || y->refhim == t->refhim) &&
                 (y != t))
             {
+                if (y->state == SCCCN)
+                {
+                    l2tp_log (LOG_NOTICE,
+                         "%s: Peer requested established tunnel %d again, dropping tunnel %d.\n",
+                         __FUNCTION__, t->tid, y->ourtid);
+                    y->self->needclose = 0;
+                    y->self->closing = -1;
+                    call_close (y->self);
+                    break;
+                }
                 /* This can happen if we get a duplicate
                    StartCCN or if they don't get our ACK packet */
                 /*
