@@ -340,7 +340,7 @@ void udp_xmit (struct buffer *buf, struct tunnel *t)
 
 	cmsg->cmsg_level = IPPROTO_IP;
 	cmsg->cmsg_type = IP_PKTINFO;
-	cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_pktinfo));
+	cmsg->cmsg_len   = CMSG_LEN(sizeof(struct in_pktinfo));
 
 	pktinfo = (struct in_pktinfo*) CMSG_DATA(cmsg);
 	*pktinfo = t->my_addr;
@@ -424,7 +424,7 @@ int build_fdset (fd_set *readfds)
 		{
 			if (gconfig.debug_tunnel)
 				l2tp_log (LOG_DEBUG, "%s: closing down tunnel %d\n",
-						__FUNCTION__, tun->ourtid);
+					__FUNCTION__, tun->ourtid);
 			call_close (tun->self);
 			/* Reset the while loop
 			 * and check for NULL */
@@ -485,7 +485,7 @@ void network_thread ()
         {
             if (ret == 0)
             {
-                if (gconfig.debug_network)
+                if (gconfig.debug_network && tunnels.head)
                 {
                     l2tp_log (LOG_DEBUG,
                         "%s: select timeout with max retries: %d for tunnel: %d\n",
@@ -494,10 +494,9 @@ void network_thread ()
             }
             else
             {
-                if (gconfig.debug_network)
+                if (gconfig.debug_network && tunnels.head)
                 {
-                    l2tp_log (LOG_DEBUG,
-                        "%s: select returned error %d (%s)\n",
+                    l2tp_log (LOG_DEBUG, "%s: select returned error %d (%s)\n",
                         __FUNCTION__, errno, strerror (errno));
                 }
             }
@@ -613,7 +612,7 @@ void network_thread ()
 	    fix_hdr (buf->start);
 	    extract (buf->start, &tunnel, &call);
 
-	    if (gconfig.debug_network)
+	    if (gconfig.debug_network && tunnels.head)
 	    {
 		l2tp_log(LOG_DEBUG, "%s: recv packet from %s, size = %d, "
 			 "tunnel = %d, call = %d ref=%u refhim=%u\n",
@@ -765,8 +764,8 @@ int connect_pppol2tp(struct tunnel *t) {
     if (bind (ufd, (struct sockaddr *) &server, sizeof (server)))
     {
         close (ufd);
-        l2tp_log (LOG_CRIT, "%s: Unable to bind UDP socket: %s. Terminating.\n",
-             __FUNCTION__, strerror(errno), errno);
+        l2tp_log (LOG_CRIT, "%s: Unable to bind UDP socket. Terminating.\n",
+             __FUNCTION__, errno, strerror(errno));
         return -EINVAL;
     };
     server = t->peer;
@@ -787,15 +786,14 @@ int connect_pppol2tp(struct tunnel *t) {
 
     fd2 = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
     if (fd2 < 0) {
-        l2tp_log (LOG_WARNING, "%s: Unable to allocate PPPoL2TP socket.\n",
-             __FUNCTION__);
+        l2tp_log (LOG_WARNING, "%s: Unable to allocate PPPoL2TP socket. Terminating.\n",
+            __FUNCTION__);
         return -EINVAL;
     }
     flags = fcntl(fd2, F_GETFL);
     if (flags == -1 || fcntl(fd2, F_SETFL, flags | O_NONBLOCK) == -1) {
         l2tp_log (LOG_WARNING, "%s: Unable to set PPPoL2TP socket nonblock.\n",
-             __FUNCTION__);
-        close(fd2);
+            __FUNCTION__);
         return -EINVAL;
     }
     memset(&sax, 0, sizeof(sax));
