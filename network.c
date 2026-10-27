@@ -488,8 +488,7 @@ void network_thread ()
                 if (gconfig.debug_network)
                 {
                     l2tp_log (LOG_DEBUG,
-                        "%s: select timeout with max retries: %d for tunnel: %d\n",
-                        __FUNCTION__, gconfig.max_retries, tunnels.head->ourtid);
+                        "%s: select timeout");
                 }
             }
             else
