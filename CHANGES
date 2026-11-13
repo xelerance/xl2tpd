@@ -1,4 +1,13 @@
-v1.3.21dev
+v1.3.21dev1 (Nov 12, 2026)
+* Accept SCCRQ of a restarted peer over its stale tunnel [AdzerKI]
+* Validate header length in network_thread() [Jinho Kim]
+* Adding release process description [Samir Hussain]
+* Log more detailed error for connect() to PPPoL2TP socket. [Jaco Kroon]
+* xl2tpd: Fix use-after-free in child_handler. [Jaco Kroon]
+* Fix potential heap overflow in control_handle_lac_outgoing_call [Jinho Kim]
+* Fix potential null dereference in control_handle_lac_outgoing_call [Jinho Kim]
+* Fix potential null dereference in control_handle_lac_disconnect [Jinho Kim]
+* Fix potential null dereference in control_handle_lac_hangup [Jinho Kim]
 
 v1.3.20 (February 04, 2026)
 * xl2tpd: Close calls when underlying pppd terminate. [Jaco Kroon]
