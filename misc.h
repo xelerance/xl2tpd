@@ -61,7 +61,7 @@ struct ppp_opts
 #define halt() printf("Halted.\n") ; for(;;)
 
 extern char hostname[];
-extern void l2tp_log (int level, const char *fmt, ...);
+extern void l2tp_log (int level, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 extern struct buffer *new_buf (int);
 extern void udppush_handler (int);
 extern int addfcs (struct buffer *buf);
