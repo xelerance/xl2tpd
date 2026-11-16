@@ -63,7 +63,7 @@ int init_network (void)
     {
         close (server_socket);
         l2tp_log (LOG_CRIT, "%s: Unable to bind socket: %s. Terminating.\n",
-             __FUNCTION__, strerror(errno), errno);
+             __FUNCTION__, strerror(errno));
         return -EINVAL;
     };
     if (getsockname (server_socket, (struct sockaddr *) &server, &length))
@@ -765,7 +765,7 @@ int connect_pppol2tp(struct tunnel *t) {
     {
         close (ufd);
         l2tp_log (LOG_CRIT, "%s: Unable to bind UDP socket: %s. Terminating.\n",
-             __FUNCTION__, strerror(errno), errno);
+             __FUNCTION__, strerror(errno));
         return -EINVAL;
     };
     server = t->peer;
