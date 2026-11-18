@@ -1213,7 +1213,7 @@ static inline int check_control (const struct buffer *buf, struct tunnel *t,
         if (DEBUG)
         {
             l2tp_log (LOG_DEBUG,
-                 "%s: Reported and actual sizes differ (%d != %d)\n",
+                 "%s: Reported and actual sizes differ (%d != %zu)\n",
                  __FUNCTION__, h->length, buf->len);
         }
         return -EINVAL;
@@ -1417,7 +1417,7 @@ static inline int check_payload (struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s payload too small (%d < %d)\n",
+                l2tp_log (LOG_DEBUG, "%s payload too small (%zu < %zu)\n",
                      __FUNCTION__, buf->len, ehlen);
             }
             return -EINVAL;
@@ -1426,7 +1426,7 @@ static inline int check_payload (struct buffer *buf, struct tunnel *t,
         {
             if (DEBUG)
             {
-                l2tp_log (LOG_DEBUG, "%s: size mismatch (%d != %d)\n",
+                l2tp_log (LOG_DEBUG, "%s: size mismatch (%zu != %d)\n",
                      __FUNCTION__, buf->len, h->length);
             }
             return -EINVAL;
@@ -1678,7 +1678,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
         }
         else if ((size_t)err < buf->len)
         {
-            l2tp_log (LOG_WARNING, "%s: short write (%d of %d bytes)\n", __FUNCTION__,
+            l2tp_log (LOG_WARNING, "%s: short write (%d of %zu bytes)\n", __FUNCTION__,
                  err, buf->len);
             return -EINVAL;
         }
@@ -1705,7 +1705,7 @@ static inline int write_packet (struct buffer *buf, struct tunnel *t, struct cal
         // 1 for a possible escape, 1 for the value and 1 to end the PPP stream.
         if((size_t)pos >= (sizeof(wbuf) - 4)) {
             if(DEBUG)
-                l2tp_log(LOG_CRIT, "%s: rx packet is too big after PPP encoding (size %u, max is %u)\n",
+                l2tp_log(LOG_CRIT, "%s: rx packet is too big after PPP encoding (size %zu, max is %u)\n",
                                 __FUNCTION__, buf->len, MAX_RECV_SIZE);
             return -EINVAL;
         }
