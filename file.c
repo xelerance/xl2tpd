@@ -943,7 +943,12 @@ struct iprange *set_range (char *word, char *value, struct iprange *in)
 				count++;
 		}
 		if (count < 3) {
-			strcpy(ip_hi, value);
+			if (strlen(value) >= sizeof(ip_hi)) {
+				snprintf(filerr, sizeof(filerr), "IP address too long: %s\n", value);
+				free(ipr);
+				return NULL;
+			}
+			memcpy(ip_hi, value, strlen(value) + 1);
 			for (e = ip_hi + sizeof(ip_hi); e >= ip_hi; e--) {
 				if (*e == '.') count--;
 				if (count < 0) {
