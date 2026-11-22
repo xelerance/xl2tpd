@@ -1,4 +1,9 @@
-v1.3.21dev1 (Nov 12, 2026)
+v1.3.21rc1 (November 22, 2026)
+* Fix compiler warnings for l2tp_log validation [Jinho Kim]
+* network: Fix NULL dereference. [Jaco Kroon]
+* Enable printf format warnings on l2tp_log. [Jaco Kroon]
+* Fix l2tp_log format warnings introduced by previous commit. [Jaco Kroon]
+* misc: avoid incompatible structure aliasing in swaps() [Sharelter]
 * Accept SCCRQ of a restarted peer over its stale tunnel [AdzerKI]
 * Validate header length in network_thread() [Jinho Kim]
 * Adding release process description [Samir Hussain]
