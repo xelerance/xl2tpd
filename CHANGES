@@ -1,4 +1,6 @@
-v1.3.21rc1 (November 22, 2026)
+v1.3.21 (November 27, 2026)
+* Start IP range scan at string terminator in file.c [Jinho Kim. REported by i-Zer0]
+* Fix unbounded strcpy in file.c [Jinho Kim. Reported by i-Zer0]
 * Fix compiler warnings for l2tp_log validation [Jinho Kim]
 * network: Fix NULL dereference. [Jaco Kroon]
 * Enable printf format warnings on l2tp_log. [Jaco Kroon]
