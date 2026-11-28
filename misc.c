@@ -184,7 +184,7 @@ void swaps (void *buf_v, int len)
        to make things work out easier */
     int x;
     unsigned char t1;
-    unsigned char *tmp = (_u16 *) buf_v;
+    unsigned char *tmp = buf_v;
     for (x = 0; x < len; x += 2)
     {
         t1 = tmp[x];
