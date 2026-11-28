@@ -97,6 +97,7 @@ struct lns
     int proxyauth;              /* Allow proxy authentication? */
     int debug;                  /* Debug PPP? */
     int pass_peer;              /* Pass peer IP to pppd as ipparam? */
+    int trust_remotenumber;     /* Whether or not to trust remotely supplied "Dialing Number" AVP */
     char pppoptfile[STRLEN];    /* File containing PPP options */
     struct tunnel *t;           /* Tunnel of this, if it's ready */
 };
